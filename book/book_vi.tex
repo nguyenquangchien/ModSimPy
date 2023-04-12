@@ -1,6 +1,6 @@
 % LaTeX source for ``Modeling and Simulation in Python''
 % Copyright 2017  Allen B. Downey.
-% Bản tiếng Việt 2019: Nguyễn Quang Chiến 
+% Bản tiếng Việt 2019, 2023: Nguyễn Quang Chiến 
 
 % License: Creative Commons Attribution-NonCommercial 4.0 Unported License.
 % https://creativecommons.org/licenses/by-nc/4.0/
@@ -3742,63 +3742,63 @@ Cũng giống với một \py{DataFrame}, ta có thể dùng toán tử dấu ch
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap11.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
-\chapter{Optimization}
+\chapter{Tối ưu hóa}
 \label{chap12}
 
-In the previous chapter I presented the SIR model of infectious disease and used it to model the Freshman Plague at Olin.  In this chapter we'll consider metrics intended to quantify the effect of the disease and interventions that might reduce the negative effects.
+Ở chương trước, tôi đã trình bày mô hình SIR về bệnh truyền nhiễm và dùng nó để mô hình hóa bệnh dịch tân sinh viên tại Olin. Ở chương này, ta sẽ xét những thang đo hay metric được thiết kế để đánh giá hiệu ứng của dịch bệnh và những can thiệp vốn có thể làm giảm những  hiệu ứng tiêu cực.
 
 
-\section{Metrics}
+\section{Metric}
 \label{metrics2}
 
-When we plot a time series, we get a view of everything that happened when the model ran, but often we want to boil it down to a few numbers that summarize the outcome.  These summary statistics are called {\bf metrics}, as we saw in Section~\ref{metrics}.
+Khi ta vẽ đồ thị một chuỗi số liệu thời gian, ta sẽ có được một cái nhìn  tổng thể những gì đã xảy ra khi mô hình chạy. Nhưng thường a muốn kết tinh lại thành vài con số để tóm tắt kết quả. Những số thống kê tóm tắt đó là {\bf metric}, như ta đã thấy ở Mục~\ref{metrics}.
 
 \index{metric}
 
-In the SIR model, we might want to know the time until the peak of the outbreak, the number of people who are sick at the peak, the number of students who will still be sick at the end of the semester, or the total number of students who get sick at any point.
+Trong mô hình SIR, có thể ta muốn biết thời gian đến tận đỉnh của sự lan tràn dịch bệnh, số người bị bệnh tại đỉnh dịch, số sinh viên vẫn còn bệnh vào cuối kì, hay tổng số sinh viên bị bệnh tại thời điểm bất kì.
 
-As an example, I will focus on the last one --- the total number of sick students --- and we will consider interventions intended to minimize it.
+Lấy ví dụ, tôi sẽ tập trung vào cái cuối cùng --- tổng số sinh viên bị bệnh --- và ta sẽ xét những sự can thiệp dự kiến để giảm thiểu nó.
 
-When a person gets infected, they move from \py{S} to \py{I}, so we can get the total number of infections by computing the difference in \py{S} at the beginning and the end:
+Khi một người bị nhiễm bệnh, họ chuyển từ  \py{S} sang \py{I}, bởi vậy ta có thể tìm số ca nhiễm bằng cách tính hiệu số \py{S} tại các thời điểm đầu và cuối:
 
 \begin{python}
 def calc_total_infected(results, system):
     return results.S[system.t0] - results.S[system.t_end]
 \end{python}
 
-In the notebook that accompanies this chapter, you will have a chance to write functions that compute other metrics.  Two functions you might find useful are \py{max} and \py{idxmax}.
+Ở sổ tính cho chương này, bạn sẽ có cơ hội viết các hàm tính những metric khác. Hai hàm mà bạn có thể thấy hữu ích là \py{max} và \py{idxmax}.
 
 \index{max}
 \index{idxmax}
  
-If you have a \py{Series} called \py{S}, you can compute the largest value of the series like this:
+Nếu bạn có một \py{Series} tên là \py{S}, bạn có thể tìm giá trị lớn nhất của dãy này như sau:
 
 \begin{python}
 largest_value = S.max()
 \end{python}
 
-And the label of the largest value like this:
+Và nhãn của giá trị lớn nhất như sau:
 
 \begin{python}
 time_of_largest_value = S.idxmax()
 \end{python}
 
-If the \py{Series} is a \py{TimeSeries}, the label you get from \py{idxmax} is a time or date.  You can read more about these functions in the \py{Series} documentation at \url{http://modsimpy.com/series}.
+Nếu \py{Series} là một chuỗi thời gian \py{TimeSeries}, thì nhãn mà bạn lấy từ \py{idxmax} sẽ là một thời điểm hoặc ngày tháng. Bạn có thể đọc thêm về những hàm  này trong tài liệu  \py{Series} tại \url{http://modsimpy.com/series}.
 
 \index{Series}
 
 
-\section{Immunization}
+\section{Miễn dịch}
 
-Models like this are useful for testing ``what if?" scenarios.  As an example, we'll consider the effect of immunization.
+Những mô hình như thế này rất hữu ích để kiểm tra các kịch bản ``điều gì sẽ xảy ra nếu...?". Lấy ví dụ, ta sẽ xét ảnh hưởng của sự miễn dịch.
 
-\index{immunization}
-\index{vaccine}
-\index{Freshman Plague}
+\index{miễn dịch}
+\index{vắc-xin}
+\index{Bệnh dịch tân sinh viên}
 
-Suppose there is a vaccine that causes a student to become immune to the Freshman Plague without being infected.  How might you modify the model to capture this effect?
+Giả sử có một loại vắc-xin khiến cho sinh viên trở nên miễn nhiễm với dịch tân sinh viên này. Bạn cần phải chỉnh sửa mô hình ra sao để nắm bắt được hiệu ứng như vậy?
 
-One option is to treat immunization as a short cut from susceptible to recovered without going through infectious.  We can implement this feature like this:
+Một lựa chọn là coi miễn dịch như một cách đi tắt từ người bị nhiễm tới hồi phục mà không thông qua lây nhiễm. Ta có thể thực hiện đặc điểm này như sau:
 
 \begin{python}
 def add_immunization(system, fraction):
@@ -3806,7 +3806,7 @@ def add_immunization(system, fraction):
     system.init.R += fraction
 \end{python}
 
-\py{add_immunization} moves the given fraction of the population from \py{S} to \py{R}.  If we assume that 10\% of students are vaccinated at the beginning of the semester, and the vaccine is 100\% effective, we can simulate the effect like this:
+\py{add_immunization} chuyển một phần cho trước của tổng thể từ \py{S} sang \py{R}.  Nếu ta giả sử như 10\% số sinh viên được tiêm vắc-xin tại lúc bắt đầu học kì, và vắc-xin hiệu nghiệm 100\%, thì ta có thể mô phỏng hiệu ứng này như sau:
 
 \begin{python}
 system2 = make_system(beta, gamma)
@@ -3814,17 +3814,17 @@ add_immunization(system2, 0.1)
 results2 = run_simulation(system2, update_func)
 \end{python}
 
-For comparison, we can run the same model without immunization and plot the results.  Figure~\ref{chap05-fig02} shows \py{S} as a function of time, with and without immunization.  
+Để so sánh, ta có thể chạy cùng mô hình không có miễn dịch và vẽ biểu đồ kết quả. Hình ~\ref{chap05-fig02} cho thấy \py{S} như một hàm theo thời gian, có và không có sự miễn dịch.
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap05-fig02.pdf}}
-\caption{Time series for \py{S}, with and without immunization.}
+\caption{Chuỗi thời gian của \py{S}, có và không có sự miễn dịch.}
 \label{chap05-fig02}
 \end{figure}
 
-Without immunization, almost 47\% of the population gets infected at some point.  With 10\% immunization, only 31\% gets infected.  That's pretty good.
+Khi không có miễn dịch, gần 47\% tổng thể sẽ bị lây nhiễm tại một thời điểm nhất định. Với 10\% miễn dịch, chỉ 31\% bị lây nhiễm. Như vậy là khá tốt.
 
-Now let's see what happens if we administer more vaccines.  This following function sweeps a range of immunization rates:
+Bây giờ hãy cùng xem điều gì sẽ xảy ra nếu ta chỉ định thêm vắc-xin. Hàm dưới đây sẽ quét qua một khoảng các trị số tỉ lệ miễn dịch:
 
 \index{sweep}
 
@@ -3841,76 +3841,73 @@ def sweep_immunity(immunize_array):
     return sweep
 \end{python}
 
-The parameter of \py{sweep_immunity} is an array of immunization rates.  The result is a \py{SweepSeries} object that maps from each immunization rate to the resulting fraction of students ever infected.
+Tham số \py{sweep_immunity} là một mảng các tỉ lệ miễn dịch. Kết quả là một đối tượng  \py{SweepSeries} trong đó ánh xạ từng tỉ lệ miễn dịch tới kết quả tỉ lệ sinh viên từng bị nhiễm bệnh.
   
-\index{SweepSeries object}
-\index{parameter sweep}
+\index{SweepSeries (đối tượng)}
+\index{quét tham số}
 
-Figure~\ref{chap05-fig03} shows a plot of the \py{SweepSeries}.  Notice that the x-axis is the immunization rate, not time.
+Hình~\ref{chap05-fig03} cho thấy biểu đồ của \py{SweepSeries}.  Lưu ý rằng trục x là tỉ lệ miễn dịch chứ không phải thời gian.
 
-As the immunization rate increases, the number of infections drops steeply.  If 40\% of the students are immunized, fewer than 4\% get sick.  That's because immunization has two effects: it protects the people who get immunized (of course) but it also protects the rest of the population. 
+Khi tỉ lệ miễn dịch tăng lên, số các ca nhiễm giảm mạnh. Nếu 40\% số sinh viên được miễn dịch thì sẽ chỉ dưới 4\% bị bệnh thôi. Đó là vì sự miễn dịch có 2 tác dụng: nó bảo vệ người miễn dịch (dĩ nhiên rồi) những cũng bảo vệ phần còn lại của tổng thể.
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap05-fig03.pdf}}
-\caption{Fraction of the population infected as a function of immunization rate.}
+\caption{Số phần của tổng thể bị nhiễm bệnh như một hàm số phụ thuộc vào tỉ lệ miễn dịch.}
 \label{chap05-fig03}
 \end{figure} 
 
-Reducing the number of ``susceptibles" and increasing the number of ``resistants" makes it harder for the disease to spread, because some fraction of contacts are wasted on people who cannot be infected.  This phenomenon is called {\bf herd immunity}, and it is an important element of public health (see \url{http://modsimpy.com/herd}).
+Việc giảm số các ``người nhiễm" và tăng số ``người miễn dịch" khiến cho bệnh dịch khó lây lan hơn, vì một phần của những lượt tiếp xúc lại hướng đến những người không thể bị nhiễm bệnh rồi. Hiện tượng này được gọi là {\bf miễn dịch cộng đồng}, và cơ chế này đóng vai trò quan trọng trong y tế cộng đồng (xem \url{http://modsimpy.com/herd}).
 
-\index{herd immunity}
+\index{miễn dịch cộng đồng}
 
-The steepness of the curve in Figure~\ref{chap05-fig03} is a blessing and a curse.  It's a blessing because it means we don't have to immunize everyone, and vaccines can protect the ``herd" even if they are not 100\% effective.
+Độ dốc của đường cong trên Hình~\ref{chap05-fig03} có cả tốt lẫn xấu. Mặt tốt là vì ta không cần phải cho tất cả mọi người miễn dịch, và vắc-xin có thể bảo vệ cộng đồng ngay cả khi thuốc này không công hiệu 100\%.
 
-But it's a curse because a small decrease in immunization can cause a big increase in infections.  In this example, if we drop from 80\% immunization to 60\%, that might not be too bad.  But if we drop from 40\% to 20\%, that would trigger a major outbreak, affecting more than 15\% of the population.  For a serious disease like measles, just to name one, that would be a public health catastrophe.
+Nhưng ở đó cũng có mặt xấu vì một sự giảm nhẹ về miễn dịch có thể làm tăng mạnh những ca nhiễm. Ở ví dụ này, nếu ta giảm tỉ lệ miễn dịch từ 80\% xuống còn 60\%, thì tình hình còn chưa tệ. Nhưng nếu giảm tiếp từ 40\% xuống 20\%, thì điều đó sẽ kích hoạt sự bùng phát mạnh, ảnh hưởng hơn 15\% dân số tổng thể. Với một căn bệnh nặng như sởi chẳng hạn, thì đó sẽ là một thảm họa với y tế cộng đồng.
 
-\index{measles}
+\index{bệnh sởi}
 
-One use of models like this is to demonstrate phenomena like herd immunity and to predict the effect of interventions like vaccination.  Another use is to evaluate alternatives and guide decision making.  We'll see an example in the next section.
-
-
+Một tác dụng của những mô hình như thế này là biểu diễn những hiện tượng như miễn dịch cộng đồng và dự đoán hiệu ứng của những biện pháp can thiệp như tiêm vắc-xin. Một ứng dụng khác là để đánh giá những phương án và định hướng việc ra quyết định. Ta sẽ thấy một ví dụ trong mục tiếp theo.
 
 
+\section{Rửa tay}
 
-\section{Hand washing}
-
-Suppose you are the Dean of Student Life, and you have a budget of just \$1200 to combat the Freshman Plague.  You have two options for spending this money:
+Giả sử bạn là Trưởng ban Đời sống sinh viên, và bạn chỉ có quỹ \$1200  để chống lại Bệnh dịch tân sinh viên. Bạn có hai phương án tiêu số tiền này:
 
 \begin{enumerate}
 
-\item You can pay for vaccinations, at a rate of \$100 per dose.
+\item Bạn có thể chi trả việc tiêm vắc-xin với giá \$100 mỗi liều.
 
-\item You can spend money on a campaign to remind students to wash hands frequently.
+\item Bạn có thể tiêu tiền để vận động tuyên truyền cho sinh viên rửa tay thường xuyên.
 
 \end{enumerate}
 
-We have already seen how we can model the effect of vaccination.  Now let's think about the hand-washing campaign.  We'll have to answer two questions:
+Ta đã thấy rằng có thể mô hình hóa hiệu ứng của vắc-xin như thế nào rồi. Giờ ta hãy nghĩ về vận động tuyên truyền rửa tay. Ta sẽ phải trả lời hai câu hỏi:
 
 \begin{enumerate}
 
-\item How should we incorporate the effect of hand washing in the model?
+\item Làm thế nào để đưa hiệu ứng của việc rửa tay vào mô hình này?
 
-\item How should we quantify the effect of the money we spend on a hand-washing campaign?
+\item Làm thế nào để định lượng hiệu ứng của số tiền dành cho tổ chức vận động tuyên truyền cho rửa tay?
 
 \end{enumerate}
 
-For the sake of simplicity, let's assume that we have data from a similar campaign at another school showing that a well-funded campaign can change student behavior enough to reduce the infection rate by 20\%.  
+Để đơn giản, hãy giả sử rằng ta đã có dữ liệu của một đợt vận động tương tự ở một trường học khác, trong đó cho thấy rằng một đợt vận động được đầu tư đầy đủ sẽ làm thay đổi hành động của cộng đồng sinh viên đến mức giảm được tỉ lệ nhiễm bớt được 20\%.  
 
-In terms of the model, hand washing has the effect of reducing \py{beta}.  That's not the only way we could incorporate the effect, but it seems reasonable and it's easy to implement.
+Xét về khía cạnh mô hình, việc rửa tay có hiệu ứng làm giảm \py{beta}.  Đó không phải cách duy nhất mà ta có thẻ đưa hiệu ứng vào, nhưng nó có vẻ hợp lý và dễ thực hiện.
 
-Now we have to model the relationship between the money we spend and the effectiveness of the campaign.  Again, let's suppose we have data from another school that suggests:
+Bây giờ ta phải mô hình hóa mối liên hệ giữa số tiền chi và hiệu quả của cuộc vận động. Một lần nữa, hãy giả sử rằng dữ liệu từ ngôi trường khác cho thấy:
 
 \begin{itemize}
 
-\item If we spend \$500 on posters, materials, and staff time, we can change student behavior in a way that decreases the effective value of \py{beta} by 10\%.
+\item Nếu ta chi \$500 cho các poster, vật liệu và thời gian lao động, thì ta có thể làm thay đổi biểu hiện của học sinh theo cách làm giảm giá trị hiệu quả của \py{beta} đi 10\%.
 
-\item If we spend \$1000, the total decrease in \py{beta} is almost 20\%.
+\item Nếu ta chi \$1000, mức tăng tổng cộng của \py{beta} sẽ gần bằng 20\%.
 
-\item Above \$1000, additional spending has little additional benefit.
+\item Quá \$1000, những chi tiêu vượt thêm chỉ mang lại ít lợi ích.
 
 \end{itemize}
 
-In the notebook for this chapter you will see how I used a logistic curve to fit this data.  The result is the following function, which takes spending as a parameter and returns \py{factor}, which is the factor by which \py{beta} is reduced:
+Ở cuốn sổ tính cho chương này bạn sẽ thấy tôi dùng một đường cong logit để khớp số liệu này như thế nào. Kết quả là hàm dưới đây, hàm này nhận vào tham số và trả lại một \py{factor}, tức là một hệ số mà \py{beta} sẽ bị giảm bớt đi:
 
 \index{logistic curve}
 
@@ -3919,7 +3916,7 @@ def compute_factor(spending):
     return logistic(spending, M=500, K=0.2, B=0.01)
 \end{python}
 
-I use \py{compute_factor} to write \py{add_hand_washing}, which takes a \py{System} object and a budget, and modifies \py{system.beta} to model the effect of hand washing:
+Tôi dùng \py{compute_factor} để viết \py{add_hand_washing}, hàm này nhận vào một đối tượng \py{System} và một số tiền quỹ, rồi thay đổi \py{system.beta} để mô hình hóa hiệu ứng của việc rửa tay:
 
 \begin{python}
 def add_hand_washing(system, spending):
@@ -3927,7 +3924,7 @@ def add_hand_washing(system, spending):
     system.beta *= (1 - factor)
 \end{python}
 
-Now we can sweep a range of values for \py{spending} and use the simulation to compute the effect:
+Bây giờ ta có thể quét một khoảng giá trị cho \py{spending} và dùng mô phỏng này để tính toán hiệu ứng:
 
 \begin{python}
 def sweep_hand_washing(spending_array):
@@ -3942,7 +3939,7 @@ def sweep_hand_washing(spending_array):
     return sweep
 \end{python}
 
-Here's how we run it:
+Và dưới đây là cách ta chạy nó:
 
 \begin{python}
 spending_array = linspace(0, 1200, 20)
@@ -3951,26 +3948,26 @@ infected_sweep = sweep_hand_washing(spending_array)
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap05-fig05.pdf}}
-\caption{Fraction of the population infected as a function of hand-washing campaign spending.}
+\caption{Phần của dân số bị nhiễm bệnh như mọt hàm số phụ thuộc vào số tiền chi vận động rửa tay.}
 \label{chap05-fig05}
 \end{figure} 
 
-Figure~\ref{chap05-fig05} shows the result.  Below \$200, the campaign has little effect.  At \$800 it has a substantial effect, reducing total infections from 46\% to 20\%.  Above \$800, the additional benefit is small.
+Hình~\ref{chap05-fig05} cho thấy kết quả. Dưới mức \$200, cuộc vận động ít hiệu quả. Ở mức \$800, nó có hiệu quả đáng kể, giảm tỉ lệ nhiễm tổng cộng từ 46\% xuống còn 20\%.  Trên mức \$800, những lợi ích phụ thêm là rất nhỏ.
 
 
-\section{Optimization} 
+\section{Tối ưu hóa} 
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap05-fig06.pdf}}
-\caption{Fraction of the population infected as a function of the number of doses.}
+\caption{Phần của dân số bị nhiễm bệnh như mọt hàm số phụ thuộc vào số liều vắc-xin.}
 \label{chap05-fig06}
 \end{figure} 
 
-Let's put it all together.  With a fixed budget of \$1200, we have to decide how many doses of vaccine to buy and how much to spend on the hand-washing campaign.
+Ta hãy tổng hợp tất cả lại. Với một quỹ cố định \$1200, ta phải quyết định xem cần mua bao nhiêu bao nhiêu liều vắc-xin và phải tiêu bao nhiêu cho vận động tuyên truyền rửa tay.
 
-\index{optimization}
+\index{tối ưu hóa}
 
-Here are the parameters:
+Sau đây là các thông số:
 
 \begin{python}
 num_students = 90
@@ -3979,21 +3976,21 @@ price_per_dose = 100
 max_doses = int(budget / price_per_dose)
 \end{python}
 
-The fraction \py{budget/price_per_dose} might not be an integer.  \py{int} is a built-in function that converts numbers to integers, rounding down.
+Tỉ số \py{budget/price_per_dose} có thể không phải là một số nguyên. \py{int} là hàm dựng sẵn để quy đổi các số thành số nguyên, làm tròn xuống.
 
-We'll sweep the range of possible doses:
+Ta sẽ quét một loạt các liều lượng khả dĩ:
 
 \begin{python}
 dose_array = linrange(max_doses, endpoint=True)
 \end{python}
 
-In this example we call \py{linrange} with only one argument; it returns a NumPy array with the integers from 0 to \py{max_doses}.  With the argument \py{endpoint=True}, the result includes both endpoints.
+Ở ví dụ này ta gọi \py{linrange} với chỉ một đối số; nó trả lại một mảng NumPy array với các số nguyên từ 0 đến \py{max_doses}.  Với đối số \py{endpoint=True}, kết quả đã bao gồm cả hai đầu.
 
 \index{linrange}
 \index{NumPy}
- \index{array}
+\index{mảng}
 
-Then we run the simulation for each element of \py{dose_array}:
+Sau đó ta chạy mô phỏng cho từng phần tử của \py{dose_array}:
 
 \begin{python}
 def sweep_doses(dose_array):
@@ -4013,33 +4010,33 @@ def sweep_doses(dose_array):
     return sweep
 \end{python}
 
-For each number of doses, we compute the fraction of students we can immunize, \py{fraction} and the remaining budget we can spend on the campaign, \py{spending}.  Then we run the simulation with those quantities and store the number of infections.
+Với từng số liều, ta tính tỉ lệ sinh viên mà ta có thể gây miễn dịch, \py{fraction}, và số tiền còn lại có thể tiêu cho cuộc vận động, \py{spending}.  Sau đó ta chạy mô phỏng với những đại lượng này và lưu lại số ca nhiễm.
 
-Figure~\ref{chap05-fig06} shows the result.  If we buy no doses of vaccine and spend the entire budget on the campaign, the fraction infected is around 19\%.  At 4 doses, we have \$800 left for the campaign, and this is the optimal point that minimizes the number of students who get sick.
+Hình~\ref{chap05-fig06} cho thấy kết quả. Nếu ta không mua liều vắc-xin nào cả và tiêu toàn bộ tiền cho cuộc vận động, thì tỉ lệ nhiễm vào khoảng 19\%.  Với 4 liều, ta còn khoảng \$800 cho cuộc vận động, và đây là điểm tối ưu giúp cho cực tiểu hóa số sinh viên bị bệnh.
 
-As we increase the number of doses, we have to cut campaign spending, which turns out to make things worse.  But interestingly, when we get above 10 doses, the effect of herd immunity starts to kick in, and the number of sick students goes down again.
+Khi tăng số liều thuốc, ta phải cắt giảm chi tiêu cho vận động; điều đó hóa ra lại tồi tệ hơn. Nhưng dáng lưu tâm là khi ta áp dụng trên 10 liều thì ảnh hưởng miễn dịch cộng đồng bắt đầu phát huy tác dụng và số sinh viên bị bệnh lại giảm xuống.
 
-\index{herd immunity}
+\index{miễn dịch cộng đồng}
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap12.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc các sổ tính cho chương này, \py{chap12.ipynb}, và làm các bài tập. Để biết thông tini hướng dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 
-\chapter{Sweeping two parameters}
+\chapter{Quét hai tham số}
 \label{chap13}
 
-In the previous chapters I presented an SIR model of infectious disease, specifically the Kermack-McKendrick model.  We extended the model to include vaccination and the effect of a hand-washing campaign, and used the extended model to allocate a limited budget optimally, that is, to minimize the number of infections.
+Ở chương trước, tôi đã trình bày một mô hình SIR cho các bệnh truyền nhiễm, cụ thể là mô hình Kermack-McKendrick. Chúng ta đã mô hình hóa để bao gồm việc tiêm vắc-xin và hiệu ứng của cuộc vận động rửa tay, và dùng mô hình mở rộng này để điều động nguồn vốn hạn hẹp này một cách tối ưu, nghĩa là phải giảm thiểu số ca nhiễm.
 
-\index{Kermack-McKendrick model}
-\index{SIR model}
+\index{Kermack-McKendrick (mô hình)}
+\index{SIR (mô hình)}
 
-But we assumed that the parameters of the model, contact rate and recovery rate, were known.  In this chapter, we explore the behavior of the model as we vary these parameters, use analysis to understand these relationships better, and propose a method for using data to estimate parameters.
+Nhưng chúng ta đã giả sử rằng các tham số của mô hình, gồm tỉ lệ tiếp xúc và tỉ lệ phục hồi, đều đã biết. Nhưng ở chương này, chúng ta khảo sát ứng xử của mô hình này khi ta đã thay đổi các tham số nêu trên, dùng phép giải tích để hiểu rõ hơn về những mối liên hệ, và đề xuất một phương thức để dùng dữ liệu nhằm ước lượng các tham số.
 
 
-\section{Unpack}
+\section{Unpack - tháo dữ liệu}
 \label{unpack}
 
-Before we analyze the SIR model, I want to make a few improvements to the code.  In the previous chapter, we used this version of \py{run_simulation}:
+Trước khi phân tích mô hình SIR, tôi muốn cải thiện mã lệnh một chút. Ở chương trước, ta đã dùng phiên bản này của \py{run_simulation}:
 \index{\py{run_simulation}}
 
 \begin{python}
@@ -4053,10 +4050,10 @@ def run_simulation(system, update_func):
     system.results = frame
 \end{python}
 
-Because we read so many variables from \py{system}, this code is a bit cluttered.  We can clean it up using \py{unpack}, which is defined in the \py{modsim} library.  \py{unpack} takes a \py{System} object as a parameter and makes the system variables available without using the dot operator.  So we can rewrite \py{run_simulation} like this:
+Trước khi ta đọc rất nhiều biến từ \py{system}, mã lệnh này còn chút lủng củng. Ta có thể làm gọn nó bằng \py{unpack}, vốn được định nghĩa trong thư viện \py{modsim}.  \py{unpack} nhận vào một đối tượng \py{System} làm tham số và làm cho các biến hệ thống dùng được mà không phải viết dấu chấm. Bởi vậy ta có thể viết lại \py{run_simulation} như sau:
 
 \index{unpack}
-\index{System object}
+\index{System (đối tượng)}
 
 \begin{python}
 def run_simulation(system, update_func):
@@ -4071,21 +4068,21 @@ def run_simulation(system, update_func):
     system.results = frame
 \end{python}
 
-The variables you unpack should be treated as read-only.  Modifying them is not an error, but it might not have the behavior you expect.  In the notebook for this chapter, you can use \py{unpack} to clean up \py{update1}.
+Các biến mà bạn tháo được cần được coi là biến chỉ đọc. Nếu thay đổi chúng cũng sẽ không gây ra lỗi, song có thể nó không ứng xử như bạn mong đợi. Trong sổ tính chương này, bạn có thể dùng \py{unpack} để làm gọn \py{update1}.
 
 
-\section{Sweeping beta}
+\section{Quét beta}
 
-Recall that $\beta$ is the contact rate, which captures both the frequency of interaction between people and the fraction of those interactions that result in a new infection.  If $N$ is the size of the population and $s$ is the fraction that's susceptible, $s N$ is the number of susceptibles, $\beta s N$ is the number of contacts per day between susceptibles and other people, and $\beta s i N$ is the number of those contacts where the other person is infectious.
-\index{parameter sweep}
+Hãy nhớ lại rằng $\beta$ là tỉ lệ tiếp xúc, tham số này ghi nhận được cả tần  số tiếp xúc lẫn tỉ lệ các tiếp xúc chuyển thành ca nhiễm mới. Nếu $N$ là cỡ tổng thể và $s$ là tỉ lệ bị nhiễm bệnh thì $s N$ số người nhiễm, $\beta s N$ là số lượt tiếp xúc mỗi ngày giữa người nhiễm bệnh với những người khác, và $\beta s i N$ là số những lượt tiếp xúc  như vậy khi "người khác" đó cũng bị nhiễm bệnh.
+\index{quét tham số}
 
-As $\beta$ increases, we expect the total number of infections to increase.  To quantify that relationship, I'll create a range of values for $\beta$:
+Khi $\beta$ tăng, ta dự kiến rằng tổng số ca nhiễm cũng tăng lên. Để lượng hóa mối liên hệ này, tôi sẽ tạo một loạt các giá trị $\beta$:
 
 \begin{python}
 beta_array = linspace(0.1, 1.1, 11)
 \end{python}
 
-Then run the simulation for each value and print the results.
+Rồi chạy mô phỏng cho từng giá trị và in kết quả.
 
 \begin{python}
 for beta in beta_array:
@@ -4094,8 +4091,8 @@ for beta in beta_array:
     print(sir.beta, calc_total_infected(sir))
 \end{python}
 
-We can wrap that code in a function and store the results in a \py{SweepSeries} object:
-\index{SweepSeries object}
+Ta có thể bọc mã lệnh này vào một hàm rồi lưu kết quả vào một đối tượng \py{SweepSeries}:
+\index{SweepSeries (đối tượng)}
 
 \begin{python}
 def sweep_beta(beta_array, gamma):
@@ -4107,52 +4104,52 @@ def sweep_beta(beta_array, gamma):
     return sweep
 \end{python}
 
-Now we can run \py{sweep_beta} like this:
+Giờ thì ta có thể chạy \py{sweep_beta} như sau:
 
 \begin{python}
 infected_sweep = sweep_beta(beta_array, gamma)
 \end{python}
 
-And plot the results:
+Rồi vẽ kết quả:
 
 \begin{python}
 label = 'gamma = ' + str(gamma)
 plot(infected_sweep, label=label)
 \end{python}
 
-%TODO: figure out when to introduce strings
+%TODO: hình dung xem lúc nào nên giới thiệu các chuỗi
 
-The first line uses string operations to assemble a label for the plotted line:
-\index{string}
+Dòng đầu tiên sử dụng phép toán với chuỗi để dán nhãn lên đường đồ thị vừa vẽ:
+\index{chuỗi}
 
 \begin{itemize}
 
-\item When the \py{+} operator is applied to strings, it joins them end-to-end, which is called {\bf concatenation}. 
+\item Khi toán tử \py{+} được áp dụng cho chuỗi, nó nối tiếp các chuỗi thành vần, do vậy thao tác này được gọi là {\bf nối}. 
  
-\index{concatenation}
+\index{nối}
 
-\item The function \py{str} converts any type of object to a String representation.  In this case, \py{gamma} is a number, so we have to convert it to a string before trying to concatenate it.
+\item Hàm \py{str} quy đổi một đối tượng kiểu bất kì về một biểu diễn dạng chuỗi. Trong trường hợp này, \py{gamma} là một số, bởi vậy ta phải quy đổi nó thành chuỗi trước khi thực hiện ghép nối.
 
-\index{str function}
+\index{str (hàm)}
 
 \end{itemize}
 
-If the value of \py{gamma} is \py{0.25}, the value of \py{label} is the string \py{'gamma = 0.25'}.
+Nếu \py{gamma} có giá trị bằng \py{0.25}, \py{label} sẽ có giá trị là chuỗi \py{'gamma = 0.25'}.
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap06-fig01.pdf}}
-\caption{Total number of infected students as a function of the parameter \py{beta}, with \py{gamma = 0.25}.}
+\caption{Tổng số sinh viên nhiễm bệnh như một hàm phụ thuộc tham số \py{beta}, với \py{gamma = 0.25}.}
 \label{chap06-fig01}
 \end{figure}
 
-Figure~\ref{chap06-fig01} shows the results.  Remember that this figure is a parameter sweep, not a time series, so the x-axis is the parameter \py{beta}, not time.  
+Hình~\ref{chap06-fig01} cho thấy kết quả. Hãy nhớ rằng hình này thể hiện việc quét tham số chứ không phải một chuỗi thời gian; bởi vậy trục x là tham số \py{beta}, chứ không phải thời gian.
 
-When \py{beta} is small, the contact rate is low and the outbreak never really takes off; the total number of infected students is near zero.  As \py{beta} increases, it reaches a threshold near 0.3 where the fraction of infected students increases quickly.  When \py{beta} exceeds 0.5, more than 80\% of the population gets sick.
+Khi \py{beta} nhỏ, tốc độ tiếp xúc còn thấp và thực ra không có sự bùng phát bệnh; tổng số các sinh viên bị nhiễm gần bằng không. Khi \py{beta} tăng, nó đạt tới ngưỡng gần bằng 0.3, tại đó tỉ lệ các sinh viên bị nhiễm tăng nhanh chóng. Khi \py{beta} vượt quá 0.5, có hơn 80\% tổng thể bị bệnh.
 
 
-\section{Sweeping gamma}
+\section{Quét gamma}
 
-Now let's see what that looks like for a few different values of \py{gamma}.  Again, we'll use \py{linspace} to make an array of values:
+Bây giờ hãy cùng xem điều gì xuất hiện với vài trị số \py{gamma} khác nhau.  Ta sẽ lại dùng \py{linspace} để tạo một mảng các giá trị:
 
 \index{linspace}
 
@@ -4160,7 +4157,7 @@ Now let's see what that looks like for a few different values of \py{gamma}.  Ag
 gamma_array = linspace(0.1, 0.7, 4)
 \end{python}
 
-And run \py{sweep_beta} for each value of \py{gamma}:
+Rồi chạy \py{sweep_beta} cho từng giá trị \py{gamma}:
 
 \begin{python}
 for gamma in gamma_array:
@@ -4171,29 +4168,29 @@ for gamma in gamma_array:
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap06-fig02.pdf}}
-\caption{Total number of infected students as a function of the parameter \py{beta}, for several values of \py{gamma}.}
+\caption{Tổng số sinh viên bị nhiễm là một hàm phụ thuộc tham số \py{beta}, với vài giá trị của \py{gamma}.}
 \label{chap06-fig02}
 \end{figure}
 
-Figure~\ref{chap06-fig02} shows the results.  When \py{gamma} is low, the recovery rate is low, which means people are infectious longer.  In that case, even a low contact rate (\py{beta}) results in an epidemic.
+Hình~\ref{chap06-fig02} cho thấy kết quả. Khi \py{gamma} còn thấp, tốc độ hồi phục khá chậm, đồng nghĩa với việc người mắc bệnh lâu hơn. Trường hợp này, ngay cả một tốc độ tiếp xúc (\py{beta}) thấp vẫn gây nên đại dịch.
 
-When \py{gamma} is high, \py{beta} has to be even higher to get things going.  That observation suggests that there might be a relationship between \py{gamma} and \py{beta} that determines the outcome of the model.  In fact, there is.  In the next two chapters I demonstrate it by running simulations, then derive it by analysis.
+Khi \py{gamma} cao, \py{beta} thậm chí phải còn cao hơn nữa để mọi thứ tiếp diễn. Quan sát này gợi cho ta biết có thể tồn tại mối liên hệ giữa \py{gamma} và \py{beta} để quy định kết quả của mô hình. Và đúng là vậy. Trong hai chương sắp tới tôi sẽ thể hiện điều này bằng cách chạy mô phỏng và dùng toán để suy luận.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap13.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể cần đọc sổ tính của chương này \py{chap13.ipynb}, và làm các bài tập. Để biết cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
-\chapter{Analysis} 
+\chapter{Phân tích} 
 \label{chap14}
 
-In the previous chapters we used simulation to predict the effect of an infectious disease in a susceptible population and to design interventions that would minimize the effect.
+Ở những chương trước, ta dùng mô phỏng để dự đoán ảnh hưởng của một bệnh truyền nhiễm đối với cộng đồng có dễ tổn thương, và để thiết kế các biện pháp can thiệp giảm thiểu ảnh hưởng đó.
 
-In this chapter we use analysis to investigate the relationship between the parameters, \py{beta} and \py{gamma}, and the outcome of the simulation.
+Trong chương này, ta dùng toán phân tích để điều tra mối liên hệ giữa hai tham số, \py{beta} và \py{gamma}, cũng như kết quả của mô phỏng.
 
 
-\section{Nondimensionalization}
+\section{Phi thứ nguyên}
 \label{nondim}
 
-Before we go on, let's wrap the code from the previous chapter in a function:
+Trước khi tiếp tục, hãy cùng bọc mã lệnh từ chương trước vào trong một hàm:
 
 \begin{python}
 def sweep_parameters(beta_array, gamma_array):
@@ -4203,29 +4200,29 @@ def sweep_parameters(beta_array, gamma_array):
     return frame
 \end{python}
 
-\py{sweep_parameters} takes as parameters two arrays: a range of values for \py{beta} and a range of values for \py{gamma}.
+\py{sweep_parameters} nhận các tham số gồm hai mảng: một dãy các giá trị cho \py{beta} và một dãy các giá trị cho \py{gamma}.
 
-It creates a \py{SweepFrame} to store the results, with one column for each value of \py{gamma} and one row for each value of \py{beta}.  A \py{SweepFrame} is a kind of \py{DataFrame}, defined in the \py{modsim} library.  Its purpose is to store results from a two-dimensional parameter sweep.
-\index{SweepFrame object}
-\index{DataFrame object}
+Hàm này tạo ra một \py{SweepFrame} để lưu trữ kết quả, với mỗi cột lưu cho một giá trị \py{gamma} và mỗi hàng cho một giá trị \py{beta}.  \py{SweepFrame} là một dạng \py{DataFrame}, nhưng được định nghĩa trong thư viện \py{modsim}.  Mục đích của nó là để lưu các kết quả từ một lượt quét tham số hai chiều.
+\index{SweepFrame, đối tượng}
+\index{DataFrame, đối tượng}
 
-Each time through the loop, we run \py{sweep_beta}.  The result is a \py{SweepSeries} object with one element for each value of \py{gamma}.  The assignment
+Mỗi lần qua vòng lặp, ta lại chạy \py{sweep_beta}.  Kết quả là một đối tượng \py{SweepSeries} với mỗi phần tử cho từng giá trị \py{gamma}.  Phép gán
 
 \begin{python}
 frame[gamma] = sweep_beta(beta_array, gamma)
 \end{python}
 
-stores the values from the \py{SweepSeries} object as a new column in the \py{SweepFrame}, corresponding to the current value of \py{gamma}.
+sẽ lưu giá trị từ đối tượng \py{SweepSeries} thành một cột mới trong \py{SweepFrame}, tương ứng với giá trị hiện thời của \py{gamma}.
 
-At the end, the \py{SweepFrame} stores the fraction of students infected for each pair of parameters, \py{beta} and \py{gamma}.
+Sau cùng, \py{SweepFrame} lưu lại tỉ lệ sinh viên bị nhiễm ứng với từng cặp tham số, \py{beta} và \py{gamma}.
 
-We can run \py{sweep_parameters} like this:
+Ta có thể chạy \py{sweep_parameters} như sau:
 
 \begin{python}
 frame = sweep_parameters(beta_array, gamma_array)
 \end{python}
 
-Then we can loop through the results like this:
+Tiếp đó có thể lặp qua kết quả như sau:
 
 \begin{python}
 for gamma in frame.columns:
@@ -4235,37 +4232,37 @@ for gamma in frame.columns:
         print(beta, gamma, frac_infected)
 \end{python}
 
-This is the first example we've seen with one \py{for} loop inside another:
+Đây là ví dụ đàu tiên mà ta thấy có vòng lặp \py{for} đặt trong một vòng lặp khác:
 
 \begin{itemize}
 
-\item Each time the outer loop runs, it selects a value of \py{gamma} from the columns of the \py{DataFrame} and extracts the corresponding column as a \py{Series}.
+\item Mỗi lần vòng lặp bên ngoài chạy, nó chọn một giá trị \py{gamma} từ các cột của \py{DataFrame} rồi kết xuất cột tương ứng thành một dãy \py{Series}.
 \index{Series}
 
-\item Each time the inner loop runs, it selects a value of \py{beta} from the \py{Series} and selects the corresponding element, which is the fraction of student infected.
+\item Mỗi lần vòng lặp bên trong chạy, nó chọn một giá trị \py{beta} từ các \py{Series} rồi chọn phần tử tương ứng, tức là tỉ lệ sinh viên bị nhiễm.
 
 \end{itemize}  
 
-In this example, \py{frame} has 4 columns, one for each value of \py{gamma}, and 11 rows, one for each value of \py{beta}.  So these loops print 44 lines, one for each pair of parameters.
+Ở ví dụ này, \py{frame} có 4 cột, mỗi cột chứa một giá trị \py{gamma}, và 11 hàng, mỗi hàng chứa một giá trị \py{beta}. Bởi vậy các vòng lặp này in ra 44 hàng, mỗi hàng chứa một cặp tham số.
 
-Now let's think about possible relationships between \py{beta} and \py{gamma}:
+Bây giờ hãy cùng nghĩ về mối liên hệ khả dĩ giữa \py{beta} và \py{gamma}:
 
 \begin{itemize}
 
-\item When \py{beta} exceeds \py{gamma}, that means there are more contacts (that is, potential infections) than recoveries.  The difference between \py{beta} and \py{gamma} might be called the ``excess contact rate", in units of contacts per day.
+\item Khi \py{beta} vượt quá \py{gamma}, điều đó nghĩa là có nhiều lượt tiếp xúc (tức tiềm năng nhiễm) hơn là lượt phục hồi. Có thể gọi hiệu số giữa \py{beta} và \py{gamma} là ``tỉ lệ tiếp xúc vượt", đơn vị đo là số lượt tiếp xúc mỗi ngày.
 
-\item As an alternative, we might consider the ratio \py{beta/gamma}, which is the number of contacts per recovery.  Because the numerator and denominator are in the same units, this ratio is {\bf dimensionless}, which means it has no units.
-\index{dimensionless}
+\item Một cách khác là xét tỉ số \py{beta/gamma}, đây là số lượt tiếp xúc ứng với mỗi ca phục hồi. Vì tử số và mẫu số cùng đơn vị nhau nên tỉ số này là {\bf phi thứ nguyên}, nó không có đơn vị.
+\index{phi thứ nguyên}
 
 \end{itemize}
 
-Describing physical systems using dimensionless parameters is often a useful move in the modeling and simulation game.  It is so useful, in fact, that it has a name: {\bf nondimensionalization} (see \url{http://modsimpy.com/nondim}).
+Trong trò chơi mô hình hóa và mô phỏng, một nước đi quan trọng là việc mô tả các hệ thống vật lí bằng những tham số phi thứ nguyên. Nó quan trọng đến nỗi có hẳn một tên riêng: {\bf phi thứ nguyên hóa} (xem \url{http://modsimpy.com/nondim}).
 
-\index{nondimensionalization}
+\index{phi thứ nguyên hóa}
 
-So we'll try the second option first.  In the notebook for this chapter, you can explore the first option as an exercise.
+Ta sẽ thử phương án thứ hai trước. Ở cuốn sổ lệnh cho chương này, bạn cũng có thể khám phá phương án thứ nhất, coi đó như một bài tập.
 
-The following function wraps the previous loops and plots the fraction infected as a function of the ratio \py{beta/gamma}:
+Hàm sau đây sẽ gói các vòng lặp đã nêu rồi vẽ đồ thị tỉ lệ nhiễm phụ thuộc theo tỉ số \py{beta/gamma}:
 
 \begin{python}
 def plot_sweep_frame(frame):
@@ -4278,24 +4275,24 @@ def plot_sweep_frame(frame):
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap06-fig03.pdf}}
-\caption{Total fraction infected as a function of contact number.}
+\caption{Tỉ lệ nhiễm tổng cộng phụ thuojc theo số ca tiếp xúc.}
 \label{chap06-fig03}
 \end{figure}
 
-Figure~\ref{chap06-fig03} shows that the results fall neatly on a single curve, at least approximately.  That means that we can predict the fraction of students who will be infected based on a single parameter, the ratio \py{beta/gamma}.  We don't need to know the values of \py{beta} and \py{gamma} separately.
+Hình~\ref{chap06-fig03} cho thấy rằng các điểm kết quả sẽ xếp thành một hàng thẳng, hay ít ra là gần được như vậy. Điều đó nghĩa là ta đã dự đoán được tỉ lệ sinh viên sẽ bị nhiễm dựa trên một tham số thôi, đó là tỉ số \py{beta/gamma}.  Ta không phải biết cụ thể từng giá trị \py{beta} và \py{gamma}.
 
 
-\section{Contact number}
+\section{Số ca tiếp xúc}
 \label{contact}
 
-Recall that the number of new infections in a given day is $\beta s i N$, and the number of recoveries is $\gamma i N$.  If we divide these quantities, the result is $\beta s / \gamma$, which is the number of new infections per recovery (as a fraction of the population).
+Hãy nhớ lại rằng trong một ngày nhất định, số ca nhiễm mới sẽ là $\beta s i N$, và số ca hồi phục là $\gamma i N$.  Nếu ta đem chia hai đại lượng này, kết quả là $\beta s / \gamma$, chính là số ca nhiễm mới tính trên mỗi ca hồi phục (như một tỉ lệ phần dân số).
 
-\index{contact number}
-\index{basic reproduction number}
+\index{số tiếp xúc | contact number}
+\index{số tái tạo cơ bản | basic reproduction number}
 
-When a new disease is introduced to a susceptible population, $s$ is approximately 1, so the number of people infected by each sick person is $\beta / \gamma$.  This ratio is called the ``contact number" or ``basic reproduction number" (see \url{http://modsimpy.com/contact}).  By convention it is usually denoted $R_0$, but in the context of an SIR model, this notation is confusing, so we'll use $c$ instead.
+Khi một căn bệnh mới ảnh hưởng đến nhóm dân cư dễ tổn thương, thì $s$ xấp xỉ bằng 1, vậy số người bị nhiễm bởi mỗi người bệnh sẽ là $\beta / \gamma$.  Tỉ số này được gọi là ``tiếp xúc" hoặc ``số tái tạo cơ bản" (xem \url{http://modsimpy.com/contact}).  Theo quy ước, nó thường được viết là $R_0$, nhưng trong ngữ cảnh mô hình SIR, cách viết này sẽ dễ hiểu lầm nên ta dùng kí hiệu $c$.
 
-The results in the previous section suggest that there is a relationship between $c$ and the total number of infections.  We can derive this relationship by analyzing the differential equations from Section~\ref{sireqn}:
+Kết quả ở mục trên gợi ý rằng có mối liên hệ giữa $c$ và tổng số ca nhiễm. Ta có thể rút ra mối liên hệ này bằng cách phân tích các phương trình vi phân từ Mục~\ref{sireqn}:
 %
 \begin{align*}
 \frac{ds}{dt} &= -\beta s i \\
@@ -4303,61 +4300,61 @@ The results in the previous section suggest that there is a relationship between
 \frac{dr}{dt} &= \gamma i
 \end{align*}
 %
-In the same way we divided the contact rate by the infection rate to get the dimensionless quantity $c$, now we'll divide $di/dt$ by $ds/dt$ to get a ratio of rates:
+Theo cách tương tự, ta đem chia tốc độ tiếp xúc cho tốc độ nhiễm để thu được đại lượng phi thứ nguyên $c$, bây giờ ta sẽ đem chia $di/dt$ cho $ds/dt$ để thu được tỉ số các tốc độ:
 %
 \[ \frac{di}{ds} = -1 + \frac{1}{cs} \]
 %
-Dividing one differential equation by another is not an obvious move, but in this case it is useful because it gives us a relationship between $i$, $s$ and $c$ that does not depend on time.  From that relationship, we can derive an equation that relates $c$ to the final value of $S$.  In theory, this equation makes it possible to infer $c$ by observing the course of an epidemic.
+Việc chia một phương trình vi phân này cho một phương trình vi phân khác không thật hiển nhiên, nhưng ở đây sẽ hữu ích vì nó cho ta liên hệ giữa $i$, $s$ và $c$ mà không phụ thuộc vào thời gian. Từ liên hệ này, ta có thể rút ra một phương trình gắn $c$ với giá trị cuối cùng của $S$.  Trên lý thuyết, phương trình này cho phép ta suy ra $c$ bằng cách quan sát quá trình đợt dịch.
 
-Here's how the derivation goes.  We multiply both sides of the previous equation by $ds$:
+Sau đây là cách biến đổi toán học. Ta nhân cả hai vế phương trình trên với $ds$:
 %
 \[ di = \left( -1 + \frac{1}{cs} \right) ds \]
 %
-And then integrate both sides:
+Và rồi lấy tích phân cả hai vế:
 %
 \[ i = -s + \frac{1}{c} \log s + q \]
 %
-where $q$ is a constant of integration.  Rearranging terms yields:
+trong đó $q$ là hằng số tích phân. Sắp xếp lại các số hạng, ta được:
 %
 \[ q = i + s - \frac{1}{c} \log s \]
 %
-Now let's see if we can figure out what $q$ is.  At the beginning of an epidemic, if the fraction infected is small and nearly everyone is susceptible, we can use the approximations $i(0) = 0$ and $s(0) = 1$ to compute $q$:
+Bây giờ hãy xem liệu ta có thể hình dung ra $q$ bằng bao nhiêu. Ở đầu đợt dịch, nếu tỉ lệ nhiễm còn nhỏ và gần như mọi người đều dễ bị nhiễm, ta có thể dùng cách xấp xỉ $i(0) = 0$ và $s(0) = 1$ để tính $q$:
 %
 \[ q = 0 + 1 + \frac{1}{c} \log 1 \]
 %
-Since $\log 1 = 0$, we get $q = 1$.
-\index{integration}
-\index{constant of integration}
+Vì $\log 1 = 0$, ta có $q = 1$.
+\index{tích phân | integration}
+\index{hằng số tích phân | constant of integration}
 
 \newcommand{\sinf}{s_{\infty}}
 
-Now, at the end of the epidemic, let's assume that $i(\infty) = 0$, and $s(\infty)$ is an unknown quantity, $\sinf$.  Now we have:
+Bây giờ, ở cuối đợt dịch, ta hãy giả sử rằng $i(\infty) = 0$, và $s(\infty)$ là một đại lượng chưa biết, $\sinf$.  Bây giờ ta có:
 %
 \[ q = 1 = 0 + \sinf - \frac{1}{c} \log \sinf \]
 %
-Solving for $c$, we get
+Giải ra tìm $c$, ta thu được
 %
 \[ c = \frac{\log \sinf}{\sinf - 1} \]
 %
-By relating $c$ and $\sinf$, this equation makes it possible to estimate $c$ based on data, and possibly predict the behavior of future epidemics.
+Bằng cách liên hệ $c$ và $\sinf$, phương trình này cho phép ta ước tính $c$ dựa trên số liệu, và có thể dự đoán động thái của những dịch bệnh trong tương lai.
 
-\section{Analysis and simulation}
+\section{Phân tích và mô phỏng}
 
-Let's compare this analytic result to the results from simulation.
-I'll create an array of values for $\sinf$
+Hãy cùng so sánh nghiệm giải tích này với kết quả mô phỏng.
+Tôi sẽ tạo một mảng chứa các giá trị của $\sinf$
 \index{linspace}
 
 \begin{python}
 s_inf_array = linspace(0.0001, 0.9999, 31)
 \end{python}
 
-And compute the corresponding values of $c$:
+Rồi tính các giá trị tương ứng của $c$:
 
 \begin{python}
 c_array = log(s_inf_array) / (s_inf_array - 1)
 \end{python}
 
-To get the total infected, we compute the difference between $s(0)$ and $s(\infty)$, then store the results in a \py{Series}:
+Để thu được tổng số người nhiễm, ta đi tính hiệu số giữa $s(0)$ và $s(\infty)$, rồi lưu kết quả vào một dãy \py{Series}:
 \index{array}
 \index{series}
 
@@ -4366,9 +4363,9 @@ frac_infected = 1 - s_inf_array
 frac_infected_series = Series(frac_infected, index=c_array)
 \end{python}
 
-Recall from Section~\ref{dataframe} that a \py{Series} object contains an index and a corresponding sequence of values.  In this case, the index is \py{c_array} and the values are from \py{frac_infected}.
+Hãy nhớ rằng trong Mục~\ref{dataframe}, một đối tượng \py{Series} có chứa một chỉ số cùng một chuỗi giá trị tương ứng. Ở đây, chỉ số là \py{c_array} còn các giá trị nhận được từ \py{frac_infected}.
 
-Now we can plot the results:
+Bây giờ ta có thể vẽ đồ thị kết quả:
 
 \begin{python}
 plot(frac_infected_series)
@@ -4376,31 +4373,29 @@ plot(frac_infected_series)
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap06-fig04.pdf}}
-\caption{Total fraction infected as a function of contact number, showing results from simulation and analysis.}
+\caption{Tổng tỉ lệ nhiễm biểu diễn như hàm số các ca tiếp xúc, cho thấy kết quả từ mô phỏng và nghiệm giải tích.}
 \label{chap06-fig04}
 \end{figure}
 
-Figure~\ref{chap06-fig04} compares the analytic results from this section with the simulation results from Section~\ref{nondim}.  Over most of the range they are consistent with each other, with one discrepancy: when the contact number is less than 1, analysis indicates there should be no infections; but in the simulations a small part of the population is affected even when $c<1$.
+Hình~\ref{chap06-fig04} so sánh kết quả nghiệm giải tích của mục này với kết quả mô phỏng từ Mục~\ref{nondim}. Trong phần lớn khoảng giá trị, hai kết quả này tương đồng nhau, chỉ với một khác biệt: khi số ca tiếp xúc nhỏ hơn 1 thì nghiệm giải tích cho thấy không có lây nhiễm; nhưng trong mô phỏng một phần nhỏ của tổng thể vẫn bị ảnh hưởng ngay cả khi $c<1$.
 \index{analysis}
 
-The reason for the discrepancy is that the simulation divides time into a discrete series of days, whereas the analysis treats time as a continuous quantity.  In other words, the two methods are actually based on different models.  So which model is better?
+Lí do về sự khác biệt này là: cách mô phỏng đã chia thời gian thành chuỗi những ngày rời lẻ, trong khi nghiệm giải tích lại coi thời gian như đại lượng liên tục. Nói cách khác, hai phương pháp này thực ra là dựa trên các mô hình khác nhau. Vậy mô hình nào tốt hơn?
 
-Probably neither.  When the contact number is small, the early progress of the epidemic depends on details of the scenario.  If we are lucky, the original infected person, ``patient zero",  infects no one and there is no epidemic.  If we are unlucky, patient zero might have a large number of close friends, or might work in the dining hall (and fail to observe safe food handling procedures).
-\index{patient zero}
+Có lẽ không thể nói được. Nếu số ca nhiễm còn thấp, quá trình lây lan ban đầu phụ thuộc vào chi tiết kịch bản. Nếu ta may mắn, người nhiễm đầu tiên, ``bệnh nhân số không", chỉ nhiễm cho không quá một người và sẽ không có đại dịch xảy ra. Nhưng nếu xui rủi, bệnh nhân số không có thể có nhiều bạn thân, hoặc họ làm việc ở nhà ăn (mà quên thực hành quy tắc vệ sinh an toàn thực phẩm).
+\index{bệnh nhân số không | patient zero}
 
-For contact numbers near or less than 1, we might need a more detailed model.  But for higher contact numbers the SIR model might be good enough.
+Với số ca tiếp xúc gần bằng hoặc nhỏ hơn 1, ta có thể cần tới một mô hình chi tiết hơn. Nhưng với các số ca tiếp xúc cao thì mô hình SIR có lẽ cũng đủ chính xác.
 
-Figure~\ref{chap06-fig04} shows that if we know the contact number, we can compute the fraction infected.  But we can also read the figure the other way; that is, at the end of an epidemic, if we can estimate the fraction of the population that was ever infected, we can use it to estimate the contact number.
+Hình~\ref{chap06-fig04} cho thấy rằng nếu ta biết được số ca tiếp xúc thì ta sẽ tính được tỉ lệ lây nhiễm. Nhưng ta cũng có thể đọc điều này theo chiều hướng ngược lại, như sau: Ở cuối thời kì đại dịch, nếu ta ước tính được tỉ lệ dân số đã từng bị nhiễm thì ta có thể dùng nó để tính ra số tiếp xúc.
 
-Well, at least in theory.  In practice, it might not work very well, because of the shape of the curve.  When the contact number is near 2, the curve is quite steep, which means that small changes in $c$ yield big changes in the number of infections.  If we observe that the total fraction infected is anywhere from 20\% to 80\%, we would conclude that $c$ is near 2.
+Hoặc chí ít cũng như vậy trên lý thuyết. Còn trong thực tế, điều này có thể không đúng lắm, vì hình dạng của đường cong đồ thị. Khi số tiếp xúc gần bằng 2 thì đường đồ thị sẽ rất dốc, nghĩa là một sự thay đổi $c$ rất nhỏ sẽ dẫn tới việc số lây nhiễm thay đổi rất lớn. Nếu ta quan sát thấy tổng tỉ lệ nhiễm rơi vào khoảng từ 20\% đến 80\%, thì ta có thể kết luận rằng $c$ gần bằng 2.
 
-On the other hand, for larger contact numbers, nearly the entire population is infected, so the curve is quite flat.  In that case we would not be able to estimate $c$ precisely, because any value greater than 3 would yield effectively the same results.  Fortunately, this is unlikely to happen in the real world; very few epidemics affect anything like 90\% of the population.
+Mặt khác, với những số lây nhiễm lớn hơn, thì gần như toàn bộ tổng thể đều bị nhiễm, do vậy đường cong sẽ bằng phẳng. Lúc này ta sẽ không thể ước lượng chính xác $c$ được, vì bất kì giá trị nào lớn hơn 3 sẽ cho kết quả coi như bằng nhau. Song thật may rằng điều này không mấy khi xảy ra trong thực tế: có rất ít đại dịch ảnh hưởng nhiều đến mức 90\% tổng thể dân cư.
 
-So the SIR model has limitations; nevertheless, it provides insight into the behavior of infectious disease, especially the phenomenon of herd resistance.  As we saw in the previous chapter, if we know the parameters of the model, we can use it to evaluate possible interventions.  And as we saw in this chapter, we might be able to use data from earlier outbreaks to estimate the parameters.
+Như vậy mô hình SIR có hạn chế của nó. Tuy nhiên, nó vẫn cho ta thấy động thái của dịch bệnh truyền nhiễm, đặc biệt là hiện tượng miễn dịch cộng đồng. Như đã thấy ở chương trước, nếu ta biết các tham số mô hình, ta có thể dùng nó để đánh giá những cách can thiệp khả dĩ. Và như đã thấy ở chương này, ta có thể dùng số liệu từ những đợt bùng phát trước để ước tính tham số mô hình.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap14.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
-
-
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap14.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 %\part{Modeling thermal systems}
 
