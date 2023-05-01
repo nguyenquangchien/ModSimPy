@@ -1,6 +1,6 @@
 % LaTeX source for ``Modeling and Simulation in Python''
 % Copyright 2017  Allen B. Downey.
-% Bản tiếng Việt 2019, 2023: Nguyễn Quang Chiến 
+% Bản tiếng Việt 2019: Nguyễn Quang Chiến 
 
 % License: Creative Commons Attribution-NonCommercial 4.0 Unported License.
 % https://creativecommons.org/licenses/by-nc/4.0/
@@ -3279,7 +3279,7 @@ Trong thư mục mã lệnh kèm cuốn sách này, bạn sẽ thấy một cu�
 Bạn nên theo hướng dẫn mà tôi đã gợi ý; nếu bạn muốn thử điều gì khác, hãy làm nó!
 
 
-\section{Tree growth}
+\section{Sự tăng trưởng của cây xanh}
 
 Nghiên cứu cụ thể này được dựa theo ``Height-Age Curves for Planted Stands of Douglas Fir, with Adjustments for Density" (tạm dịch: các đường cong biểu hiện chiều cao-tuổi cây thông Douglas được gieo trồng, có điều chỉnh theo mật độ cây), một bài báo của nhóm tác giả Flewelling, Collier, Gonyea, Marshall, và Turnblom, xem link \url{http://modsimpy.com/trees}.
 
@@ -4397,151 +4397,149 @@ Như vậy mô hình SIR có hạn chế của nó. Tuy nhiên, nó vẫn cho ta
 
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap14.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
-%\part{Modeling thermal systems}
+%\part{Mô hình hoá các hệ thống truyền nhiệt}
 
 
 
-\chapter{Heat}
+\chapter{Nhiệt}
 \label{chap15}
 
-So far the systems we have studied have been physical in the sense that they exist in the world, but they have not been physics, in the sense of what physics classes are usually about.  In the next few chapters, we'll do some physics, starting with {\bf thermal systems}, that is, systems where the temperature of objects changes as heat transfers from one to another.
+Đến giờ các hệ thống ta nghiên cứu đều thuộc thể loại vật lý theo nghĩa chúng tồn tại trên thế giới, nhưng không hẳn là vật lý theo nghĩa bài vở môn học vật lý được giảng trên lớp. Ở vài chương tiếp theo, ta sẽ làm một số vấn đề vật lý, bắt đầu với {\bf hệ thống nhiệt}, nghĩa là những hệ thống mà nhiệt độ của vật thể thay đổi khi nhiệt truyền từ vật này sang vật khác.
 
-\index{thermal system}
+\index{hệ thống nhiệt}
 
-\section{The coffee cooling problem}
+\section{Bài toán làm nguội cà-phê}
 
-The coffee cooling problem was discussed by Jearl Walker in {\it Scientific American} in 1977\footnote{Walker, ``The Amateur Scientist", {\it Scientific American}, Volume 237, Issue 5, November 1977.}; since then it has become a standard example of modeling and simulation.
+Bài toán làm nguội cà-phê được Jearl Walker thảo luận trên báo {\it Scientific American} năm 1977\footnote{Walker, ``The Amateur Scientist", {\it Scientific American}, Quyển 237, Số 5, Tháng 11-1977.}; và từ đó nó trở nên một ví dụ tiêu chuẩn cho mô hình hoá và mô phỏng.
 
-\index{coffee cooling problem}
+\index{bài toán làm nguội cà-phê}
 \index{Walker, Jearl}
 
-Here is my version of the problem:
+Tôi sẽ diễn đạt lại bài toán như sau:
 
 \begin{quote}
-Suppose I stop on the way to work to pick up a cup of coffee, which I take with milk.  Assuming that I want the coffee to be as hot as possible when I arrive at work, should I add the milk at the coffee shop, wait until I get to work, or add the milk at some point in between?
+Giả dụ rằng trên đường đi làm, tôi dừng lại bên đường mua một cốc cà phê. Tôi cũng mang theo sữa rồi. Coi như rằng tôi muốn khi đến văn phòng thì cà phê càng nóng càng tốt. Vậy tôi nên cho sữa ngay khi mới mua cà phê, cho sữa vào lúc giữa đường, hay lúc đến văn phòng?
 \end{quote}
 
-To help answer this question, I made a trial run with the milk and coffee in separate containers and took some measurements\footnote{This is fiction.  I usually drink tea and bike to work.}:
+Để giúp trả lời câu hỏi này, tôi đã làm thử thí nghiệm đặt sữa và cà phê trong những ngăn riêng và thực hiện đo đạc\footnote{Đây là ví dụ. Tôi thường uống trà và đạp xe đi làm.}:
 
 \begin{itemize}
 
-\item When served, the temperature of the coffee is \SI{90}{\celsius}.  The volume is \SI{300}{mL}.
+\item Khi được giao hàng, nhiệt độ cà phê là \SI{90}{\celsius}.  Dung tích là \SI{300}{mL}.
 
-\item The milk is at an initial temperature of \SI{5}{\celsius}, and I take about \SI{50}{mL}.
+\item Sữa có nhiệt độ ban đầu \SI{5}{\celsius}, và tôi mang đi khoảng \SI{50}{mL}.
 
-\item The ambient temperature in my car is \SI{22}{\celsius}.
+\item Nhiệt độ nền trong xe hơi của tôi là \SI{22}{\celsius}.
 
-\item The coffee is served in a well insulated cup.  When I arrive at work after 30 minutes, the temperature of the coffee has fallen to \SI{70}{\celsius}.
+\item Cà phê được đựng trong cốc cách nhiệt tốt. Khi tôi đến văn phòng 30 phút sau đó, nhiệt độ cà phê đã giảm chỉ còn \SI{70}{\celsius}.
 
-\item The milk container is not as well insulated.  After 15 minutes, it warms up to \SI{20}{\celsius}, nearly the ambient temperature.
+\item Bình đựng sữa thì không cách nhiệt. Sau 15 phút, sữa ấm dần đến \SI{20}{\celsius}, gần bằng nhiệt độ nền.
 
 \end{itemize}
 
-To use this data and answer the question, we have to know something about temperature and heat, and we have to make some modeling decisions.
+Để dùng số liệu này và trả lời câu hỏi, ta cần phải biết đôi chút về nhiệt độ và nhiệt, đồng thời phải ra quyết định mô hình hoá.
 
 
-\section{Temperature and heat}
+\section{Nhiệt độ và nhiệt}
 
-To understand how coffee cools (and milk warms), we need a model of temperature and heat.  {\bf Temperature} is a property of an object or a system; in SI units it is measured in degrees Celsius (\si{\celsius}).  Temperature quantifies how hot or cold the object is, which is related to the average velocity of the particles that make up the object.
+Để hiểu được cà phê nguội (và sữa ấm lên) ra sao, ta cần có một mô hình nhiệt độ và nhiệt.  {\bf Nhiệt độ} là một thuộc tính của đối tượng hoặc hệ thống; trong hệ SI đơn vị của nó là độ C (\si{\celsius}).  Nhiệt độ định lượng xem vật thể nóng/lạnh bao nhiêu, điều này vốn liên quan tới vận tốc trung bình của các hạt (phân tử) cấu thành vật thể đó.
 
-\index{temperature}
+\index{nhiệt độ | temperature}
 
-When particles in a hot object contact particles in a cold object, the hot object gets cooler and the cold object gets warmer as energy is transferred from one to the other.  The transferred energy is called {\bf heat}; in SI units it is measured in joules (\si{\joule}).
+Khi các hạt của vật nóng tiếp xúc với các hạt của vật lạnh, vật nóng sẽ nguội đi và vật lạnh ấm lên do năng lượng được truyền từ vật này sang vật kia. Năng lượng đã truyền này được gọi là {\bf nhiệt}; nó có đơn vị là jun / joule (\si{\joule}) trong hệ SI.
 
-\index{heat}
+\index{nhiệt | heat}
 
-Heat is related to temperature by the following equation (see \url{http://modsimpy.com/thermass}):
+Nhiệt có liên quan đến nhiệt độ theo biểu thức sau (xem \url{http://modsimpy.com/thermass}):
 %
 \[ Q = C \Delta T \]
 %
-where $Q$ is the amount of heat transferred to an object, $\Delta T$ is resulting change in temperature, and $C$ is the {\bf thermal mass} of the object, which quantifies how much energy it takes to heat or cool it.  In SI units, thermal mass is measured in joules per degree Celsius (\si{\joule\per\celsius}).
+trong đó $Q$ là lượng nhiệt truyền tới một vật, $\Delta T$ là mức biến đổi nhiệt độ tương ứng, còn $C$ là {\bf khối lượng nhiệt} của vật đó, nó lượng hoá xem cần bao nhiêu năng lượng để nung nóng hoặc làm nguội vật. Khối lượng nhiệt có đơn vị đo là jun trên độ C (\si{\joule\per\celsius}) trong hệ SI.
 
-\index{thermal mass}
+\index{khối lượng nhiệt | thermal mass}
 
-For objects made primarily from one material, thermal mass can be computed like this:
+Với những vật chủ yếu làm từ một loại vật liệu thì khối lượng nhiệt có thể được tính như sau:
 %
 \[ C = m c_p \]
 %
-where $m$ is the mass of the object and $c_p$ is the {\bf specific heat capacity} of the material (see \url{http://modsimpy.com/specheat}).
+trong đó $m$ là khối lượng vật còn $c_p$ là {\bf nhiệt dung riêng} của vật liệu (xem \url{http://modsimpy.com/specheat}).
 
-\index{specific heat capacity}
+\index{nhiệt dung riêng | specific heat capacity}
 
-We can use these equations to estimate the thermal mass of a cup of coffee.  The specific heat capacity of coffee is probably close to that of water, which is \SI{4.2}{\joule\per\gram\per\celsius}.  Assuming that the density of coffee is close to that of water, which is \SI{1}{\gram\per\milli\liter}, the mass of \SI{300}{\milli\liter} of coffee is \SI{300}{\gram}, and the thermal mass is \SI{1260}{\joule\per\celsius}.
+Ta có thể dùng những biểu thức trên để ước tính khối lượng nhiệt của cốc cà phê. Nhiệt dung riêng của cà phê có lẽ xấp xỉ của nước, tức là \SI{4.2}{\joule\per\gram\per\celsius}.  Nếu coi mật độ cà phê xấp xỉ bằng của nước, tức \SI{1}{\gram\per\milli\liter}, thì khối lượng của \SI{300}{\milli\liter} cà phê sẽ là \SI{300}{\gram}, và khối lượng nhiệt sẽ là \SI{1260}{\joule\per\celsius}.
 
-\index{density}
+\index{mật độ | density}
 
-So when a cup of coffee cools from \SI{90}{\celsius} to \SI{70}{\celsius}, the change in temperature, $\Delta T$ is \SI{20}{\celsius}, which means that \SI{25200}{\joule} of heat energy was transferred from the coffee to the surrounding environment (the cup holder and air in my car).
+Như vậy, khi cốc cà phê nguội từ \SI{90}{\celsius} xuống còn \SI{70}{\celsius}, thì mức thay đổi nhiệt độ, $\Delta T$ bằng \SI{20}{\celsius}, nghĩa là \SI{25200}{\joule} nhiệt năng được chuyển từ cà phê sang môi trường xung quanh (giá đỡ cốc và không khí trong xe hơi).
 
-To give you a sense of how much energy that is, if you were able to harness all of that heat to do work (which you cannot\footnote{See \url{http://modsimpy.com/thermo}.}), you could use it to lift a cup of coffee from sea level to \SI{8571}{\meter}, just shy of the height of Mount Everest, \SI{8848}{\meter}.
+Để hình dung được năng lượng đó bằng bao nhiêu, giả sử như bạn khống chế được toàn bộ nhiệt lượng đó để thực hiện công (điều mà thực tế là không thể\footnote{Xem \url{http://modsimpy.com/thermo}.}), thì bạn có thể dùng nó để nâng cốc cà phê từ mực nước biển lên tới \SI{8571}{\meter}, chỉ thấp hơn đỉnh Everest, \SI{8848}{\meter}, đôi chút.
 
-\index{Mount Everest}
+\index{Núi Everest | Mount Everest}
 
-Assuming that the cup has less mass than the coffee, and is made from a material with lower specific heat, we can ignore the thermal mass of the cup.
-For a cup with substantial thermal mass, we might consider a model that computes the temperature of coffee and cup separately.
+Giả sử rằng cốc có khối lượng nhỏ hơn so với lượng cà phê, và được làm từ vật liệu có nhiệt dung thấp hơn, thì ta có thể bỏ qua khối lượng nhiệt của cốc. Trong trường hợp cốc có khối lượng nhiệt đáng kể thì ta có thể phải đùng đến mô hình tính riêng nhiệt độ của cà phê và nhiệt độ cốc.
 
 
-\section{Heat transfer}
+\section{Truyền nhiệt}
 
-In a situation like the coffee cooling problem, there are three ways heat transfers from one object to another (see \url{http://modsimpy.com/transfer}):
+Trong trường hợp như bài toán làm nguội cà phê, có 3 cách mà nhiệt truyền từ vật này sang vật khác (xem \url{http://modsimpy.com/transfer}):
 
-\index{heat transfer}
-\index{conduction}
-\index{convection}
-\index{radiation}
+\index{truyền nhiệt | heat transfer}
+\index{dẫn nhiệt | conduction}
+\index{đối lưu | convection}
+\index{bức xạ | radiation}
 
 \begin{itemize}
 
-\item Conduction: When objects at different temperatures come into contact, the faster-moving particles of the higher-temperature object transfer kinetic energy to the slower-moving particles of the lower-temperature object.
+\item Dẫn nhiệt: Khi các vật khác nhau về nhiệt độ tiếp xúc với nhau thì những hạt di chuyển nhanh của vật nhiệt độ cao sẽ truyền động năng cho các hạt di chuyển chậm của vật nguội hơn.
 
-\item Convection: When particles in a gas or liquid flow from place to place, they carry heat energy with them.  Fluid flows can be caused by external action, like stirring, or by internal differences in temperature.  For example, you might have heard that hot air rises, which is a form of ``natural convection".
+\item Đối lưu: Khi các hạt trong một dòng khí hay chất lỏng di chuyển thì chúng cũng mang nhiệt đi theo. Các dòng chất lưu có thể gây ra do tác động từ bên ngoài, như khuấy động hay do chênh lệnh nhiệt độ ngay nội tại. Chẳng hạn, bạn có thể biết những dòng không khí nóng sẽ thăng lên, đây chính là một dạng ``đối lưu tự nhiên".
 
-\index{fluid flow}
+\index{dòng chất lưu | fluid flow}
 
-\item Radiation: As the particles in an object move due to thermal energy, they emit electromagnetic radiation.  The energy carried by this radiation depends on the object's temperature and surface properties (see \url{http://modsimpy.com/thermrad}).
+\item Bức xạ: Khi các hạt trong vật di chuyển do nhiệt năng thì chúng phát ra bức xạ điện từ. Năng lượng mà bức xạ này mang theo sẽ phụ thuộc vào nhiệt độ của vật và các đặc tính bề mặt của nó (xem \url{http://modsimpy.com/thermrad}).
 
 \end{itemize}
 
-For objects like coffee in a car, the effect of radiation is much smaller than 
-the effects of conduction and convection, so we will ignore it.
+Với những vật như cà phê trong xe hơi, hiệu ứng của bức xạ sẽ nhỏ hơn nhiều so với các hiệu ứng của dẫn nhiệt và đối lưu, do vậy ta sẽ bỏ qua bức xạ.
 
-Convection can be a complex topic, since it often depends on details of fluid flow in three dimensions.  But for this problem we will be able to get away with a simple model called ``Newton's law of cooling".
+Đối lưu có thể là một chủ đề phức tạp, vì nó thường phụ thuộc vào dòng chất lưu trong không gian 3 chiều. Nhưng ở bài toán này ta có thể tránh khỏi khó khăn bằng một mô hình đơn giản có tên ``Định luật cấp nhiệt Newton".
 
-\index{Newton's law of cooling}
+\index{Định luật cấp nhiệt Newton | Newton's law of cooling}
 
-\section{Newton's law of cooling}
+\section{Định luật cấp nhiệt Newton}
 
-Newton's law of cooling asserts that the temperature rate of change for an object is proportional to the difference in temperature between the object and the surrounding environment:
+Định luật cấp nhiệt Newton phát biểu rằng tốc độ thay đổi nhiệt độ của vật thì tỉ lệ thuận với chênh lệch nhiệt độ giữa vật đó với nhiệt độ môi trường xung quanh:
 %
 \[ \frac{dT}{dt} = -r (T - T_{env}) \]
 %
-where $T$, the temperature of the object, is a function of time, $t$; $T_{env}$ is the temperature of the environment, and $r$ is a constant that characterizes how quickly heat is transferred between the system and the environment.
+trong đó $T$, nhiệt độ của vật, là một hàm số theo thời gian, $t$; $T_{env}$ là nhiệt độ của môi trường, còn $r$ là hằng số đặc trưng cho tốc độ truyền nhiệt giữa hệ thống với môi trường.
 
-Newton's so-called ``law" is really a model in the sense that it is approximately true in some conditions, only roughly true in others, and not at all true in others.
+Cái được gọi là ``định luật" này của Newton thực ra là một mô hình theo nghĩa nó đạt tới gần đúng trong những điều khiện nhất định, nhưng chỉ hơi đúng trong những trường hợp khác, thậm chí có trường hợp còn sai hoàn toàn.
 
-For example, if the primary mechanism of heat transfer is conduction, Newton's law is ``true", which is to say that $r$ is constant over a wide range of temperatures.  And sometimes we can estimate $r$ based on the material properties and shape of the object.
+Chẳng hạn, nếu cơ chế truyền nhiệt chính là dẫn nhiệt thì định luật Newton sẽ ``đúng", nghĩa là trị số $r$ không đổi trên một khoảng rộng nhiệt độ khác nhau. Và đôi khi ta có thể ước tính được $r$ dựa trên đặc tính vật liệu và hình dạng của vật thể.
 
-When convection contributes a non-negligible fraction of heat transfer, $r$  depends on temperature, but Newton's law is often accurate enough, at least over a narrow range of temperatures.  In this case $r$ usually has to be estimated experimentally, since it depends on details of surface shape, air flow, evaporation, etc.
+Khi đối lưu đóng vai trò không thể bỏ qua trong quá trình truyền nhiệt, $r$ sẽ phụ thuộc vào nhiệt độ, song định luật Newton vẫn thường đủ chính xác, ít nhất là trong một khoảng nhiệt độ hẹp. Với trường hợp này, $r$ thường phải được xác định bằng cách thực nghiệm, vì nó còn phụ thuộc vào chi tiết hình dạng bề mặt, dòng khí, sự bốc hơi v.v. nữa.
 
-When radiation makes up a substantial part of heat transfer, Newton's law is not a good model at all.  This is the case for objects in space or in a vacuum, and for objects at high temperatures (more than a few hundred degrees Celsius, say).
+Khi bức xạ đóng vai trò đáng kể trong sự truyền nhiệt thì định luật Newton không còn là mô hình phù hợp nữa. Với trường hợp mà vật thể ở trong vũ trụ hoặc chân không, và với những vật thể có nhiệt độ cao (nóng hơn vài trăm độ C chẳng hạn).
 
-\index{radiation}
+\index{bức xạ | radiation}
 
-However, for a situation like the coffee cooling problem, we expect Newton's model to be quite good.
+Tuy nhiên, với trường hợp như bài toán làm nguội cốc cà phê thì ta vẫn trông đợi mô hình Newton ứng nghiệm tốt.
 
 
-\section{Implementation}
+\section{Lập trình}
 \label{coffee_impl}
 
-To get started, let's forget about the milk temporarily and focus on the coffee.  I'll create a \py{State} object to represent the initial temperature:
+Để bắt đầu, ta hãy tạm quên phần sữa đi và chú ý vào cà phê. Tôi sẽ tạo một đối tượng \py{State} để biểu diễn nhiệt độ ban đầu:
 
 \begin{python}
 init = State(T=90)
 \end{python}
 
-And a \py{System} object to contain the parameters of the system:
+và một đối tượng \py{System} để chứa những tham số hệ thống:
 
-\index{State object}
-\index{System object}
+\index{State (đối tượng) | object}
+\index{System (đối tượng) | object}
 
 \begin{python}
 coffee = System(init=init,
@@ -4553,20 +4551,20 @@ coffee = System(init=init,
                 dt=1)
 \end{python}
 
-The values of \py{volume}, \py{T_env}, and \py{t_end} come from the statement of the problem.  I chose the value of \py{r} arbitrarily for now; we will figure out how to estimate it soon.
+Các giá trị của \py{volume}, \py{T_env}, và \py{t_end} đều lấy từ đề bài. Tạm thời tôi chọn giá trị tuỳ ý cho \py{r}; ta sẽ sớm hình dung ra cách ước tính nó.
 
-\index{time step}
+\index{bước thời gian | time step}
 
-\py{dt} is the time step we use to simulate the cooling process.
-Strictly speaking, Newton's law is a differential equation, but over a short period of time we can approximate it with a difference equation:
+\py{dt} là thời gian ta dùng để mô phỏng quá trình làm nguội.
+Chặt chẽ mà nói, định luật Newton là một phương trình vi phân, nhưng xét trong một thời khoảng rất ngắn thì ta có thể xấp xỉ nó bằng một phương trình sai phân:
 %
 \[ \Delta T = -r (T - T_{env}) dt \]
 %
-where $dt$ is a small time step and $\Delta T$ is the change in temperature during that time step.
+trong đó $dt$ là một bước thời gian nhỏ còn $\Delta T$ là mức thay đổi nhiệt độ diễn ra trong bước thời gian đó.
 
-Note: I use $\Delta T$ to denote a change in temperature over time, but in the context of heat transfer, you might also see $\Delta T$ used to denote the difference in temperature between an object and its environment, $T - T_{env}$.  To minimize confusion, I avoid this second use.
+Lưu ý: Tôi viết $\Delta T$ để kí hiệu cho mức thay đổi nhiệt độ theo thời gian, song đặt trong ngữ cảnh sự truyền nhiệt, bạn cũng có thể thấy $\Delta T$ được dùng để chỉ chênh lệch nhiêt độ giữa vật và môi trường, $T - T_{env}$.  Để tránh nhầm lẫn, tôi sẽ không dùng cách hiểu thứ hai.
 
-Now we can write an update function:
+Giờ đây ta có thể viết một hàm cập nhật:
 
 \index{unpack}
 
@@ -4580,21 +4578,21 @@ def update_func(state, t, system):
     return State(T=T)
 \end{python}
 
-Like previous update functions, this one takes a \py{State} object, a time, and a \py{System} object.
+Cũng như các hàm cập nhật trước đây, hàm này nhận một đối tượng \py{State}, một thời gian, và một đối tượng \py{System}.
 
-Now if we run 
+Bây giờ nếu ta chạy 
 
 \begin{python}
 update_func(init, 0, coffee)
 \end{python}
 
-we see that the temperature after one minute is \SI{89.3}{\celsius}, so the temperature drops by about \SI{0.7}{\celsius\per\minute}, at least for this value of \py{r}.
+ta sẽ thấy rằng nhiệt độ sau một phút là \SI{89.3}{\celsius}, tức là nhiệt độ đã hạ khoảng \SI{0.7}{\celsius\per\minute}, ít ra là đối với trị số \py{r} này.
 
-Here's a version of \py{run_simulation} that simulates a series of time steps from \py{t_0} to \py{t_end}:
+Sau đây là một phiên bản \py{run_simulation} để mô phỏng một loạt những bước thời gian từ \py{t_0} tới \py{t_end}:
 
-\index{time step}
+\index{bước thời gian | time step}
 \index{\py{run_simulation}}
-\index{unpack}
+\index{tháo | unpack}
 
 \begin{python}
 def run_simulation(system, update_func):
@@ -4613,28 +4611,28 @@ def run_simulation(system, update_func):
     return frame
 \end{python}
 
-This function is similar to previous versions of \py{run_simulation}.
+Hàm này tương tự với những phiên bản \py{run_simulation} trước đây.
 
-One difference is that it uses \py{linrange} to make an array of values from \py{t_0} to \py{t_end} with time step \py{dt}.  The result does not include \py{t_end}, so the last value in the array is \py{t_end-dt}.
+Có một điểm khác biệt, đó là nó dùng \py{linrange} để lập một mảng giá trị từ \py{t_0} đến \py{t_end} với bước thời gian \py{dt}.  Kết quả này không bao gồm \py{t_end}, do vậy trị số cuối cùng trong mảng là \py{t_end-dt}.
 
 \index{linrange}
 \index{NumPy}
-\index{array}
+\index{mảng | array}
 
-Also, it stores the final temperature as a system variable, \py{T_final}.
+Ngoài ra, nó còn lưu nhiệt độ cuối như một biến hệ thống, \py{T_final}.
 
-We can run it like this:
+Ta có thể chạy hàm này như sau:
 
 \begin{python}
 results = run_simulation(coffee, update_func)
 \end{python}
 
-The result is a \py{TimeFrame} object with one row per time step and just one column, \py{T}.  The temperature after 30 minutes is \SI{72.3}{\celsius}, which is a little higher than stated in the problem, \SI{70}{\celsius}.  We can adjust \py{r} and find the right value by trial and error, but we'll see a better way in the next chapter.
+Kết quả là một đối tượng \py{TimeFrame} với mỗi hàng ứng với một bước thời gian và chỉ có một cột, \py{T}.  Nhiệt độ sau 30 phút là \SI{72.3}{\celsius}, trị số này cao hơn một chút so với như đã nêu trong bài, \SI{70}{\celsius}.  Ta có thể chỉnh \py{r} và tìm ra trị số đúng bằng cách thử và sai, nhưng rồi ta sẽ thấy một cách hay hơn trong chương tiếp theo.
 
-\index{time step}
-\index{TimeFrame object}
+\index{bước thời gian | time step}
+\index{đối tượng TimeFrame object}
 
-First I want to wrap what we have so far in a function:
+Trước hết, tôi muốn gói mã lệnh đã viết cho tới giờ vào một hàm:
 
 \begin{python}
 def make_system(T_init=90, r=0.01, volume=300, t_end=30):
@@ -4650,7 +4648,7 @@ def make_system(T_init=90, r=0.01, volume=300, t_end=30):
                   dt=1)
 \end{python}
 
-\py{make_system} takes the system parameters and packs them into a \py{System} object.  Now we can simulate the system like this:
+\py{make_system} nhận các tham số hệ thống rồi xếp chúng vào một đối tượng \py{System}. Bây giờ ta có thể mô phỏng hệ thống như sau:
 
 \index{\py{make_system}}
 
@@ -4660,52 +4658,53 @@ coffee = make_system(T_init=90, r=0.01,
 results = run_simulation(coffee, update_func)
 \end{python}
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap15.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap15.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
-\chapter{Mixing}
+\chapter{Hoà trộn}
 \label{chap16}
 
-In the previous chapter we wrote a simulation of a cooling cup of coffee.  Given the initial temperature of the coffee, the temperature of the atmosphere, and the rate parameter, \py{r}, we can predict how the temperature of the coffee will change over time.
+Ở chương trước ta đã viết chương trình mô phỏng sự làm nguội cốc cà phê. Cho trước nhiệt độ ban đầu của cà phê, nhiệt độ không khí, và tham số tốc độ, \py{r}, ta có thể dự đoán được nhiệt độ cà phê sẽ thay đổi thế nào theo thời gian.
 
-In general, we don't know the value of \py{r}, but we can use measurements to estimate it.  Given an initial temperature, a final temperature, and the time in between, we can find \py{r} by trial and error.
+Nói chung, ta không biết trị số của \py{r}, nhưng ta có thể dùng kết quả đo đạc để ước tính trị số đó. Cho trước một nhiệt độ ban đầu, một nhiệt độ cuối và khoảng thời gian giữa chúng, ta có thể tính ra \py{r} bằng cách thử và sai.
 
-In this chapter, we'll see a better way to find \py{r}, using a SciPy function called \py{fsolve}.
+Trong chương này, ta sẽ biết một cách hay hơn để tính \py{r}, bằng cách dùng hàm mang tên \py{fsolve} có trong SciPy.
 
-And the we'll get back to solving the coffee cooling problem.
+Và rồi ta sẽ quay trở lại giải bài toán làm nguội cà phê.
 
-\section{Using fsolve}
+\section{Sử dụng fsolve}
 \label{fsolve}
 
-SciPy provides a method called \py{fsolve} that finds the roots of non-linear equations.  As a simple example, suppose you want to find the roots of the polynomial
+SciPy cung cấp một phương thức có tên \py{fsolve} để tìm các nghiệm của phương trình phi tuyến. Lấy ví dụ đơn giản, chẳng hạn bạn cần tìm các nghiệm của đa thức
 %
 \[ f(x) = (x - 1)(x - 2)(x - 3) \]
 %
-where {\bf root} means a value of $x$ that makes $f(x)=0$.  Because of the way I wrote the polynomial, we can see that if $x=1$, the first factor is 0; if $x=2$, the second factor is 0; and if $x=3$, the third factor is 0, so those are the roots.
+trong đó {\bf root} nghĩa là một trị số của $x$ thoả mãn $f(x)=0$.  Bởi cách tôi viết đa thức này nên bạn có thể thấy ngay rằng nếu $x=1$, thừa số đầu bằng 0; nếu $x=2$, thừa số giữa bằng 0; và nếu $x=3$, thừa số cuối bằng 0, vì vậy các trị số đó là ba nghiệm.
 
 \index{\py{fsolve}}
-\index{root}
+\index{nghiệm}
 
-But usually it's not that easy.  In that case \py{fsolve} can help.  First, we have to write a function that evaluates $f$:
+Nhưng nói chung bài toán sẽ không dễ như vậy. Khi đó \py{fsolve} có thể giúp ta. Trước hết, ta cần viết một hàm để ước lượng $f$:
 
 \begin{python}
 def func(x):
     return (x-1) * (x-2) * (x-3)
 \end{python}
 
-Now we call \py{fsolve} like this:
+Bây giờ ta sẽ gọi \py{fsolve} như sau:
 
 \begin{python}
 fsolve(func, x0=0)
 \end{python}
 
-The first argument is the function whose roots we want.  The second argument, \py{x0}, is an initial guess about where a root might be.  Generally, the closer the initial guess is to an actual root, the faster \py{fsolve} runs.  In this case, with the initial guess \py{x0=0}, the result is 1.
+Đối số thứ nhất là hàm mà ta cần giải ra nghiệm. Đối số thứ hai, \py{x0}, là một dự đoán ban đầu về vị trí mà nghiệm có thể nằm ở đó. Nói chung, trị số dự đoán này mà càng sát nghiệm thực thì \py{fsolve} sẽ chạy càng nhanh. Trong trường hợp này, với đự đoán ban đầu \py{x0=0}, kết quả sẽ là 1.
 
-Often \py{fsolve} finds the root that's closest to the initial guess.  In this example, when \py{x0=1.9}, \py{fsolve} returns 2, and when \py{x0=2.9}, \py{fsolve} returns 3.  But this behavior can be unpredictable; with \py{x0=1.5}, \py{fsolve} returns 3.
+Thường thì \py{fsolve} tìm ra nghiệm gần nhất với trị số dự đoán ban đầu này. Ở ví dụ đang xét, khi \py{x0=1.9}, \py{fsolve} trả lại 2, còn khi \py{x0=2.9}, \py{fsolve} trả lại 3.  Nhưng động thái này có thể sẽ không dự đoán được; với \py{x0=1.5}, \py{fsolve} vẫn trả lại 3.
 
-So how can we use \py{fsolve} to estimate \py{r}?  
+Vậy ta sẽ sử dụng \py{fsolve} như thế nào để ước tính \py{r}?  
 
-What we want is the value of \py{r} that yields a final temperature of \SI{70}{\celsius}.  To work with \py{fsolve}, we need a function that takes \py{r} as a parameter and returns the difference between the final temperature and the goal:
+Thứ ta cần là trị số của \py{r} cho ta nhiệt độ cuối cùng của \SI{70}{\celsius}.  Để làm việc với \py{fsolve}, ta cần một hàm nhận vào \py{r} làm tham số rồi trả lại chênh lệch giữa nhiệt độ cuối cùng và trị số cần hướng tới:
 
 \begin{python}
 def error_func1(r):
@@ -4714,52 +4713,52 @@ def error_func1(r):
     return system.T_final - 70
 \end{python}
 
-I call a function like this an ``error function" because it returns the difference between what we got and what we wanted, that is, the error.  When we find the right value of \py{r}, this error will be 0.
+Tôi gọi một hàm như vậy là ``hàm sai số" vì nó trả lại hiệu giữa trị số tính được và trị số nhắm tới; hiệu số này là sai số. Khi ta tìm được trị số đúng của \py{r}, thì sai số này sẽ bằng 0.
 
-\index{error function}
-\index{function!error}
+\index{hàm sai số | error function}
+\index{hàm!sai số}
 
-We can test \py{error_func1} like this, using our initial guess for \py{r}:
+Ta có thể thử \py{error_func1} như sau, với dự đoán ban đầu cho \py{r}:
 
 \begin{python}
 error_func1(r=0.01)
 \end{python}
 
-The result is an error of \SI{2.3}{\celsius}, because the final temperature with this value of \py{r} is too high.
+Kết quả là sai số bằng \SI{2.3}{\celsius}, vì nhiệt độ cuối cùng ứng với trị số \py{r} này còn quá cao.
 
-Now we can call \py{fsolve} like this:
+Bây giờ ta có thể gọi \py{fsolve} như sau:
 
 \begin{python}
 solution = fsolve(error_func1, 0.01)
 r_coffee = solution[0]
 \end{python}
 
-The return value from \py{fsolve} is an array with a single element, which is the root \py{fsolve} found.  In this example, \py{r_coffee} turns out to be about \py{0.012}, in units of \si{\per\minute}.
+Giá trị trả lại từ \py{fsolve} là một mảng chỉ với một phần tử là nghiệm  \py{fsolve} tìm được.  Ở ví dụ này, \py{r_coffee} tính ra bằng khoảng \py{0.012}, có đơn vị là \si{\per\minute}.
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap07-fig01.pdf}}
-\caption{Temperature of the coffee and milk over time.}
+\caption{Nhiệt độ của cà phê và sữa theo thời gian.}
 \label{chap07-fig01}
 \end{figure}
 
-As one of the exercises for this chapter, you will use the same process to estimate \py{r_milk}.  
+Như một bài tập cho chương này, bạn cần dùng các bước này để ước tính \py{r_milk}.  
 
-With the correct values of \py{r_coffee} and \py{r_milk}, the simulation results should look like Figure~\ref{chap07-fig01}, which shows the temperature of the coffee and milk over time.
+Với những giá trị đúng của \py{r_coffee} và \py{r_milk}, kết quả mô phỏng sẽ trông tựa như Hình~\ref{chap07-fig01}, trong đó thể hiện nhiệt độ của cà phê và sữa theo thời gian.
 
 
-\section{Mixing liquids}
+\section{Hoà trộn chất lỏng}
 
-When we mix two liquids, the temperature of the mixture depends on the temperatures of the ingredients, but it might not be obvious how to compute it.
+Khi ta trộn hai chất lỏng, nhiệt độ của hỗn hợp sẽ phụ thuộc vào nhiệt độ từng thành phần, nhưng sẽ không dễ để tính ra nhiệt độ này.
 
-\index{mixing}
+\index{hoà trộn | mixing}
 
-Assuming there are no chemical reactions that either produce or consume heat, the total thermal energy of the system is the same before and after mixing; in other words, thermal energy is {\bf conserved}.
+Giả dụ rằng không có phản ứng hoá học nào thu nhiệt hay toả nhiệt, thì tổng nhiệt năng của hệ trước và sau khi hoà trộn vẫn giữ nguyên. Nói cách khác, nhiệt năng được {\bf bảo toàn}.
 
-\index{conservation of energy}
+\index{bảo toàn năng lượng | conservation of energy}
 
-If the temperature of the first liquid is $T_1$, the temperature of the second liquid is $T_2$, and the final temperature of the mixture is $T$, the heat transfer into the first liquid is $C_1 (T - T_1)$ and the heat transfer into the second liquid is $C_2 (T - T_2)$, where $C_1$ and $C_2$ are the thermal masses of the liquids.
+Nếu nhiệt độ của chất lỏng thứ nhất là $T_1$, nhiệt độ của chất lỏng thứ hai là $T_2$, và nhiệt độ sau cùng của hỗn hợp là $T$, thì nhiệt truyền vào chất lỏng thứ nhất là $C_1 (T - T_1)$ và nhiệt truyền vào chất lỏng thứ hai là $C_2 (T - T_2)$, trong đó $C_1$ và $C_2$ là các khối lượng nhiệt của chất lỏng.
 
-In order to conserve energy, these heat transfers must add up to 0:
+Để bảo toàn năng lượng, các lượng truyền nhiệt này cộng lại phải bằng 0:
 %
 \[ C_1 (T - T_1) + C_2 (T - T_2) = 0 \]
 %
@@ -4767,21 +4766,21 @@ We can solve this equation for T:
 %
 \[ T = \frac{C_1 T_1 + C_2 T_2}{C_1 + C_2} \]
 %
-For the coffee cooling problem, we have the volume of each liquid; if we also know the density, $\rho$, and the specific heat capacity, $c_p$, we can compute thermal mass:
+Với bài toán làm nguội cà phê, ta có dung tích từng chất lỏng. Nếu ta cũng có mật độ, $\rho$, và nhiệt dung riêng, $c_p$, ta có thể khối lượng nhiệt:
 %
 \[ C = \rho V c_p \]
 %
-If we assume that the density and specific heat of the milk and coffee are equal, they drop out of the equation, and we can write:
+Nếu ta giả sử rằng mật độ và nhiệt dung riêng của sữa và cà phê là như nhau, thì các số hạng sẽ triệt tiêu và ta có thể viết:
 %
 \[ T = \frac{V_1 T_1 + V_2 T_2}{V_1 + V_2} \]
 %
-where $V_1$ and $V_2$ are the volumes of the liquids.  As an exercise, you can look up the density and specific heat of milk to see how good this approximation is.
+trong đó $V_1$ và $V_2$ là thể tích các chất lỏng. Một bài tập đặt ra là bạn có thể tra tìm mật độ và nhiệt dung riêng của sữa xem cách xấp xỉ như trên có chuẩn không.
 
-\index{volume}
-\index{density}
-\index{specific heat}
+\index{dung tích | volume}
+\index{mật độ | density}
+\index{nhiệt dung riêng | specific heat}
 
-The following function takes two \py{System} objects that represent the coffee and milk, and creates a new \py{System} to represent the mixture:
+Hàm sau đây nhận vào hai đối tượng \py{System} biểu diễn cho cà phê và sữa, rồi tạo nên một \py{System} mới để biểu diễn cho hỗn hợp:
 
 \begin{python}
 def mix(s1, s2):
@@ -4800,19 +4799,19 @@ def mix(s1, s2):
     return mixture
 \end{python}
 
-The first line is an \py{assert} statement, which is a way of checking for errors.  It compares \py{t_end} for the two systems to confirm that they have been cooling for the same time.  If not, \py{assert} displays an error message and stops the program.
+Dòng lệnh đầu là một lệnh \py{assert}, vốn là một cách kiểm tra lỗi. Lệnh này so sánh \py{t_end} cho hai hệ thống để khẳng định rằng chúng được làm nguội trong cùng thời gian. Nếu không, \py{assert} hiển thị một lời thông báo lỗi và dừng chương trình.
 
-\index{assert statement}
-\index{statement!assert}
+\index{assert (câu lệnh) | (statement)}
+\index{câu lệnh!assert}
 
-The next two statements compute the total volume of the mixture and its temperature.  Finally, \py{mix} makes a new \py{System} object and returns it.
+Hai câu lệnh tiếp theo tính toán tổng dung tích hỗn hợp cùng nhiệt độ của nó. Sau cùng, \py{mix} tạo một đối tượng \py{System} mới rồi trả lại nó.
 
-This function uses the value of \py{r} from \py{s1} as the value of \py{r} for the mixture.  If \py{s1} represents the coffee, and we are adding the milk to the coffee, this is probably a reasonable choice.  On the other hand, when we increase the amount of liquid in the coffee cup, that might change \py{r}.  So this is an assumption we might want to revisit.
+Hàm này sử dụng giá trị \py{r} từ \py{s1} làm giá trị \py{r} cho toàn hỗn hợp. Nếu \py{s1} biểu diễn cho cà phê, và chúng ta thêm sữa vào cà phê thì có lẽ việc chọn này là phù hợp. Mặt khác, khi ta tăng lượng chất lỏng vào cốc cà phê thì việc này có thể làm thay đổi \py{r}.  Do vậy, đây là một giả thiết quan trọng mà ta có thể sẽ cần phải quay trở lại xem xét.
 
 
-\section{Mix first or last?}
+\section{Hoà trộn lúc đầu hay lúc cuối?}
 
-Now we have everything we need to solve the problem.  First I'll create objects to represent the coffee and cream, and run for 30 minutes.
+Bây giờ khi đã có đủ thứ cần để giải bài toán, trước hết tôi sẽ tạo nên đối tượng biểu diễn cho cà phê và sữa, rồi chạy mô phỏng 30 phút.
 
 \begin{python}
 coffee = make_system(T_init=90, t_end=30, 
@@ -4824,15 +4823,15 @@ milk = make_system(T_init=5, t_end=30,
 milk_results = run_simulation(milk, update_func)
 \end{python}
 
-The final temperatures, before mixing, are \SI{70}{\celsius} and \SI{21.8}{\celsius}.  Then I'll mix them:
+Nhiệt độ cuối cùng, trước khi hoà trộn, là \SI{70}{\celsius} và \SI{21.8}{\celsius}.  Sau đó tôi sẽ trộn chúng lại:
 
 \begin{python}
 mix_last = mix(coffee, milk)
 \end{python}
 
-After mixing, the temperature is \SI{63.1}{\celsius}, which is still warm enough to be enjoyable.  Would we do any better if we added the milk first?
+Sau khi hoà trộn, nhiệt độ là \SI{63.1}{\celsius}, như vậy vẫn đủ ấm để thưởng thức cà phê sữa. Song nếu ta cho sữa vào trước thì có hay hơn không?
 
-To find out, I'll create new objects for the coffee and milk:
+Để biết điều này, tôi sẽ tạo nên những đối tượng mới cho cà phê và sữa:
 
 \begin{python}
 coffee = make_system(T_init=90, r=r_coffee, 
@@ -4841,21 +4840,21 @@ milk = make_system(T_init=5, r=r_milk,
                    volume=50, t_end=30)
 \end{python}
 
-Then mix them and simulate 30 minutes:
+Rồi trộn chúng lại và mô phỏng 30 phút:
 
 \begin{python}
 mix_first = mix(coffee, milk)
 results = run_simulation(mix_first, update_func)
 \end{python}
 
-The final temperature is only \SI{61.4}{\celsius}.  So it looks like adding the milk at the end is better, by about \SI{1.7}{\celsius}.  But is that the best we can do?
+Nhiệt độ cuối cùng chỉ là \SI{61.4}{\celsius}.  Như vậy có vẻ như là thêm sữa vào sau cùng thì sẽ tốt hơn, nhiệt độ hơn những \SI{1.7}{\celsius}.  Nhưng phải chăng đó là cách tốt nhất mà ta có thể làm được?
 
 
-\section{Optimization}
+\section{Tối ưu hoá}
 
-Adding the milk after 30 minutes is better than adding immediately, but maybe there's something in between that's even better.  To find out, I'll use the following function, which takes \py{t_add} as a parameter:
+Cho sữa vào sau 30 phút thì tốt hơn là cho vào ngay, nhưng có thể vẫn còn cách làm trung gian nào đó thậm chí còn tốt hơn nữa. Để tìm ra điều này, tôi sẽ dùng hàm dưới đây, hàm này nhận vào \py{t_add} như một tham số:
 
-\index{optimization}
+\index{tối ưu hoá | optimization}
 
 \begin{python}
 def run_and_mix(t_add, t_total=30):
@@ -4874,7 +4873,7 @@ def run_and_mix(t_add, t_total=30):
     return mixture.T_final
 \end{python}
 
-When \py{t_add=0}, we add the milk immediately; when \py{t_add=30}, we add it at the end.  Now we can sweep the range of values in between:
+Khi \py{t_add=0}, ta thêm sữa ngay lập tức; khi \py{t_add=30}, ta thêm sữa vào sau cùng. Bây giờ ta có thể quét khoảng giá trị trung gian:
 
 \begin{python}
 sweep = SweepSeries()
@@ -4884,45 +4883,45 @@ for t_add in linspace(0, 30, 11):
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap07-fig02.pdf}}
-\caption{Final temperature as a function of the time the milk is added.}
+\caption{Nhiệt độ cuối cùng như một hàm theo thời gian cho sữa vào.}
 \label{chap07-fig02}
 \end{figure}
 
-Figure~\ref{chap07-fig02} shows the result.  Again, note that this is a parameter sweep, not a time series.  The x-axis is the time when we add the milk, not the index of a \py{TimeSeries}.
+Hình~\ref{chap07-fig02} thể hiện kết quả. Một lần nữa, lưu ý rằng đây là cách quét tham số chứ không phải chuỗi thời gian. Trục x là thời gian khi ta thêm sữa, chứ không phải chỉ số của một dãy \py{TimeSeries}.
 
-The final temperature is maximized when \py{t_add=30}, so adding the milk at the end is optimal.
+Nhiệt độ cuối cùng đạt cực đại khi \py{t_add=30}, bởi vậy việc cho sữa lúc cuối là tối ưu.
 
-In the notebook for this chapter you will have a chance to explore this solution and try some variations.  For example, suppose the coffee shop won't let me take milk in a separate container, but I keep a bottle of milk in the refrigerator at my office.  In that case is it better to add the milk at the coffee shop, or wait until I get to the office?
+Trong quyển mã lệnh cho chương này bạn sẽ có cơ hội khảo sát cách giải này và thử một vài biến thể nữa. Chẳng hạn, nếu như cửa hàng cà phê không cho tôi đựng sữa vào một cốc riêng nhưng tôi có sẵn chai sữa trong tủ lạnh ở văn phòng rồi. Khi đó, giữa việc cho sữa vào ngay ở cửa hàng hay đợi đến văn phòng mới cho sữa, đằng nào hay hơn?
 
 
-\section{Analysis}
+\section{Giải tích}
 
-Simulating Newton's law of cooling is almost silly, because we can solve the differential equation analytically.  If
+Việc mô phỏng định luật cấp nhiệt Newton xem chừng ngốc nghếch vì ta có thể giải được phương trình vi phân bằng cách giải tích. Nếu
 %
 \[ \frac{dT}{dt} = -r (T - T_{env}) \]
 %
-the general solution is
+thì nghiệm tổng quát là 
 %
 \[ T{\left (t \right )} = C_{1} \exp(-r t) + T_{env} \]
 %
-and the particular solution where $T(0) = T_{init}$ is
+và nghiệm riêng khi $T(0) = T_{init}$ là
 %
 \[ T_{env} + \left(- T_{env} + T_{init}\right) \exp(-r t) \]
 %
-You can see how I got this solution using SymPy in \py{chap16sympy.ipynb} in the repository for this book.  If you would like to see it done by hand, you can watch this video: \url{http://modsimpy.com/khan3}.
+Bạn có thể thấy cách tôi tìm nghiệm bằng SymPy trong file \py{chap16sympy.ipynb} thuộc kho mã lệnh của cuốn sách. Nếu bạn muốn xem cách giải thủ công, hãy xem video này: \url{http://modsimpy.com/khan3}.
 
-\index{analysis}
+\index{giải tích | analysis}
 \index{SymPy}
 
-Now we can use the observed data to estimate the parameter $r$.  If we observe $T(t_{end}) = T_{end}$, we can plug $t_{end}$ and $T_{end}$ into the particular solution and solve for $r$.  The result is:
+Bây giờ ta có thể dùng số liệu quan sát để ước tính tham số $r$.  Nếu ta quan sát được $T(t_{end}) = T_{end}$, ta có thể thay thế $t_{end}$ và $T_{end}$ vào nghiệm riêng để giải ra $r$.  Kết quả là:
 %
 \[ r = \frac{1}{t_{end}} \log{\left (\frac{T_{init} - T_{env}}{T_{end} - T_{env}} \right )} \]
 %
-Plugging in $t_{end}=30$ and $T_{end}=70$ (and again with $T_{init}=90$ and $T_{env}=22$), the estimate for $r$ is 0.0116.
+Thay $t_{end}=30$ và $T_{end}=70$ (vẫn với $T_{init}=90$ và $T_{env}=22$), kết quả ước tính cho ta $r$ bằng 0.0116.
 
-We can use the following function to compute the time series:
+Ta có thể dùng hàm sau đây để tính ra chuỗi thời gian:
 
-\index{unpack}
+\index{tháo | unpack}
 
 \begin{python}
 def run_analysis(system):
@@ -4939,11 +4938,11 @@ def run_analysis(system):
     return results
 \end{python}
 
-This function is similar to \py{run_simulation}; it takes a \py{System} as a parameter and returns a \py{TimeFrame} as a result.
+Hàm này tương tự như \py{run_simulation}; nó nhận vào \py{System} như một tham số và trả lại kết quả là một \py{TimeFrame}.
 
-Because \py{linrange} returns a NumPy array, \py{T_array} is also a NumPy array.  To be consistent with \py{run_simulation}, we have to put it into a \py{TimeFrame}.
-    
-We can run it like this:
+Vì \py{linrange} trả lại một mảng NumPy, \py{T_array} cũng là một mảng NumPy. Để nhất quán với \py{run_simulation}, ta phải đặt nó vào trong một \py{TimeFrame}.
+
+Ta có thể chạy nó như sau:
 \index{\py{run_analysis}}
 
 \begin{python}
@@ -4953,134 +4952,134 @@ coffee2 = make_system(T_init=90, r=r_coffee2,
 results = run_analysis(coffee2)
 \end{python}
 
-The final temperature is \SI{70}{\celsius}, as it should be.  In fact, the results are identical to what we got by simulation, with a small difference due to round off.
+Nhiệt độ cuối cùng là \SI{70}{\celsius}, như trị số cần đạt được. Thực ra, kết quả này giống hệt như những gì đạt được qua mô phỏng, chỉ có chút khác biệt do làm tròn số.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap16.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap16.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 %%\part{Pharmacokinetics}
 
-\chapter{Pharmacokinetics}
+\chapter{Dược động học}
 \label{chap17}
 
-{\bf Pharmacokinetics} is the study of how drugs and other substances move around the body, react, and are eliminated.  In this chapter, we implement one of the most widely used pharmacokinetic models: the so-called {\bf minimal model} of glucose and insulin in the blood stream.
+{\bf Dược động học} là ngành học về các hiện tượng thuốc cùng các chất khác di chuyển trong cơ thể, phản ứng và tiêu huỷ. Trong chương này, ta sẽ lập trình một trong những mô hình dược động thông dụng nhất: {\bf mô hình tối thiểu} cho glucose và insulin trong mạch máu.
 
-\index{pharmacokinetics}
+\index{dược động học | pharmacokinetics}
 
-We will use this model to fit data collected from a patient, and use the parameters of the fitted model to quantify the patient's ability to produce insulin and process glucose.
+Ta sẽ dùng mô hình này để khớp số liệu thu thập từ một bệnh nhân, và sử dụng các tham số từ mô hình đã khớp để lượng hoá khả năng của bệnh nhân sản sinh ra insulin và xử lý glucose.
 
 \index{glucose}
 \index{insulin}
 
-My presentation in this chapter follows Bergman (2005) ``Minimal Model" (abstract at \url{http://modsimpy.com/bergman},
-PDF at \url{http://modsimpy.com/minmod}).
+Tôi trình bày chương này theo bài viết của Bergman (2005) ``Minimal Model" (tóm tắt ở \url{http://modsimpy.com/bergman},
+file PDF ở \url{http://modsimpy.com/minmod}).
 
 
 
-\section{The glucose-insulin system}
+\section{Hệ glucose-insulin}
 
-{\bf Glucose} is a form of sugar that circulates in the blood of animals; it is used as fuel for muscles, the brain, and other organs.  The concentration of blood sugar is controlled by the hormone system, and especially by {\bf insulin}, which is produced by the pancreas and has the effect of reducing blood sugar.
+{\bf Glucose} là một dạng đường lưu thông trong máu động vật; nó được dùng là nhiên liệu để các bó cơ, não cùng các cơ quan khác hoạt động. Nồng độ đường huyết được kiểm soát bởi hệ hoócmôn, và đặc biệt là bởi {\bf insulin}, vốn được sản sinh ra từ tuỵ và có hiệu ứng làm giảm đường huyết.
 
-\index{pancreas}
+\index{tuỵ | pancreas}
 
-In people with normal pancreatic function, the hormone system maintains {\bf homeostasis}; that is, it keeps the concentration of blood sugar in a range that is neither too high or too low.
+Ở những người mà tuyến tuỵ hoạt động bình thường thì hệ hoócmôn duy trì {\bf cân bằng nội sinh}; nghĩa là nó giữ cho nồng độ đường huyết luôn trong khoảng không quá cao cũng không quá thấp.
 
-But if the pancreas does not produce enough insulin, or if the cells that should respond to insulin become insensitive, blood sugar can become elevated, a condition called {\bf hyperglycemia}.  Long term, severe hyperglycemia is the defining symptom of {\bf diabetes mellitus}, a serious disease that affects almost 10\% of the population in the U.S. (see \url{http://modsimpy.com/cdc}).
+Nhưng nếu tuỵ không tiết đủ insulin, hay nếu các tế bào có chức năng phản hồi insulin trở nên kém nhạy thì đường huyết có thể tăng vọt, gây nên tình trạng gọi là {\bf tăng đường huyết}.  Tình trạng tăng đường huyết nặng, kéo dài là một triệu chứng rõ của bệnh {\bf đái tháo đường}, một bệnh nghiêm trọng ảnh hưởng tới 10\% dân số Hoa Kỳ. (Xem \url{http://modsimpy.com/cdc}).
 
-\index{hyperglycemia}
-\index{diabetes}
+\index{tăng đường huyết | hyperglycemia}
+\index{đái tháo đường | diabetes}
 
-One of the most-used tests for hyperglycemia and diabetes is the frequently sampled intravenous glucose tolerance test (FSIGT), in which glucose is injected into the blood stream of a fasting subject (someone who has not eaten recently); then blood samples are collected at intervals of 2--10 minutes for 3 hours.  The samples are analyzed to measure the concentrations of glucose and insulin.
+Một trong những phép thử thông dụng nhất cho sự tăng đường huyết và bệnh đái tháo đường là xét nghiệm dung nạp glucose intravenous lấy mẫu thường xuyên (frequently sampled intravenous glucose tolerance test, FSIGT), trong đó glucose được tiêm vào mạch máu của chủ thể nhịn ăn trước khi tiêm; sau đó các mẫu máu được lấy cách nhau 2--10 phút trong suốt 3 giờ. Các mẫu này được phân tích để đo nồng độ glucose và insulin.
 
 \index{FSIGT}
 
-By analyzing these measurements, we can estimate several parameters of the subject's response; the most important is a parameter denoted $S_I$, which quantifies the effect of insulin on the rate of reduction in blood sugar.
+Bằng cách phân tích các kết quả đo này, ta có thể ước tính ra vài tham số của phản hồi từ chủ thể; trong đó quan trọng nhất là tham số kí hiệu $S_I$, vốn định lượng hiệu ứng insulin đối với tốc độ giảm đường huyết.
 
 
-\section{The glucose minimal model}
+\section{Mô hình glucose tối thiểu}
 
-The ``minimal model" was proposed by Bergman, Ider, Bowden, and Cobelli\footnote{Bergman RN, Ider YZ, Bowden CR, Cobelli C., ``Quantitative estimation of insulin sensitivity", Am J Physiol. 1979 Jun;236(6):E667-77.  Abstract at \url{http://modsimpy.com/insulin}.}.
-It consists of two parts: the glucose model and the insulin model.  I will present an implementation of the glucose model; as a case study, you will have the chance to implement the insulin model.
+``Mô hình tối thiểu" được Bergman, Ider, Bowden, và Cobelli\footnote{Bergman RN, Ider YZ, Bowden CR, Cobelli C., ``Quantitative estimation of insulin sensitivity", Am J Physiol. 1979 Jun;236(6):E667-77.  Abstract at \url{http://modsimpy.com/insulin}.} đề xuất.
+Mô hình này gồm 2 phần: mô hình glucose và mô hình insulin model.  Tôi sẽ trình bày cách lập trình mô hình glucose; bạn sẽ có dịp lập trình mô hình insulin như một nghiên cứu tình huống cụ thể.
 
-\index{minimal model}
+\index{mô hình tối thiểu | minimal model}
 
-The original model was developed in the 1970s; since then, many variations and extensions have been proposed.  Bergman's comments on the development of the model provide insight into their process:
-
-\begin{quote}
-We applied the principle of Occam's Razor, i.e.~by asking
-what was the simplest model based upon known physiology
-that could account for the insulin-glucose relationship
-revealed in the data. Such a model must be simple
-enough to account totally for the measured glucose (given
-the insulin input), yet it must be possible, using mathematical
-techniques, to estimate all the characteristic parameters
-of the model from a single data set (thus avoiding
-unverifiable assumptions).
-\end{quote}
-
-The most useful models are the ones that achieve this balance: including enough realism to capture the essential features of the system without too much complexity to be practical.  In this case the practical limit is the ability to estimate the parameters of the model using data, and to interpret the parameters meaningfully.
-
-\index{Occam's Razor}
-
-Bergman discusses the features he and his colleagues thought were essential:
+Mô hình gốc đã được phát triển vào thập niên 1970; từ đó có thêm nhiều biến thể và phiên bản mở rộng được đề xuất. Những nhận xét của Bergman về việc phát triển mô hình đã giúp ta hiểu thêm về công việc:
 
 \begin{quote}
-(1) Glucose, once elevated by injection, returns to basal level due to
-two effects: the effect of glucose itself to normalize its own
-concentration [...] as well as the catalytic effect of insulin to allow
-glucose to self-normalize (2) Also, we discovered
-that the effect of insulin on net glucose disappearance
-must be sluggish --- that is, that insulin acts slowly because
-insulin must first move from plasma to a remote compartment [...] to exert its action on glucose disposal.
+Chúng tôi đã áp dụng nguyên lý Lưỡi cạo Occam, nghĩa là đặt câu hỏi
+đâu là mô hình đơn giản nhất dựa trên sinh lý học đã biết
+để giải thích được liên hệ insulin-glucose 
+xuất hiện trong số liệu. Một mô hình như vậy phải đủ
+đơn giản để xét đến sự toàn bộ glucose đo được (cho trước
+số liệu insulin đầu vào), nhưng cũng phải dùng đến
+phép toán để ước tính tất cả tham số đặc trưng
+cho mô hình từ một bộ số liệu đơn lẻ (và do vậy tránh
+những giả thiết không thể kiểm chứng).
 \end{quote}
 
-To paraphrase the second point, the effect of insulin on glucose disposal, as seen in the data, happens more slowly than we would expect if it depended primarily on the the concentration of insulin in the blood.  Bergman's group hypothesized that insulin must move, relatively slowly, from the blood to a ``remote compartment" where it has its effect.
+Những mô hình hữu ích nhất là những cái đạt tới sự cân bằng này: bao gồm đủ thực tế để nắm bắt những đặc điểm thiết yếu của hệ thống mà lại không quá phức tạp, để còn sự thực dụng. Ở đây, giới hạn thực dụng là khả năng từ số liệu có thể ước tính ra tham số mô hình, và có thể diễn giải các tham số này một cách hợp lẽ.
 
-\index{compartment model}
+\index{Lưỡi cạo Occam | Occam's Razor}
 
-At the time, the remote compartment was a modeling abstraction that might, or might not, reflect something physical.  Later, according to Bergman, it was ``shown to be interstitial fluid", that is, the fluid that surrounds tissue cells.  In the history of mathematical modeling, it is common for hypothetical entities, added to models to achieve particular effects, to be found later to correspond to physical entities.
+Bergman thảo luận những đặc điểm mà ông cùng cộng sự đã cho rằng thiết yếu:
 
-\index{interstitial fluid}
+\begin{quote}
+(1) Glucose, một khi được tăng vọt khi tiêm, sẽ trở lại mức nền do
+hai hiệu ứng: bản thân từ chính glucose để chuẩn hoá nồng độ
+của nó [...] cũng như hiệu ứng xúc tác từ insulin để cho phép
+glucose tự chuẩn hoá (2) Chúng tôi cũng phát hiện thấy rằng
+hiệu ứng của insulin lên lượng giảm ròng của glucose
+phải rất chậm chạp --- nghĩa là insulin hoạt động rất chậm vì 
+trước hết insulin phải di chuyển từ plasma vào một khoang chứa tách biệt [...] để gây tác động lên sự tiêu huỷ glucose.
+\end{quote}
 
-The glucose model consists of two differential equations:
+Diễn đạt điểm thứ hai bằng cách khác, hiệu ứng của insulin đối với thải loại glucose, như thấy ở số liệu, sẽ diễn ra chậm hơn so với ta hình dung nếu như nó phụ thuộc chủ yếu vào nồng độ insulin trong máu.  Nhóm của Bergman đặt ra giả thiết rằng insulin phải di chuyển tương đối chậm, từ máu vào trong một ``khoang chứa'' nơi nó sẽ phát huy tác dụng.
+
+\index{mô hình khoang chứa | compartment model}
+
+Lúc bấy giờ, khoang chứa là một cách trừu tượng hoá có thể có, hoặc cũng có thể không phản ánh một thứ cụ thể. Về sau này, theo Bergman, thứ đó ``đã cho thấy là dịch mô kẽ'', tức là chất lỏng bao quanh tế bào mô. Trong lịch sử mô hình toán học, rất thường thấy việc những thực thể tưởng tượng được thêm vào mô hình để đạt được những hiệu ứng cụ thể, sau này đã thấy xuất hiện tương ứng với những thứ có thực.
+
+\index{dịch mô kẽ | interstitial fluid}
+
+Mô hình glucose bao gồm hai phương trình vi phân:
 %
 \[ \frac{dG}{dt} = -k_1 \left[ G(t) - G_b \right] - X(t) G(t)  \]
 %
 \[ \frac{dX}{dt} = k_3 \left[I(t) - I_b \right] - k_2 X(t) \]
 %
-where
+trong đó
 
 \begin{itemize}
 
-\item $G$ is the concentration of blood glucose as a function of time and $dG/dt$ is its rate of change.
+\item $G$ là nồng độ đường huyết dưới dạng hàm theo thời gian và $dG/dt$ là tốc độ thay đổi của nó.
 
-\item $I$ is the concentration of insulin in the blood as a function of time, which is taken as an input into the model, based on measurements.
+\item $I$ là nồng độ insulin trong máu như hàm số thời gian, vốn được lấy như một đầu vào mô hình, dựa trên số liệu đo.
 
-\item $G_b$ is the basal concentration of blood glucose and $I_b$ is the basal concentration of blood insulin, that is, the concentrations at equilibrium.  Both are constants estimated from measurements at the beginning or end of the test.
+\item $G_b$ là nồng độ nền của đường huyết còn $I_b$ là nồng độ nền của insulin trong máu, hay là nồng độ ở mức cân bằng. Cả hai hằng số này đều được ước tính từ những đo đạc ban đầu hay cuối của xét nghiệm.
 
-\item $X$ is the concentration of insulin in the tissue fluid as a function of time, and $dX/dt$ is its rate of change.
+\item $X$ là nồng độ insulin trong dịch mô, biểu diễn như một hàm theo thời gian, còn $dX/dt$ là tốc độ thay đổi của nó.
 
-\item $k_1$, $k_2$, and $k_3$ are positive-valued parameters that control the rates of appearance and disappearance for glucose and insulin. 
+\item $k_1$, $k_2$, và $k_3$ là những tham số dương để kiểm soát tốc độ xuất hiện và biến mất của glucose và insulin. 
 
 \end{itemize}
 
-We can interpret the terms in the equations one by one:
+Ta có thể diễn giải từng đại lượng trong phương trình:
 
 \begin{itemize}
 
-\item $-k_1 \left[ G(t) - G_b \right]$ is the rate of glucose disappearance due to the effect of glucose itself.  When $G(t)$ is above basal level, $G_b$, this term is negative; when $G(t)$ is below basal level this term is positive.  So in the absence of insulin, this term tends to restore blood glucose to basal level.
+\item $-k_1 \left[ G(t) - G_b \right]$ là tốc độ biến mất của glucose do hiệu ứng từ bản thân glucose.  Khi $G(t)$ cao hơn mức nền, $G_b$, thì đại lượng nêu trên sẽ âm; còn khi $G(t)$ thấp hơn mức nền thì đại lượng sẽ dương. Như vậy khi không có insulin, đại lượng này có xu hướng phục hồi đường huyết về mức nền.
 
-\item $-X(t) G(t)$ models the interaction of glucose and insulin in tissue fluid, so the rate increases as either $X$ or $G$ increases.  This term does not require a rate parameter because the units of $X$ are unspecified; we can consider $X$ to be in whatever units would make the parameter of this term 1.
+\item $-X(t) G(t)$ mô hình hoá tương tác giữa glucose và insulin trong dịch mô, do vậy tốc độ này sẽ tăng lên khi $X$ hoặc $G$ tăng. Đại lượng này không đòi hỏi một tham số tốc độ vì đơn vị của $X$ không quy định sẵn; ta có thể coi $X$ đo bằng bất kì đơn vị nào khiến tham số của đại lượng này bằng 1.
 
-\item $k_3 \left[ I(t) - I_b \right]$ is the rate at which insulin diffuses between blood and tissue fluid.  When $I(t)$ is above basal level, insulin diffuses from the blood into the tissue fluid.  When $I(t)$ is below basal level, insulin diffuses from tissue to the blood.
+\item $k_3 \left[ I(t) - I_b \right]$ là tốc độ mà insulin khuếch tán giữa máu và dịch mô. Khi $I(t)$ cao hơn mức nền, insulin khuếch tán từ máu vào trong dịch mô. Khi $I(t)$ thấp dưới mức nền thì insulin khuếch tán từ mô vào máu.
 
-\item $-k_2 X(t)$ is the rate of insulin disappearance in tissue fluid as it is consumed or broken down.
+\item $-k_2 X(t)$ là tốc độ biến mất của insulin khỏi dịch mô khi nó bị tiêu thụ hoặc phân huỷ.
 
 \end{itemize}
 
-The initial state of the model is $X(0) = I_b$ and $G(0) = G_0$, where $G_0$ is a constant that represents the concentration of blood sugar immediately after the injection.  In theory we could estimate $G_0$ based on measurements, but in practice it takes time for the injected glucose to spread through the blood volume.  Since $G_0$ is not measurable, it is treated as a {\bf free parameter} of the model, which means that we are free to choose it to fit the data.
+Trạng thái ban đầu của mô hình là $X(0) = I_b$ và $G(0) = G_0$, trong đó $G_0$ là một hằng số biểu diễn nồng độ đường huyết ngay sau khi tiêm. Về lý thuyết ta có thể ước tính đyiwhc $G_0$ dựa theo đo đạc, nhưng trong thực tế vẫn cần thời gian để glucose lan truyền trong thể máu. Vì $G_0$ không thể đo đuaowjc, nó sẽ được coi như một {\bf tham số tự do} của mô hình, theo nghĩa là ta có quyền từ do lựa chọn trị số để nó khớp với số liệu đo nhất.
 
-\index{free parameter}
+\index{tham số tự do | free parameter}
 
 
 \section{Data}
@@ -5105,7 +5104,7 @@ data = pd.read_csv('data/glucose_insulin.csv',
 \label{chap08-fig01}
 \end{figure}
 
-Figure~\ref{chap08-fig01} shows glucose and insulin concentrations over \SI{182}{\minute} for a subject with normal insulin production and sensitivity.
+Hình~\ref{chap08-fig01} shows glucose and insulin concentrations over \SI{182}{\minute} for a subject with normal insulin production and sensitivity.
 
 
 \section{Interpolation}
@@ -5260,7 +5259,7 @@ results = run_simulation(system, update_func)
 \label{chap08-fig03}
 \end{figure}
 
-The top plot in Figure~\ref{chap08-fig03} shows simulated glucose levels from the model along with the measured data.  The bottom plot shows simulated insulin levels in tissue fluid, which is in unspecified units, and not to be confused with measured insulin levels in the blood.
+The top plot in Hình~\ref{chap08-fig03} shows simulated glucose levels from the model along with the measured data.  The bottom plot shows simulated insulin levels in tissue fluid, which is in unspecified units, and not to be confused with measured insulin levels in the blood.
 
 With the parameters I chose, the model fits the data well, but we can do better.
 
@@ -5353,7 +5352,7 @@ results, details = run_ode_solver(system, slope_func,
 
 \py{run_ode_solver} takes an optional argument, \py{t_eval}, which indicates where we want to evaluate the solution.  In this case we want the results to have the same time steps as the data, so we can compare them easily. 
 
-The results are similar to what we saw in Figure~\ref{chap08-fig03}.  The biggest relative difference is less than 1\%.
+The results are similar to what we saw in Hình~\ref{chap08-fig03}.  The biggest relative difference is less than 1\%.
 
 
 \section{Least squares}
@@ -5426,7 +5425,7 @@ results, details = run_ode_solver(system, slope_func,
 \label{chap08-fig04}
 \end{figure}
 
-Figure~\ref{chap08-fig04} shows the results.  The simulation matches the measurements well except during the first few minutes after the injection.  
+Hình~\ref{chap08-fig04} shows the results.  The simulation matches the measurements well except during the first few minutes after the injection.  
 
 But we don't expect the model to do well in this regime.
 
@@ -5976,7 +5975,7 @@ def plot_position(results):
 \label{chap09-fig01}
 \end{figure}
 
-Figure~\ref{chap09-fig01} shows the result.  Since acceleration is constant, velocity increases linearly and position decreases quadratically; as a result, the height curve is a parabola.
+Hình~\ref{chap09-fig01} shows the result.  Since acceleration is constant, velocity increases linearly and position decreases quadratically; as a result, the height curve is a parabola.
 
 \index{parabola}
 
@@ -6187,7 +6186,7 @@ results, details = run_ode_solver(system, slope_func,
 \label{chap09-fig02}
 \end{figure}
 
-Figure~\ref{chap09-fig02} shows the result.  It only takes a few seconds for the penny to accelerate up to terminal velocity; after that, velocity is constant, so height as a function of time is a straight line.
+Hình~\ref{chap09-fig02} shows the result.  It only takes a few seconds for the penny to accelerate up to terminal velocity; after that, velocity is constant, so height as a function of time is a straight line.
 
 \index{terminal velocity}
 
@@ -6306,7 +6305,7 @@ results, details = run_ode_solver(system, slope_func,
 \end{python}
 
 Again, I use \py{max_step} so the results look better when plotted.
-Figure~\ref{chap09-fig03} shows the results.
+Hình~\ref{chap09-fig03} shows the results.
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap09-fig03.pdf}}
@@ -6630,7 +6629,7 @@ plot(results.y, label='y')
 \label{chap10-fig01}
 \end{figure}
 
-Figure~\ref{chap10-fig01} shows the result.  As expected, the $x$ component increases monotonically, with decreasing velocity.  The $y$ position climbs initially and then descends, falling slightly below \SI{0}{\meter} after \SI{5.1}{\second}.
+Hình~\ref{chap10-fig01} shows the result.  As expected, the $x$ component increases monotonically, with decreasing velocity.  The $y$ position climbs initially and then descends, falling slightly below \SI{0}{\meter} after \SI{5.1}{\second}.
 
 \index{monotonic}
 
@@ -6646,7 +6645,7 @@ plot(results.x, results.y, label='trajectory')
 \label{chap10-fig02}
 \end{figure}
 
-Figure~\ref{chap10-fig02} shows this way of visualizing the results, which is called a {\bf trajectory plot} (see \url{http://modsimpy.com/trajec}).
+Hình~\ref{chap10-fig02} shows this way of visualizing the results, which is called a {\bf trajectory plot} (see \url{http://modsimpy.com/trajec}).
 
 \index{trajectory plot}
 
@@ -6788,7 +6787,7 @@ for angle in angles:
 \label{chap10-fig03}
 \end{figure}
 
-Figure~\ref{chap10-fig03} shows the results.  It looks like the optimal angle is between \SI{40}{\degree} and \SI{45}{\degree}.
+Hình~\ref{chap10-fig03} shows the results.  It looks like the optimal angle is between \SI{40}{\degree} and \SI{45}{\degree}.
 
 We can find the optimal angle more precisely and more efficiently using \py{max_bounded}, like this:
 
@@ -6868,7 +6867,7 @@ As a simple example of a system with rotation, we'll simulate the manufacture of
 \label{paper_roll}
 \end{figure}
 
-Figure~\ref{paper_roll} shows a diagram of the system: $r$ represents the radius of the roll at a point in time.  Initially, $r$ is the radius of the cardboard core, $R_{min}$.  When the roll is complete, $r$ is $R_{max}$.
+Hình~\ref{paper_roll} shows a diagram of the system: $r$ represents the radius of the roll at a point in time.  Initially, $r$ is the radius of the cardboard core, $R_{min}$.  When the roll is complete, $r$ is $R_{max}$.
 
 I'll use $\theta$ to represent the total rotation of the roll in radians.  In the diagram, $d\theta$ represents a small increase in $\theta$, which corresponds to a distance along the circumference of the roll of $r~d\theta$.
 
@@ -7011,7 +7010,7 @@ results, details = run_ode_solver(system, slope_func,
 \end{python}
 
 
-Figure~\ref{chap11-fig01} shows the results.  \py{theta} grows linearly over time, as we should expect.  As a result, \py{r} also grows linearly.  But since the derivative of \py{y} depends on \py{r}, and \py{r} is increasing, \py{y} grows with increasing slope.
+Hình~\ref{chap11-fig01} shows the results.  \py{theta} grows linearly over time, as we should expect.  As a result, \py{r} also grows linearly.  But since the derivative of \py{y} depends on \py{r}, and \py{r} is increasing, \py{y} grows with increasing slope.
 
 Because this system is so simple, it is almost silly to simulate it.  As we'll see in the next section, it is easy enough to solve the differential equations analytically.  But it is often useful to start with a simple simulation as a way of exploring and checking assumptions.
 
@@ -7210,7 +7209,7 @@ Our simulation will use the following parameters:
 \label{teapot}
 \end{figure}
 
-Figure~\ref{teapot} shows the scenario, where $F$ is the force I apply to the turntable at the perimeter, perpendicular to the moment arm, $r$, and $\tau$ is the resulting torque. The blue circle near the bottom is the teapot.
+Hình~\ref{teapot} shows the scenario, where $F$ is the force I apply to the turntable at the perimeter, perpendicular to the moment arm, $r$, and $\tau$ is the resulting torque. The blue circle near the bottom is the teapot.
 
 Here's a \py{Params} object with these values
 
@@ -7375,7 +7374,7 @@ Pandas provides \py{combine_first}, which combines
 results = results1.combine_first(results2)
 \end{python}
 
-Figure~\ref{chap25-fig01} shows the results.  Angular velocity, \py{omega}, increases linearly while I am pushing, and decreases linearly after I let go.  The angle, \py{theta}, is the integral of angular velocity, so it forms a parabola during each phase.
+Hình~\ref{chap25-fig01} shows the results.  Angular velocity, \py{omega}, increases linearly while I am pushing, and decreases linearly after I let go.  The angle, \py{theta}, is the integral of angular velocity, so it forms a parabola during each phase.
 
 In the next section, we'll use this simulation to estimate the torque due to friction.
 
@@ -7594,7 +7593,7 @@ Modify the code from Chapter~\ref{chap21} to model this effect.  How does the be
 In this case study we'll develop a model of Spider-Man swinging from a
 springy cable of webbing attached to the top of the Empire State
 Building.  Initially, Spider-Man is at the top of a nearby building, as
-shown in Figure~\ref{spiderman}.
+shown in Hình~\ref{spiderman}.
 
 \index{Spider-man}
 \index{Empire State Building}
@@ -7686,7 +7685,7 @@ The interactions of the kitten and the paper roll are complex.  To keep things s
 \label{kitten}
 \end{figure}
 
-Figure~\ref{kitten} shows the paper roll with $r$, $F$, and $\tau$.  As a vector quantity, the direction of $\tau$ is into the page, but we only care about its magnitude for now.
+Hình~\ref{kitten} shows the paper roll with $r$, $F$, and $\tau$.  As a vector quantity, the direction of $\tau$ is into the page, but we only care about its magnitude for now.
 
 Here's the \py{Params} object with the parameters we'll need:
 
@@ -7769,7 +7768,7 @@ Suppose you are holding a yo-yo with a length of string wound around its axle, a
 \label{yoyo}
 \end{figure}
 
-Figure~\ref{yoyo} is a diagram of the forces on the yo-yo and the resulting torque.  The outer shaded area shows the body of the yo-yo.  The inner shaded area shows the rolled up string, the radius of which changes as the yo-yo unrolls.
+Hình~\ref{yoyo} is a diagram of the forces on the yo-yo and the resulting torque.  The outer shaded area shows the body of the yo-yo.  The inner shaded area shows the rolled up string, the radius of which changes as the yo-yo unrolls.
 
 \index{system of equations}
 
