@@ -1,6 +1,6 @@
 % LaTeX source for ``Modeling and Simulation in Python''
 % Copyright 2017  Allen B. Downey.
-% Bản tiếng Việt 2019: Nguyễn Quang Chiến 
+% Bản tiếng Việt 2019-2023: Nguyễn Quang Chiến 
 
 % License: Creative Commons Attribution-NonCommercial 4.0 Unported License.
 % https://creativecommons.org/licenses/by-nc/4.0/
@@ -5082,79 +5082,79 @@ Trạng thái ban đầu của mô hình là $X(0) = I_b$ và $G(0) = G_0$, tron
 \index{tham số tự do | free parameter}
 
 
-\section{Data}
+\section{Số liệu}
 
-To develop and test the model, I use data from Pacini and Bergman\footnote{``MINMOD: A computer program to calculate insulin sensitivity and pancreatic responsivity from the frequently sampled intravenous glucose tolerance test", {\em Computer Methods and Programs in Biomedicine} 23: 113-122, 1986.}.  The dataset is in a file in the repository for this book, which we can read into a \py{DataFrame}:
+Để phát triển và kiểm thử mô hình, tôi dùng số liệu của Pacini và Bergman\footnote{``MINMOD: A computer program to calculate insulin sensitivity and pancreatic responsivity from the frequently sampled intravenous glucose tolerance test", {\em Computer Methods and Programs in Biomedicine} 23: 113-122, 1986.}.  Bộ số liệu có trong một file thuộc kho mã lệnh kèm theo cuốn sách này; từ số liệu đó ta có thể đọc vào một \py{DataFrame}:
 
-\index{data}
-\index{DataFrame object}
+\index{số liệu | data}
+\index{đối tượng DataFrame object}
 
 \begin{python}
 data = pd.read_csv('data/glucose_insulin.csv',
                    index_col='time')
 \end{python}
 
-\py{data} has two columns: \py{glucose} is the concentration of blood glucose in \si{\milli\gram/\deci\liter}; \py{insulin} is concentration of insulin in the blood in \si{\micro U\per\milli\liter} (a medical ``unit", denoted \si{U}, is an amount defined by convention in context).  The index is time in \si{\minute}.
+\py{data} có hai cột: \py{glucose} là nồng độ đường máu theo \si{\milli\gram/\deci\liter}; \py{insulin} là nồng độ insulin trong máu theo \si{\micro U\per\milli\liter} (một ``đơn vị" y học, kí hiệu \si{U}, là một lượng định nghĩa tiện dùng trong ngữ cảnh này).  Các số thứ tự là thời gian đo bằng \si{\minute}.
 
-\index{concentration}
+\index{nồng độ | concentration}
 
 \begin{figure}
 \centerline{\includegraphics[width=3.5in]{figs/chap08-fig01.pdf}}
-\caption{Glucose and insulin concentrations measured by FSIGT.}
+\caption{Nồng độ glucose và insulin đo được bởi FSIGT.}
 \label{chap08-fig01}
 \end{figure}
 
-Hình~\ref{chap08-fig01} shows glucose and insulin concentrations over \SI{182}{\minute} for a subject with normal insulin production and sensitivity.
+Hình~\ref{chap08-fig01} cho thấy các nồng độ glucose và insulin trong suốt \SI{182}{\minute} ở một chủ thể có mức sản xuất và độ nhạy insulin bình thường.
 
 
-\section{Interpolation}
+\section{Nội suy}
 \label{interpolate}
 
-Before we are ready to implement the model, there's one problem we have to solve.  In the differential equations, $I$ is a function that can be evaluated at any time, $t$.  But in the \py{DataFrame}, we only have measurements at discrete times.  This is a job for interpolation!
+Trước khi ta sẵn sàng lập trình mô hình, có một vấn đề cần giải quyết. Trong các phương trình vi phân, $I$ là một hàm có thể ước lượng tại bất cứ thời gian $t$ nào.  Nhưng trong \py{DataFrame}, ta chỉ có kết quả đo đạc tại những thời điểm rời rạc thôi.  Đây là vấn đề đặt ra cho phép nội suy!
 
-\index{interpolation}
+\index{nội suy | interpolation}
 
-The \py{modsim} library provides a function named \py{interpolate}, which is a wrapper for the SciPy function \py{interp1d}.  It takes any kind of \py{Series} as a parameter, including \py{TimeSeries} and \py{SweepSeries}, and returns a function.  That's right, I said it returns a {\em function}.
+Thư viện \py{modsim} cung cấp một hàm có tên \py{interpolate}, đây là một dạng bao gói hàm \py{interp1d} trong SciPy.  Hàm này nhận vào bất kì kiểu dãy \py{Series} nào làm tham số, kể cả \py{TimeSeries} và \py{SweepSeries}, rồi trả lại một hàm khác. Đúng đó, tôi đã bảo rằng nó trả lại một {\em hàm}.
 
-\index{function!as return value}
+\index{hàm!kết quả trả lại}
 \index{Series}
-\index{interpolate}
+\index{nội suy | interpolate}
 \index{interp1d}
 \index{SciPy}
 
-So we can call \py{interpolate} like this:
+Do vậy ta có thể gọi \py{interpolate} như sau:
 
 \begin{python}
 I = interpolate(data.insulin)
 \end{python}
 
-Then we can call the new function, \py{I}, like this:
+Rồi ta có thể gọi hàm mới, \py{I}, như sau:
 
 \begin{python}
 I(18)
 \end{python}
 
-The result is 31.66, which is a linear interpolation between the actual measurements at \py{t=16} and \py{t=19}.  We can also pass an array as an argument to \py{I}:
+Kết quả là 31.66, vốn là một phép nội suy tuyến tính giữa các trị số thực đo tại \py{t=16} và \py{t=19}.  Ta cũng có thể truyền một mảng làm đối số tới \py{I}:
 
 \begin{python}
 ts = linrange(t_0, t_end, endpoint=True)
 I(ts)
 \end{python}
 
-The result is an array of interpolated values for equally-spaced values of \py{t}.
+Kết quả là một mảng các giá trị nội suy tại những điểm cách đều nhau của \py{t}.
 
 \index{linrange}
 \index{NumPy}
 
-\py{interpolate} can take additional arguments, which it passes along to \py{interp1d}.  You can read about these options at \url{http://modsimpy.com/interp}.
+\py{interpolate} có thể nhận thêm các đối số nữa; các đối số này được truyền tiếp đến \py{interp1d}.  Bạn có thể đọc về khả năng này ở \url{http://modsimpy.com/interp}.
 
 
-\section{Implementation}
+\section{Lập trình}
 \label{glucose}
 
-To get started, we'll assume that the parameters of the model are known.  We'll implement the model and use it to generate time series for \py{G} and \py{X}.  Then we'll see how to find the parameters that generate the series that best fits the data.
+Để bắt đầu, tôi sẽ giả sử rằng các tham số mô hình đều đã biết rồi. Ta sẽ lập trình mô hình rồi dùng nó để phát sinh chuỗi thời gian cho \py{G} và \py{X}.  Sau đó, ta sẽ xem cách tìm bộ tham số để phát sinh được chuỗi sao cho khớp nhất với những số liệu hiện có.
 
-Taking advantage of estimates from prior work, we'll start with these values:
+Lợi dụng những kết quả ước tính từ phần trước, ta sẽ bắt đầu với những trị số sau:
 
 \begin{python}
 params = Params(G0 = 290,
@@ -5163,12 +5163,12 @@ params = Params(G0 = 290,
                 k3 = 1e-05)
 \end{python}
 
-A \py{Params} object is similar to a \py{System} or \py{State} object; it is useful for holding a collection of parameters.
+Một đối tượng \py{Params} cũng tương tự như đối tượng \py{System} hay \py{State}; nó giúp ta lưu giữ một tập hợp các tham số.
 
-\index{State object}
-\index{System object}
+\index{đối tượng State object}
+\index{đối tượng System object}
 
-We can pass \py{params} and \py{data} to \py{make_system}:
+Ta có thể truyền \py{params} và \py{data} tới cho \py{make_system}:
 
 \begin{python}
 def make_system(params, data):
@@ -5187,15 +5187,15 @@ def make_system(params, data):
                   t_0=t_0, t_end=t_end, dt=2)
 \end{python}
 
-\py{make_system} uses the measurements at \py{t=0} as the basal levels, \py{Gb} and \py{Ib}.
-It gets \py{t_0} and \py{t_end} from the data.
-And it uses the parameter \py{G0} as the initial value for \py{G}.
-Then it packs everything into a \py{System} object.
+\py{make_system} sử dụng những số liệu đo tại \py{t=0} làm các mức nền \py{Gb} và \py{Ib}.
+Hàm này lấy \py{t_0} và \py{t_end} từ bộ số liệu.
+Và nó dùng tham số \py{G0} làm giá trị ban đầu cho \py{G}.
+Sau đó, nó gói tất cả mọi thứ vào một đối tượng \py{System}.
 
-Here's the update function:
+Sau đây là hàm cập nhật:
 
-\index{update function}
-\index{function!update}
+\index{hàm cập nhật | update function}
+\index{hàm!cập nhật}
 
 \begin{python}
 def update_func(state, t, system):
@@ -5211,25 +5211,25 @@ def update_func(state, t, system):
     return State(G=G, X=X)
 \end{python}
 
-As usual, the update function takes a \py{State} object, a time, and a \py{System} object as parameters.  The first line \py{update} uses multiple assignment to extract the current values of \py{G} and \py{X}.  The second line uses \py{unpack} so we can read the system variables without using the dot operator.
+Như thường lệ, hàm cập nhật này nhận vào các tham số gồm một đối tượng \py{State}, một thời gian, và một đối tượng \py{System}. Dòng đầu tiên \py{update} sử dụng phép gán bội để kết xuất các giá trị hiện thời của \py{G} và \py{X}.  Dòng thứ hai sử dụng \py{unpack} giúp cho ta đọc được các biến hệ thống mà không cần dùng đến toán tử dấu chấm.
 
-\index{unpack}
+\index{tháo | unpack}
 
-Computing the derivatives \py{dGdt} and \py{dXdt} is straightforward; we just translate the equations from math notation to Python.
+Có thể tính được các đạo hàm \py{dGdt} và \py{dXdt} rất dễ dàng; ta chỉ việc chuyển các phương trình từ biểu thức toán học sang mã lệnh Python.
 
-\index{derivative}
+\index{đạo hàm | derivative}
 
-Then, to perform the update, we multiply each derivative by the discrete time step \py{dt}, which is \SI{2}{\minute} in this example.  The return value is a \py{State} object with the new values of \py{G} and \py{X}.
+Sau đó, để thực hiện cập nhật, ta đem nhân từng đạo hàm với bước thời gian rời rạc, \py{dt}, mà ở ví dụ này bằng \SI{2}{\minute}. Kết quả trả lại là một đối tượng \py{State} với các trị số mới của \py{G} và \py{X}.
 
-\index{time step}
+\index{bước thời gian | time step}
 
-Before running the simulation, it is a good idea to run the update function with the initial conditions:
+Trước khi chạy mô phỏng, ta nên chạy hàm cập nhật với các điều kiện ban đầu:
 
 \begin{python}
 update_func(system.init, system.t_0, system)
 \end{python}
 
-Now we are ready to run the simulation.  We'll use this version of \py{run_simulation}, which is very similar to previous versions:
+Bây giờ ta đã sẵn sàng chạy mô phỏng này rồi. Ta sẽ dùng phiên bản \py{run_simulation} này, nó rất giống với các phiên bản trước đó:
 
 \index{\py{run_simulation}}
 
@@ -5247,7 +5247,7 @@ def run_simulation(system, update_func):
     return frame
 \end{python}
 
-We can run it like this:
+Giờ thì ta có thể chạy mã lệnh như sau:
 
 \begin{python}
 results = run_simulation(system, update_func)
@@ -5255,69 +5255,69 @@ results = run_simulation(system, update_func)
 
 \begin{figure}
 \centerline{\includegraphics[width=3.5in]{figs/chap08-fig03.pdf}}
-\caption{Results from simulation of the glucose minimal model.}
+\caption{Kết quả từ mô phỏng mô hình glucose tối thiểu.}
 \label{chap08-fig03}
 \end{figure}
 
-The top plot in Hình~\ref{chap08-fig03} shows simulated glucose levels from the model along with the measured data.  The bottom plot shows simulated insulin levels in tissue fluid, which is in unspecified units, and not to be confused with measured insulin levels in the blood.
+Biểu đồ phía trên ở Hình~\ref{chap08-fig03} cho thấy các mức glucose mô phỏng được bằng mô hình cùng với số liệu đo đạc. Biểu đồ phía dưới cho thấy mức insulin mô phỏng trong dịch mô, đại lượng này không có đơn vị, và không nên nhầm với các mức insulin đo được trong máu.
 
-With the parameters I chose, the model fits the data well, but we can do better.
+Với các tham số tôi đã chọn, mô hình khớp với số liệu rất tốt, song ta còn có thể làm tốt hơn nữa.
 
-In the next chapter, we replace \py{run_simulation} with a better differential equation solver, then search for the parameters that yield the best fit for the data.
+Ở chương tiếp theo, ta sẽ thay \py{run_simulation} bằng một bộ giải phương trình vi phân tốt hơn, rồi tìm kiếm tham số cho ta sự khớp nhất với số liệu đo được.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap17.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap17.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 
-\chapter{Numerical methods}
+\chapter{Phương pháp số}
 \label{chap18}
 
-In the previous chapter, we implemented the glucose minimal model using \py{run_simulation}, which solves differential equations using discrete time steps.  This method works well enough for many applications, but it is not very accurate.  In this chapter we explore a better option: using an {\bf ODE solver}.
+Ở chương trước, ta đã lập trình mô hình glucose tối thiểu bằng \py{run_simulation}; hàm này giải phương trình vi phân bằng những bước thời gian rời rạc. Phương pháp này phát huy tác dụng trong nhiều trường hợp vận dụng, nhưng nó vẫn không chính xác lắm. Ở mục này ta khám phá một giải pháp tốt hơn: dùng {\bf bộ giải PVT}.
 
-Then we use a search algorithm to find the model parameters that yield the best fit for the data.
+Sau đó ta sẽ sử dụng thuật toán tìm kiếm để tính ra tham số mô hình cho ta mức độ khớp tốt nhất với số liệu.
 
 
-\section{Solving differential equations}
+\section{Giải phương trình vi phân}
 \label{slopefunc}
 
-So far we have solved differential equations by rewriting them as difference equations.  In the current example, the differential equations are:
+Cho đến giờ, ta đã giải các phương trình vi phân bằng cách viết chúng dưới dạng phương trình sai phân. Ở ví dụ này, các phương trình sai phân là:
 %
 \[ \frac{dG}{dt} = -k_1 \left[ G(t) - G_b \right] - X(t) G(t)  \]
 %
 \[ \frac{dX}{dt} = k_3 \left[I(t) - I_b \right] - k_2 X(t) \]
 %
-If we multiply both sides by $dt$, we have:
+Nếu nhân cả hai vế với $dt$, ta được:
 %
 \[ dG = \left[ -k_1 \left[ G(t) - G_b \right] - X(t) G(t) \right] dt  \]
 %
 \[ dX = \left[ k_3 \left[I(t) - I_b \right] - k_2 X(t) \right] dt \]
 %
-When $dt$ is very small, or more precisely {\bf infinitesimal}, this equation is exact.  But in our simulations, $dt$ is \SI{2}{\minute}, which is small but not infinitesimal.  In effect, the simulations assume that the derivatives $dG/dt$ and $dX/dt$ are constant during each \SI{2}{\minute} time step.
+Khi $dt$ rất nhỏ, hay đúng hơn là {\bf nhỏ vô cùng}, thì phương trình trên là chính xác. Nhưng trong mô phỏng, $dt$ chỉ bằng \SI{2}{\minute}, tuy nhỏ nhưng chưa phải nhỏ vô cùng. Hệ quả là, trong mô phỏng đã coi rằng những đạo hàm $dG/dt$ và $dX/dt$ đều không đổi suốt mỗi bước thời gian \SI{2}{\minute}.
 
-\index{time step}
+\index{bước thời gian | time step}
 
-This method, evaluating derivatives at discrete time steps and assuming that they are constant in between, is called {\bf Euler's method} (see \url{http://modsimpy.com/euler}).
+Phương pháp này, trong đó ước lượng những đạo hàm tại các bước thời gian rời rạc và coi rằng chúng không đổi giữa những giá trị đó, được gọi là {\bf phương pháp Euler} (xem \url{http://modsimpy.com/euler}).
 
-\index{Euler's method}
+\index{phương pháp Euler | Euler's method}
 
-Euler's method is good enough for some simple problems, but there are many better ways to solve differential equations.  Rather than implement these methods ourselves, we will use functions from SciPy.  The \py{modsim} library provides a function called \py{run_ode_solver}, which uses the SciPy function \py{solve_ivp}.
+Phương pháp Euler đủ tốt để giải bài toán đơn giản, nhưng vẫn còn nhiều cách tốt hơn để giải các phương trình vi phân. Thay vì tự tay lập trình những phương pháp này, ta sẽ dùng các hàm có trong SciPy.  Thư viện \py{modsim} cung cấp một hàm có tên \py{run_ode_solver}, hàm này lại dùng đến hàm \py{solve_ivp} của SciPy.
 
 \index{SciPy}
 
-The ``ODE" in \py{run_ode_solver} stands for ``ordinary differential equation integrator".  The equations we are solving are ``ordinary'' because all the derivatives are with respect to the same variable; in other words, there are no partial derivatives.  
+Chữ ``ODE" trong \py{run_ode_solver} viết tắt từ ``ordinary differential equation integrator" (tính tích phân cho phương trình vi phân thường). Các phương trình cần giải thuộc dạng ``thường'' vì mọi đạo hàm trong đó đều lấy theo cùng một biến; nói cách khác là không có mặt đạo hàm riêng.
 
-The ``IVP" in \py{solve_ivp} stands for ``initial value problem", which is the term for problems where you start with an initial value and figure out how the system changes over time, or sometimes space or another quantity.
+Chữ ``IVP" trong \py{solve_ivp} viết tắt từ ``initial value problem" (bài toán điều kiện đầu), để chỉ các bài toán mà bạn khởi đầu bằng một điều kiện đầu rồi hình dung xem hệ thống sẽ thay đổi ra sao theo thời gian, hay đôi khi là thay đổi trong không gian hay thay đổi theo một đại lượng khác.
 
-\index{ordinary differential equation}
-\index{initial value problem}
+\index{phương trình vi phân thường | ordinary differential equation}
+\index{bài toán điều kiện đầu | initial value problem}
 
-\py{solve_ivp} can use one of several ODE solvers; by default it uses a {\bf Runge-Kutta-Fehlberg method}.  These methods are {\bf adaptive}; that is, they choose the step size automatically, using small steps when necessary to limit errors, and large steps when possible to be efficient.
+\py{solve_ivp} có thể dùng một tỏng số vài bộ giải PVT; mặc định nó sẽ dùng {\bf phương pháp Runge-Kutta-Fehlberg}.  Các phương pháp này đều {\bf thích ứng}; nghĩa là chúng sẽ tự động chọn ra độ dài bước, và sẽ sử dụng các bước ngắn khi cần để hạn chế sai số, và những bước dài nếu có thể để tính được nhanh hơn.
 
-To use \py{run_ode_solver}, we have to provide a ``slope function", like this:
+Để dùng \py{run_ode_solver}, ta cần phải cung cấp một ``hàm độ dốc", như sau:
 
-\index{slope function}
-\index{function!slope}
-\index{unpack}
+\index{độ dốc (hàm) | slope function}
+\index{hàm!độ dốc}
+\index{tháo | unpack}
 
 \begin{python}
 def slope_func(state, t, system):
@@ -5330,12 +5330,12 @@ def slope_func(state, t, system):
     return dGdt, dXdt
 \end{python}
 
-\py{slope_func} is similar to \py{update_func}; in fact, it takes the same parameters in the same order.  But \py{slope_func} is simpler, because all we have to do is compute the derivatives, that is, the slopes.  We don't have to do the updates; \py{run_ode_solver} does them for us.
+\py{slope_func} cũng tương tự với \py{update_func}; thực ra nó nhận lấy tham số với thứ tự y hệt. Nhưng \py{slope_func} lại đơn giản hơn, vì tất cả những gì ta cần làm là đi tính các đạo hàm, tức là những độ dốc. Ta không phải cập nhật; \py{run_ode_solver} đã thay ta làm điều này rồi.
 
 
 \index{\py{run_ode_solver}}
 
-Now we can call \py{run_ode_solver} like this:
+Bây giờ ta có thể gọi \py{run_ode_solver} như sau:
 
 \begin{python}
 results, details = run_ode_solver(system, slope_func, 
@@ -5344,46 +5344,46 @@ results, details = run_ode_solver(system, slope_func,
 
 \py{run_ode_solver} is similar to \py{run_simulation}: it takes a \py{System} object and a slope function as parameters, and returns a \py{TimeFrame} as a result.  \py{results} has one row for each time step and one column for each state variable.  In this example, the rows are the values from \py{data.index}; the columns are the state variables, \py{G} and \py{X}.
  
-\index{TimeFrame object}
+\index{đối tượng TimeFrame object}
 
-\py{run_ode_solver} also returns \py{details}, which is a \py{ModSimSeries} with information about how the solver ran, including a success code, a diagnostic message, and other information.  A \py{ModSimSeries} is like a \py{System} or \py{State} object; it contains a set of variables and their values.
+\py{run_ode_solver} cũng trả lại \py{details}, vốn là một chuỗi \py{ModSimSeries} với thông tin về quá trình chạy của bộ giải, bao gồm mã số đánh dấu cho thành công, thông điệp chẩn đoán và những thông tin khác. Một chuỗi \py{ModSimSeries} cũng giống một đối tượng \py{System} hay \py{State}; nó chứa tập hợp các biến cùng giá trị của chúng.
 
 \index{ModSimSeries}
 
-\py{run_ode_solver} takes an optional argument, \py{t_eval}, which indicates where we want to evaluate the solution.  In this case we want the results to have the same time steps as the data, so we can compare them easily. 
+\py{run_ode_solver} nhận một đối số tuỳ chọn; \py{t_eval}, để biểu thị rằng ta có muốn lượng giá nghiệm số không. Trong trường hpjw này ta muốn kết quả phải có cùng bước thời gian như số liệu để tiện so sánh.
 
-The results are similar to what we saw in Hình~\ref{chap08-fig03}.  The biggest relative difference is less than 1\%.
+Kết quả thu được cũng tương tự những gì trên Hình~\ref{chap08-fig03}.  Mức chênh lệch tương đối lớn nhất còn dưới 1\%.
 
 
-\section{Least squares}
+\section{Bình phương nhỏ nhất}
 
-So far we have been taking the parameters as given, but in general we don't have that luxury.  Normally we are given the data and we have to search for the parameters that yield a time series that best matches the data.
+Cho tới giờ ta đã nhận những tham số như được cấp, song nhìn chung mọi chuyện sẽ không dễ như vậy. Thường thì ta sẽ được cấp số liệu và phải đi tìm những tham số cho ra một chuỗi thời gian sao cho khớp nhất với số liệu đó.
 
-\index{fitting data}
+\index{khớp số liệu | fitting data}
 
-We will do that now, in two steps:
+Ta sẽ thực hiện điều này theo hai bước:
 
 \begin{enumerate}
 
-\item First we'll define an {\bf error function} that takes a set of parameters, simulates the system with the given parameters, and computes the errors, that is, the differences between the simulation results and the data.
+\item Trước hết ta sẽ định nghĩa một {\bf hàm sai số} nhận vào một tập hợp tham số, rồi mô phỏng hệ thống với các tham số đã cho, và tính các sai số, tức là hiệu số giữa kết quả mô phỏng và số liệu hiện có.
 
-\index{error function}
-\index{function~error}
+\index{sai số (hàm) | error function}
+\index{hàm!sai số}
 
-\item Then we'll use \py{fit_leastsq}, to search for the parameters that minimize mean squared error (MSE).
+\item Sau đó ta sẽ dùng \py{fit_leastsq}, đẻ tìm kiếm các tham số làm cho sai số quân phương (MSE) là nhỏ nhất.
 
 \index{\py{fit_leastsq}}
 \index{leastsq}
-\index{mean squared error}
+\index{sai số quân phương | mean squared error}
 \index{MSE}
 
 \end{enumerate}
 
-When \py{fit_leastsq} runs, it calls \py{error_func} many times, each time with a different set of parameters, until it converges on the parameters that minimize MSE.
+Khi chạy \py{fit_leastsq}, hàm này gọi đến \py{error_func} nhiều lần, mỗi lần lại với một tập tham số khác, cho đến khi nó hội tụ với các tham số làm cực tiểu hoá MSE.
 
 \index{\py{error_func}}
 
-Here's the error function:
+Sau đây là hàm sai số:
 
 \begin{python}
 def error_func(params, data):
@@ -5393,25 +5393,25 @@ def error_func(params, data):
     return errors
 \end{python}
 
-\py{error_func} takes as parameters a \py{Params} object and a \py{DataFrame} containing the measurements.  It uses \py{make_system} to create a \py{System} object, and calls \py{run_ode_solver} using the same slope function we saw in Section~\ref{slopefunc}.
+\py{error_func} nhận hai tham số gồm đối tượng \py{Params} và \py{DataFrame} có chứa số liệu thực đo. Nó dùng \py{make_system} để tạo ra đối tượng \py{System}, rồi gọi \py{run_ode_solver} bằng chính hàm độ dốc mà ta đã thấy ở Mục~\ref{slopefunc}.
 
-Then it computes the difference between the simulation results and the data.  Since \py{results.G} and \py{data.glucose} are both \py{Series} objects, \py{errors} is also a \py{Series}.
+Sau đó, nó tính hiệu số giữa kết quả mô phỏng và số liệu. Vì \py{results.G} và \py{data.glucose} đều là những đối tượng \py{Series} nên \py{errors} cũng là một \py{Series}.
 
 \index{Series}
 \index{\py{run_ode_solver}}
 
-Now, to do the actual minimization, we run \py{fit_leastsq}:
+Bây giờ để thực hiện chính việc cực tiểu hoá, ta chạy \py{fit_leastsq}:
 
 \begin{python}
 best_params, details = fit_leastsq(error_func, params, data)
 \end{python}
 
-The first return value is a \py{Params} object with the parameters that yield the best fit for the data.  The second return value is a \py{ModSimSeries} object with more information.
+Giá trị trả về thứ nhất là một đối tượng \py{Params} với những tham số để cho sự khớp nhất với số liệu hiện có. Giá trị trả lại thứ hai là một đối tượng \py{ModSimSeries} với thông tin bổ sung.
 
 
-\section{Interpreting parameters}
+\section{Diễn giải tham số}
 
-To see the results, we can pass \py{best_params} to \py{make_system} and then run the simulation:
+Để thấy kết quả, ta có thể truyền \py{best_params} tới \py{make_system} rồi chạy mô phỏng:
 
 \begin{python}
 system = make_system(best_params, data)
@@ -5421,71 +5421,71 @@ results, details = run_ode_solver(system, slope_func,
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap08-fig04.pdf}}
-\caption{Simulation of the glucose minimal model with parameters that minimize MSE.}
+\caption{Mô phỏng mô hình glucose tối thiểu với các tham số làm cực tiểu sai số MSE.}
 \label{chap08-fig04}
 \end{figure}
 
-Hình~\ref{chap08-fig04} shows the results.  The simulation matches the measurements well except during the first few minutes after the injection.  
+Hình~\ref{chap08-fig04} cho thấy kết quả. Mô phỏng đã rất khớp với số liệu đo đạc, ngoại trừ vài phút đầu tiên ngay sau khi tiêm.
 
-But we don't expect the model to do well in this regime.
+Nhưng ta cũng chẳng trông đợi mô hình sẽ hoạt động tốt ở giai đoạn đầu này.
 
-The problem is that the model is {\bf non-spatial}; that is, it does not take into account different concentrations in different parts of the body.  Instead, it assumes that the concentrations of glucose and insulin in blood, and insulin in tissue fluid, are the same throughout the body.  This way of representing the body is known among experts as the ``bag of blood" model.
+Vấn đề là ở chỗ mô hình có tính {\bf phi không gian}; nghĩa là nó không xét đến nồng độ khác nhau trên các phần cơ thể khác nhau. Trái lại, nó coi như nồng độ của glucose và insulin trong máu, cũng đều không đổi trên toàn bộ cơ thể. Cách biểu diễn cơ thể như thế này được các chuyên gia gọi là mô hình ``bịch máu".
 
-\index{non-spatial model}
-\index{bag of blood}
+\index{mô hình phi không gian | non-spatial model}
+\index{bịch máu | bag of blood}
 
-Immediately after injection, it takes time for the injected glucose to circulate.  During that time, we don't expect a non-spatial model to be accurate.  For this reason, we should not take the estimated value of \py{G0} too seriously; it is useful for fitting the model, but not meant to correspond to a physical, measurable quantity.
+Ngay sau khi tiêm, sẽ cần thời gian để lượng glucose thêm vào luân chuyển trong cơ thể. Trong lúc đó, ta không thể trông đợi mô hình phi không gian đạt độ chính xác được. Vì vậy, không nên quá khắt khe với giá trị ước tính \py{G0}; nó chỉ hữu ích để khớp mô hình chứ không nhằm tương ứng với một đại lượng vật lý đo đạc được.
 
-On the other hand, the other parameters are meaningful; in fact, they are the reason the model is useful.  Using the best-fit parameters, we can estimate two quantities of interest:
+Mặt khác, những tham số còn lại đều có ý nghĩa; và thực tế chúng chính là lí do để mô hình hữu dụng. Bằng cách dùng những tham số khớp nhất, ta có thể ước tính hai đại lượng cần quan tâm:
 
-\index{glucose effectiveness}
-\index{insulin sensitivity}
+\index{hiệu quả glucose | glucose effectiveness}
+\index{độ nhạy insulin | insulin sensitivity}
 
 \begin{itemize}
 
-\item ``Glucose effectiveness", $E$, which is the tendency of elevated glucose to cause depletion of glucose.  
+\item ``Hiệu quả glucose", $E$, vốn là xu thế mà việc tăng mức glucose sẽ khiến suy giảm glucose.  
 
-\item ``Insulin sensitivity", $S$, which is the ability of elevated blood insulin to enhance glucose effectiveness.
+\item ``Độ nhạy insulin", $S$, vốn là khả năng mà mức tăng insuline trong máu làm nâng cao hiệu quả glucose.
 
 \end{itemize}
 
-Glucose effectiveness is defined as the change in $dG/dt$ as we vary $G$:
+Hiệu quả glucose được định nghĩa là mức thay đổi của $dG/dt$ khi ta thay đổi $G$:
 %
 \[ E \equiv - \frac{\delta \dot{G}}{\delta G} \]
 %
-where $\dot{G}$ is shorthand for $dG/dt$.  Taking the derivative of $dG/dt$ with respect to $G$, we get
+trong đó $\dot{G}$ là chữ viết tắt cho $dG/dt$.  Lấy đạo hàm của $dG/dt$ theo $G$, ta được
 %
 \[ E = k_1 + X \]
 %
-The {\bf glucose effectiveness index}, $S_G$, is the value of $E$ when blood insulin is near its basal level, $I_b$.  In that case, $X$ approaches 0 and $E$ approaches $k_1$.  So we can use the best-fit value of $k_1$ as an estimate of $S_G$.
+{\bf Chỉ số hiệu quả glucose}, $S_G$, chính là giá trị của $E$ khi insulin trong máu gần bằng mức nền của nó, $I_b$.  Trong trường hợp này, $X$ tiệm cận 0 còn $E$ tiệm cận $k_1$.  Vì vậy, ta có thể dùng giá trị khớp nhất của $k_1$ làm ước tính cho $S_G$.
 
-\index{basal level}
+\index{mức nền | basal level}
 
-Insulin sensitivity is defined as the change in $E$ as we vary $I$:
+Độ nhạy insulin được định nghĩa là mức thay đổi của $E$ khi ta thay đổi $I$:
 %
 \[ S \equiv - \frac{\delta E}{\delta I} \]
 %
-The {\bf insulin sensitivity index}, $S_I$, is the value of $S$ when $E$ and $I$ are at steady state:
+{\bf Chỉ số độ nhạy insulin}, $S_I$, là giá trị của $S$ khi cả $E$ và $I$ đều ở trạng thái ổn định:
 %
 \[ S_I \equiv \frac{\delta E_{SS}}{\delta I_{SS}} \]
 %
-$E$ and $I$ are at steady state when $dG/dt$ and $dX/dt$ are 0, but we don't actually have to solve those equations to find $S_I$.  If we set $dX/dt = 0$ and solve for $X$, we find the relation:
+$E$ và $I$ đạt trạng thái ổn định khi $dG/dt$ và $dX/dt$ bằng 0, nhưng ta sẽ không phải giải trực tiếp những phương trình này để tìm $S_I$.  Nếu đặt $dX/dt = 0$ và giải ra $X$, ta sẽ thu được hệ thức sau:
 %
 \[ X_{SS} = \frac{k_3}{k_2} I_{SS} \]
 %
-And since $E = k_1 + X$, we have:
+Và vì $E = k_1 + X$, ta có:
 %
 \[ S_I = \frac{\delta E_{SS}}{\delta I_{SS}} = \frac{\delta X_{SS}}{\delta I_{SS}} \]
 %
-Taking the derivative of $X_{SS}$ with respect to $I_{SS}$, we have:
+Lấy đạo hàm của $X_{SS}$ theo $I_{SS}$, ta được:
 %
 \[ S_I = k_3 / k_2 \]
 %
-So if we find parameters that make the model fit the data, we can use $k_3 / k_2$ as an estimate of $S_I$.  
+Như vậy, nếu tìm được các tham số khiến cho mô hình khớp với số liệu thì ta có thể dùng $k_3 / k_2$ làm ước lượng cho $S_I$.  
 
-For the example data, the estimated values of $S_G$ and $S_I$ are $0.029$ and for $8.9 \times 10^{-4}$.  According to Pacini and Bergman, these values are within the normal range.
+Với số liệu ví dụ, các giá trị ước lượng cho $S_G$ và $S_I$ là $0.029$ và $8.9 \times 10^{-4}$.  Theo Pacini và Bergman, những giá trị này đều trong khoảng thông thường.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap18.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap18.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 \chapter{Case studies}
@@ -6015,7 +6015,7 @@ results, details = run_ode_solver(system, slope_func,
 
 \py{run_ode_solver} uses Brent's method to estimate the time of the event precisely (see \url{http://modsimpy.com/brent}).
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap20.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap20.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 
@@ -6337,7 +6337,8 @@ The \py{modsim} library provides \py{gradient}, which uses NumPy to estimate the
 a = gradient(results.v)
 \end{python}
 
-In the notebook for this chapter, \py{chap21.ipynb}, you can finish this problem by finding the combination of \py{L} and \py{k} that allows the jumper to complete the bungee dunk while minimizing the acceleration they experience.  For instructions on downloading and running the code, see Section~\ref{code}.
+In the notebook for this chapter, \py{chap21.ipynb}, you can finish this problem by finding the combination of \py{L} and \py{k} that allows the jumper to complete the bungee dunk while minimizing the acceleration they experience. Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
+
 
 
 \chapter{Projectiles in 2-D}
@@ -6651,7 +6652,8 @@ Hình~\ref{chap10-fig02} shows this way of visualizing the results, which is cal
 
 A trajectory plot can be easier to interpret than a time series plot, because it shows what the motion of the projectile would look like (at least from one point of view).  Both plots can be useful, but don't get them mixed up!  If you are looking at a time series plot and interpreting it as a trajectory, you will be very confused.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap22.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap22.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
+
 
 
 \chapter{Optimization}
@@ -7103,7 +7105,7 @@ Plugging in the values of the parameters yields \py{2.8e-5} \si{\meter\per\radia
 
 In the next chapter, we'll run the simulation the other way, unrolling the paper.
 
-Before you go on, you might want to read the notebook for this chapter, \py{chap24.ipynb}, and work on the exercises.  For instructions on downloading and running the code, see Section~\ref{code}.
+Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap24.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 \chapter{Torque}
@@ -7455,7 +7457,7 @@ The result is \SI{0.166}{\newton\meter}, a little less than the initial guess.
 
 Now that we know the torque due to friction, we can compute the force needed to rotate the turntable through the remaining angle, that is, from \SI{1.5}{\radian} to \SI{3.14}{\radian}.
 
-In the notebook for this chapter, \py{chap25.ipynb}, you will have a chance to finish off the exercise.  For instructions on downloading and running the code, see Section~\ref{code}.
+In the notebook for this chapter, \py{chap25.ipynb}, you will have a chance to finish off the exercise.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 \chapter{Case studies}
