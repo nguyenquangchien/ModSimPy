@@ -1,6 +1,6 @@
 % LaTeX source for ``Modeling and Simulation in Python''
 % Copyright 2017  Allen B. Downey.
-% Bản tiếng Việt 2019-2023: Nguyễn Quang Chiến 
+% Bản tiếng Việt 2019: Nguyễn Quang Chiến 
 
 % License: Creative Commons Attribution-NonCommercial 4.0 Unported License.
 % https://creativecommons.org/licenses/by-nc/4.0/
@@ -5488,14 +5488,14 @@ Với số liệu ví dụ, các giá trị ước lượng cho $S_G$ và $S_I$ 
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap18.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
-\chapter{Case studies}
+\chapter{Các nghiên cứu cụ thể}
 \label{chap19}
 
-This chapter reviews the computational patterns we have seen so far and presents exercises where you can apply them.
+Chương này điểm lại những dạng mẫu tính toán đã gặp tới giờ, cũng như trình bày các bài tập để bạn áp dụng.
 
-\section{Computational tools}
+\section{Công cụ tính toán}
 
-In Chapter~\ref{chap11} we saw an update function that uses multiple assignment to unpack a \py{State} object and assign the state variables to local variables.
+Ở Chương~\ref{chap11} ta đã thấy một hàm cập nhật trong đó dùng lệnh gán bội để tháo một đối tượng \py{State} rồi gán cácc biến trạng thái vào biến địa phương.
 
 \begin{python}
 def update_func(state, t, system):
@@ -5511,7 +5511,7 @@ def update_func(state, t, system):
     return State(S=s, I=i, R=r)
 \end{python}
 
-And in \py{run_simulation} we used multiple assignment again to assign state variables to a row in a \py{TimeFrame}:
+Còn trong \py{run_simulation} ta đã lại dùng lệnh gán bội để gán các biến trạng thái vào một hàng trong một \py{TimeFrame}:
 
 \begin{python}
 def run_simulation(system, update_func):
@@ -5524,16 +5524,16 @@ def run_simulation(system, update_func):
     return frame
 \end{python}
 
-In Chapter~\ref{chap12} we used the functions \py{max} and \py{idxmax} to compute metrics:
+Ở Chương~\ref{chap12} đã dùng các hàm \py{max} và \py{idxmax} để tính ra các metric:
 
 \begin{python}
 largest_value = S.max()
 time_of_largest_value = S.idxmax()
 \end{python}
 
-And we saw the logistic function, a general function which is useful for modeling relationships between variables, like the effectiveness of an intervention as a function of expenditure.
+và thấy hàm logit, một hàm tổng quát hữu ích cho việc mô hình hoá mối liên hệ giữa các biến số, như hiệu quả của biện pháp can thiệp như một hàm số theo mức chi tiêu.
 
-In Chapter~\ref{chap13} we saw the \py{unpack} function, which makes system variables available as if they were local variables.
+Ở Chương~\ref{chap13} ta đã thấy hàm \py{unpack}, nó cho phép các biến hệ thống có thể được dùng đến như những biến địa phương.
 
 \begin{python}
 def run_simulation(system, update_func):
@@ -5548,9 +5548,9 @@ def run_simulation(system, update_func):
     system.results = frame
 \end{python}
 
-One thing to remember when you use \py{unpack}: if you modify any of the unpacked variables, the change does not affect the \py{System} object.
+Một điều cần nhớ khi sử dụng \py{unpack}: nếu bạn thay đổi bất kì biến nào sau khi tháo, thì sự thay đổi đó không ảnh hưởng tới đối tượng \py{System}.
 
-In Chapter~\ref{chap14} we used a \py{SweepFrame} object to sweep two parameters.
+Ở Chương~\ref{chap14} ta đã dùng đối tượng \py{SweepFrame} để quét hai tham số.
 
 \begin{python}
 def sweep_parameters(beta_array, gamma_array):
@@ -5560,9 +5560,9 @@ def sweep_parameters(beta_array, gamma_array):
     return frame
 \end{python}
 
-In Chapter~\ref{chap15} we used \py{linrange} to create an array of values with a given step size.  \py{linrange} is similar to \py{linspace}: the difference is that \py{linrange} lets you specify the space between values, and it computes the number of values; \py{linspace} lets you specify the number of values, and it computes the space between them.
+Ở Chương~\ref{chap15} ta đã dùng \py{linrange} để tạo một mảng giá trị với bước tính toán cho trước.  \py{linrange} tương tự với \py{linspace}: điểm khác biệt là \py{linrange} cho phép bạn chỉ định khoảng cách giữa các giá trị, và nó tự tính ra số các giá trị này; \py{linspace} cho phép bạn chỉ định số các giá trị, và nó tính ra khoảng cách giữa chúng.
 
-Here's a version of \py{run_simulation} that uses \py{linrange}:
+Sau đây là một phiên bản \py{run_simulation} có sử dụng \py{linrange}:
 
 \begin{python}
 def run_simulation(system, update_func):
@@ -5581,7 +5581,7 @@ def run_simulation(system, update_func):
     return frame
 \end{python}
 
-In Chapter~\ref{chap16} we used \py{fsolve} to find the value of a parameter that yields a particular result.  We defined an error function:
+Ở Chương~\ref{chap16} ta đã dùng \py{fsolve} để tìm giá trị một tham số để thu được kết quả cụ thể. Ta đã định nghĩa một hàm sai số:
 
 \index{\py{fsolve}}
 
@@ -5592,20 +5592,20 @@ def error_func1(r):
     return system.T_final - 70
 \end{python}
 
-And passed it to \py{fsolve} with an initial guess, like this:
+Rồi truyền nó vào \py{fsolve} với dự đoán ban đầu, như sau:
 
 \begin{python}
 solution = fsolve(error_func1, 0.01)
 r_coffee = solution[0]
 \end{python}
 
-In Chapter~\ref{chap17} we used \py{interpolate}, which returns a function:
+Ở Chương~\ref{chap17} ta đã dùng \py{interpolate}, vốn trả lại một hàm:
 
 \begin{python}
 I = interpolate(data.insulin)
 \end{python}
 
-which we can call like any other function, passing as an argument either a single value or a NumPy array:
+mà ta có thể gọi cũng như bất kì hàm nào khác, và truyền đối số như một giá trị đơn lẻ hoặc một mảng NumPy:
 
 \begin{python}
 I(18)
@@ -5614,7 +5614,7 @@ ts = linrange(t_0, t_end)
 I(ts)
 \end{python}
 
-We also used a \py{Params} object, which is a collection of parameters.
+Ta cũng đã dùng một đối tượng \py{Params}, vốn là một tập hợp các tham số.
 
 \begin{python}
 params = Params(G0 = 290,
@@ -5623,9 +5623,9 @@ params = Params(G0 = 290,
                 k3 = 1e-05)
 \end{python}
 
-Chapter~\ref{chap18} introduces \py{run_ode_solver} which computes numerical solutions to differential equations.
+Chương~\ref{chap18} giới thiệu \py{run_ode_solver} vốn tính các nghiệm số trị của các phương trình vi phân.
 
-\py{run_ode_solver} uses a slope function, which is similar to an update function:
+\py{run_ode_solver} sử dụng một hàm độ dốc, cũng tương tự như một hàm cập nhật:
 
 \begin{python}
 def slope_func(state, t, system):
@@ -5638,7 +5638,7 @@ def slope_func(state, t, system):
     return dGdt, dXdt
 \end{python}
 
-We used \py{run_ode_solver} to write an error function, which takes a \py{Params} object, runs a simulation, and returns the difference between the simulation results and the data:
+Ta đã dùng \py{run_ode_solver} để viết một hàm sai số, vốn nhận vào đối tượng \py{Params}, chạy một mô phỏng rồi trả về chênh lệch hiệu số giữa kết quả mô phỏng và số liệu gốc:
 
 \begin{python}
 def error_func(params, data):
@@ -5649,7 +5649,7 @@ def error_func(params, data):
     return errors
 \end{python}
 
-Then we passed the error function to \py{fit_leastsq}, which finds the set of parameters that minimizes the errors:
+Sau đó ta truyền hàm sai số vào cho \py{fit_leastsq}, hàm này tìm bộ tham số làm giảm thiểu sai số:
 
 \begin{python}
 best_params, fit_details = fit_leastsq(error_func, params, data)
@@ -5658,129 +5658,130 @@ best_params, fit_details = fit_leastsq(error_func, params, data)
 %TODO: Anything to say here?
 
 
-\section{Under the hood}
+\section{Sâu bên trong}
 
-\py{unpack} is a function in the \py{modsim} library that copies the variables and values from a \py{System} object into a special Python data structure that stores global variables.  To be honest, it is a bit of a hack; that is, it may be expedient, but it might not be an example of software engineering you should emulate.
+\py{unpack} là một hàm trong thư viện \py{modsim} nhằm sao chép biến và giá trị từ một đối tượng \py{System} vào một cấu trúc dữ liệu Python đặc biệt để lưu trữ được biến toàn cục. Thật ra mà nói, cách này chỉ là một mẹo; nó có thể tiện dùng song không phải là một ví dụ về kĩ thuật phần mềm mà bạn nên phỏng theo.
 
-\py{fsolve} is based on a Scipy function that is also called \py{fsolve}; you can read more about it at \url{http://modsimpy.com/fsolve}.
-It uses a numerical method called Powell's method, and you can read more about that at \url{http://modsimpy.com/powell}.
+\py{fsolve} dựa trên một hàm Scipy cùng tên là \py{fsolve}; bạn có thể đọc thêm thông tin từ \url{http://modsimpy.com/fsolve}.
+Nó dùng một phương pháp số gọi là phương pháp Powell, mà bạn có thể đọc từ \url{http://modsimpy.com/powell}.
 
 \index{\py{fsolve}}
 
-\py{run_ode_solver} uses the SciPy function \py{solve_ivp}, which you can read about at \url{http://modsimpy.com/ivp}.
-By default it uses an algorithm called RK45, or RKF45, which you can read about at \url{http://modsimpy.com/runge}).
+\py{run_ode_solver} dùng hàm \py{solve_ivp} của SciPy, mà bạn có thể đọc thêm ở \url{http://modsimpy.com/ivp}.
+Mặc định nó sẽ sử dụng một thuật toán gọi là RK45, hay RKF45, mà bạn có thể đọc thêm ở \url{http://modsimpy.com/runge}).
 
-\py{fit_leastsq} is based on the SciPy function \py{leastsq}; you can read about it at \url{http://modsimpy.com/sq}.
-By default it uses a version of the Levenberg-Marquardt method, which you can read about at \url{http://modsimpy.com/lm }.
+\py{fit_leastsq} dựa trên hàm \py{leastsq} của SciPy; mà bạn có thể đọc thêm ở \url{http://modsimpy.com/sq}.
+Mặc định nó sẽ sử dụng một phiên bản của phương pháp Levenberg-Marquardt, mà bạn có thể đọc thêm ở \url{http://modsimpy.com/lm }.
 
-These SciPy functions don't work with the units provided by Pint, so the \py{modsim} library turns off unit-checking before calling them.  This mechanism is a bit of a hack, so you might get some unexpected behavior.  If so, I suggest you make a modest effort to fix them problem, but don't spend too much time on it.
-
-Carrying units through computations like this is not as common as it should be, so the tools are not as polished as they could be.  I think it is worth trying, because you can catch a lot of errors by checking units; but if it gets to be too much trouble, you can always remove the units from the code.  In that case, you should add comments that document the units for all variables!
-
-The rest of this chapter presents case studies you can use to practice what you have learned so far.
+Các hàm SciPy này không làm việc được với những đơn vị do Pint cung cấp, bởi vậy thư viện \py{modsim} sẽ tắt chế độ kiểm tra đơn vị trước khi gọi chúng. Cơ chế này phần nào là một mẹo, do vậy bạn có thể nhận được động thái không như mong đợi. Trong trường hợp đó, chỉ nên dụng công một chút để sửa lỗi, song đừng dành quá nhiều thời gian cho việc đó.
 
 
-\section{The insulin minimal model}
+Việc mang theo đơn vị trong khi tính toán như thế này không thường gặp như lẽ ra phải có, vậy nên các công cụ cũng không được hoàn thiện hẳn. Tôi thì nghĩ bạn nên cố gắng thử với đơn vị, vì cách kiểm tra đơn vị này giúp ta phát hiện ra nhiều lỗi; song nếu có quá nhiều vấn đề thì bạn luôn có thể xoá các đơn vị khỏi mã lệnh. Khi đó, bạn nên bổ sung những dòng chú thích ghi đơn vị cho tất cả các biến!
 
-Along with the glucose minimal model in Chapter~\ref{chap17}, Berman et al.~developed an insulin minimal model, in which the concentration of insulin, $I$, is governed by this differential equation:
+Phần còn lại của chương này trình bày các nghiên cứu cụ thể mà bạn có thể dùng để thực tập những gì đã học cho tới giờ.
+
+
+\section{Mô hình insulin tối thiểu}
+
+Cùng với mô hình glucose tối thiểu ở Chương~\ref{chap17}, Berman và nnk.~đã phát triển một mô hình insulin tối thiểu, trong đói nồng độ insulin, $I$, bị chi phối bởi phương trình vi phân sau:
 %
 \[ \frac{dI}{dt} = -k I(t) + \gamma \left[ G(t) - G_T \right] t \]
 %
-where
+trong đó
 
 \begin{itemize}
 
-\item $k$ is a parameter that controls the rate of insulin disappearance independent of blood glucose.   
+\item $k$ là một tham số điều khiển tốc độ biến mất của insulin, không phụ thuộc vào glucose trong máu.   
 
-\item $G(t)$ is the measured concentration of blood glucose at time $t$.
+\item $G(t)$ là nồng độ đo được của glucose trong máu tại thời điểm $t$.
 
-\item $G_T$ is the glucose threshold; when blood glucose is above this level, it triggers an increase in blood insulin. 
+\item $G_T$ là ngưỡng glucose; khi glucose trong máu vượt ngưỡng này, nó sẽ phát động sự gia tăng insulin trong máu. 
 
-\item $\gamma$ is a parameter that controls the rate of increase (or decrease) in blood insulin when glucose is above (or below) $G_T$.
+\item $\gamma$ là một tham số điều khiển tốc độ tăng (hoặc giảm) của insulin trong máu khi glucose ở trên mức (hoặc dưới mức) $G_T$.
 
-% TODO: explain why t is there
+% TODO: giải thích tại sao lại có t ở đây
 
 \end{itemize}
 
-The initial condition is $I(0) = I_0$.  As in the glucose minimal model, we treat the initial condition as a parameter which we'll choose to fit the data.
+Điều kiện ban đầu là $I(0) = I_0$.  Như trong mô hình glucose tối thiểu, ta đã coi điều kiện đầu là một tham số cần chọn để khớp với dữ liệu.
 
-\index{insulin minimal model}
-\index{differential equation}
+\index{mô hình insulin tối thiểu}
+\index{phương trình vi phân}
 
-The parameters of this model can be used to estimate, $\phi_1$ and $\phi_2$, which are values that ``describe the sensitivity to glucose of the first and second phase pancreatic responsivity".  They are related to the parameters as follows:
+Các tham số của mô hình này có thể được dùng để ước tính $\phi_1$ và $\phi_2$, vốn là những giá trị ``mô tả độ nhạy của glucose đối với phản hồi pha thứ nhất và pha thứ hai của tuỵ".  Chúng có liên hệ với các tham số như sau:
 %
 \[ \phi_1 = \frac{I_{max} - I_b}{k (G_0 - G_b)}\]
 %
 \[ \phi_2 = \gamma \times 10^4 \]
 %
-where $I_{max}$ is the maximum measured insulin level, and $I_b$ and $G_b$ are the basal levels of insulin and glucose.
+trong đó $I_{max}$ là mức insulin tối đa đo được, còn $I_b$ và $G_b$ là các mức nền của insulin và glucose.
 
-%TODO: Clarify whether G0 here is the parameter we estimated in the previous
-% model, or the maximum observed value of G.
+%TODO: Làm rõ xem liệu G0 ở đây là tham số mà ta đã ước tính ở mô hình trước,
+% hay là giá trị G tối đa quan sát được.
 
-In the repository for this book, you will find a notebook, \py{insulin.ipynb}, which contains starter code for this case study.   Use it to implement the insulin model, find the parameters that best fit the data, and estimate these values.
+Ở mã lệnh kèm theo cuốn sách này, bạn sẽ tìm thấy tập mã lệnh \py{insulin.ipynb}, trong đó chứa mã lệnh khởi đầu cho nghiên cứu cụ thể này. Dựa vào đó hãy thiết lập mô hình insulin, tìm ra các tham số khớp nhất với dữ liệu, rồi ước tính các giá trị tương ứng.
 
 
-\section{Low-Pass Filter}
+\section{Bộ lọc thông thấp}
 
-The following circuit diagram\footnote{From \url{http://modsimpy.com/divider}} shows a low-pass filter built with one resistor and one capacitor.  
+Sơ đồ mạch điện sau đây\footnote{Từ \url{http://modsimpy.com/divider}} cho thấy một bộ lọc thông thấp dựa trên một điện trở và một tụ điện.
 
 \centerline{\includegraphics[height=1.3in]{figs/RC_Divider.pdf}}
 
-A ``filter" is a circuit takes a signal, $V_{in}$, as input and produces a signal, $V_{out}$, as output.  In this context, a ``signal" is a voltage that changes over time.
+Một ``bộ lọc'' là một mạch điện nhận vào một tín hiệu đầu vào, $V_{in}$, rồi tạo ra một tính hiệu đầu ra, $V_{out}$. Ở đây, ``tín hiệu'' được hiểu là điện thế thay đổi theo thời gian.
 
-A filter is ``low-pass" if it allows low-frequency signals to pass from $V_{in}$ to $V_{out}$ unchanged, but it reduces the amplitude of high-frequency signals.
+Bộ lọc được gọi là ``thông thấp'' nếu như nó cho phép các tín hiệu có tần số thấp chạy từ $V_{in}$ tới $V_{out}$ mà không bị thay đổi, nhưng nó làm giảm biên độ của những tín hiệu cao tần.
 
-By applying the laws of circuit analysis, we can derive a differential equation that describes the behavior of this system.  By solving the differential equation, we can predict the effect of this circuit on any input signal.
+Bằng cách áp dụng các định luật giải tích mạch điện, ta có thể thiết lập một phương trình vi phân mô tả động thái của hệ này. Bằng cách giải phương trình vi phân đó, ta có thể dự đoán ảnh hưởng của bộ mạch tới bất kì tín hiệu đầu vào nào.
 
-Suppose we are given $V_{in}$ and $V_{out}$ at a particular instant in time.  By Ohm's law, which is a simple model of the behavior of resistors, the instantaneous current through the resistor is:
+Giả sử như ta có $V_{in}$ và $V_{out}$ tại một thời điểm nhất định. Theo định luật Ohm, vốn là mô hình đơn giản diễn tả ứng xử của điện trở, thì cường độ dòng điện tức thời qua điện trở là:
 %
 \[ I_R = (V_{in} - V_{out}) / R \]
 %
-where $R$ is resistance in ohms (\si{\ohm}).
+trong đó $R$ là điện trở tính bằng ohm (\si{\ohm}).
 
-Assuming that no current flows through the output of the circuit, Kirchhoff's current law implies that the current through the capacitor is:
+Coi như không có dòng điện chạy qua đầu ra của bộ mạch, định luật dòng điện Kirchhoff cho biết dòng điện chạy qua tụ điện sẽ là:
 %
 \[ I_C = I_R \]
 %
-According to a simple model of the behavior of capacitors, current through the capacitor causes a change in the voltage across the capacitor:
+Theo mô hình đơn giản về ứng xử của tụ điện, thì dòng điện qua tụ điện sẽ gây nên một sự thay đổi về điện thế qua tụ điện:
 %
 \[ I_C = C \frac{d V_{out}}{dt} \]
 %
-where $C$ is capacitance in farads (\si{\farad}).  Combining these equations yields a differential equation for $V_{out}$:
+trong đó $C$ là điện dung tính bằng farad (\si{\farad}).  Kết hợp các phương trình đó cho ra một phương trình vi phân của $V_{out}$:
 %
 \[ \frac{d V_{out}}{dt} = \frac{V_{in} - V_{out}}{R C} \]
 %
-In the repository for this book, you will find a notebook, \py{filter.ipynb}, which contains starter code for this case study.   Follow the instructions to simulate the low-pass filter for input signals like this:
+Ở mã lệnh kèm theo cuốn sách này, bạn sẽ tìm thấy tập mã lệnh \py{filter.ipynb}, trong đó chứa mã lệnh khởi đầu cho nghiên cứu cụ thể này. Hãy theo hướng dẫn để mô phỏng bộ lọc thông thấp cho các tín hiệu đầu vào như sau:
 %
 \[ V_{in}(t) = A \cos (2 \pi f t) \]
 %
-where $A$ is the amplitude of the input signal, say \SI{5}{\volt}, and $f$ is the frequency of the signal in \si{\hertz}.
+trong đó $A$ là biên độ tín hiệu đầu vào, chẳng hạn \SI{5}{\volt}, còn $f$ là tần số của tín hiệu tính bằng \si{\hertz}.
 
-In the repository for this book, you will find a notebook, \py{filter.ipynb}, which contains starter code for this case study.  Read the notebook, run the code, and work on the exercises.
+Ở mã lệnh kèm theo cuốn sách này, bạn sẽ tìm thấy tập mã lệnh \py{filter.ipynb}, trong đó chứa mã lệnh khởi đầu cho nghiên cứu cụ thể này. Hãy đọc tập mã lệnh, chạy đoạn mã và làm các bài tập.
 
 
 
-\section{Thermal behavior of a wall}
+\section{Ứng xử nhiệt của vách tường}
 
-This case study is based on a paper by Gori, et~al\footnote{Gori, Marincioni, Biddulph, Elwell, ``Inferring the thermal resistance and effective thermal mass distribution of a wall from in situ measurements to characterise heat transfer at both the interior and exterior surfaces", {\it Energy and Buildings}, Volume 135, pages 398-409, \url{http://modsimpy.com/wall2}.
+Nghiên cứu cụ thể này được dựa trên bài báo Gori, và nnk.\footnote{Gori, Marincioni, Biddulph, Elwell, ``Inferring the thermal resistance and effective thermal mass distribution of a wall from in situ measurements to characterise heat transfer at both the interior and exterior surfaces", {\it Energy and Buildings}, Volume 135, pages 398-409, \url{http://modsimpy.com/wall2}.
     
-The authors put their paper under a Creative Commons license, and make their data available at \url{http://modsimpy.com/wall }.  I thank them for their commitment to open, reproducible science, which made this case study possible.} that models the thermal behavior of a brick wall, with the goal of understanding the ``performance gap between the expected energy use of buildings and their measured energy use".
+Các tác giả đăng bài báo dưới giấy phép Creative Commons, và công bố dữ liệu tại \url{http://modsimpy.com/wall }.  Cám ơn tác giả bài báo đã phát huy tinh thần khoa học mở và tái lập, giúp tôi có thể viết nên nghiên cứu cụ thể này.} trong đó mô hình hoá ứng xử nhiệt của vách tường gạch, với mục tiêu nhằm hiểu rõ ``khoảng cách hiệu suất giữa mức tiêu thụ năng lượng dự kiến và thực đo ở các toà nhà''.
 
-The following figure shows the scenario and their model of the wall:
+Hình sau đây cho thấy kịch bản và cách họ mô hình hoá vách tường:
 
 \vspace{0.1in}
 \centerline{\includegraphics[height=1.3in]{figs/wall_model.pdf}}
 
-On the interior and exterior surfaces of the wall, they measure temperature and heat flux over a period of three days.  They model the wall using two thermal masses connected to the surfaces, and to each other, by thermal resistors.
+Ở hai mặt trong và ngoài bức tường, họ đo nhiệt độ và luồng nhiệt suốt thời đoạn 3 ngày. Họ mô hình hoá bức tường bằng hai khối lượng tác dụng nhiệt gắn với các bề mặt, và nối với nhau bằng các điện trở nhiệt.
 
-The primary methodology of the paper is a Bayesian method for inferring the parameters of the system (two thermal masses and three thermal resistances).
+Phương pháp luận chính của bài báo này là một phương pháp Bayes để suy luận ra tham số mô hình (hai khối lượng tác dụng nhiệt và ba điện trở nhiệt).
 
-The primary result is a comparison of two models: the one shown here with two thermal masses, and a simpler model with only one thermal mass.  They find that the two-mass model is able to reproduce the measured fluxes substantially better.
+Kết quả cơ bản là so sánh giữa hai mô hình: mô hình cho thấy ở đây có hai khối lượng tác dụng nhiệt, và một mô hình khác đơn giản hơn chỉ có một khối lượng tác dụng nhiệt. Họ phát hiện rằng mô hình hai khối lượng có thể tái lập được tốt hơn hẳn những luồng nhiệt thực đo.
 
-For this case study we will implement their model and run it with the estimated parameters from the paper, and then use \py{fit_leastsq} to see if we can find parameters that yield lower errors.
+Với nghiên cứu cụ thể này, ta sẽ lập trình mô hình của họ và chạy mã lệnh với các tham số ước tính từ bài báo, sau đó dùng \py{fit_leastsq} để xem liệu ta có thể tìm được giá trị tham số mới cho ra sai số thấp hơn không.
 
-In the repository for this book, you will find a notebook, \py{wall.ipynb} with the code and results for this case study.
+Ở mã lệnh kèm theo cuốn sách này, bạn sẽ tìm thấy tập mã lệnh \py{wall.ipynb} chứa tất cả mã lệnh và kết quả cho nghiên cứu cụ thể này.
 
 
 \chapter{Projectiles}
