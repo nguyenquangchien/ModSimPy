@@ -5784,89 +5784,89 @@ Với nghiên cứu cụ thể này, ta sẽ lập trình mô hình của họ v
 Ở mã lệnh kèm theo cuốn sách này, bạn sẽ tìm thấy tập mã lệnh \py{wall.ipynb} chứa tất cả mã lệnh và kết quả cho nghiên cứu cụ thể này.
 
 
-\chapter{Projectiles}
+\chapter{Đạn đạo}
 \label{chap20}
 
-So far the differential equations we've worked with have been {\bf first order}, which means they involve only first derivatives.   In this chapter, we turn our attention to second order ODEs, which can involve both first and second derivatives.  
+Đến giờ những phương trình vi phân mà ta đã xử lý đều thuộc dạng {\bf bậc nhất}, theo nghĩa là chúng chỉ chứa các đạo hàm bậc nhất thôi. Ở chương này, ta hãy hướng sự chú ý tới các phương trình vi phân thường (PVT) bậc hai, vốn chứa cả đạo hàm bậc nhất lẫn bậc hai.
 
-\index{first order ODE}
-\index{second order ODE}
+\index{PVT bậc nhất}
+\index{PVT bậc hai}
 
-We'll revisit the falling penny example from Chapter~\ref{chap01}, and use \py{odeint} to find the position and velocity of the penny as it falls, with and without air resistance.
+Ta sẽ trở lại ví dụ về đồng xu rơi từ Chương~\ref{chap01}, và dùng \py{odeint} để tìm toạ độ và vận tốc của đồng xu khi nó rơi, trong trường hợp có và không có sức cản không khí.
 
 
-\section{Newton's second law of motion}
+\section{Định luật Newton II về chuyển động}
 
-First order ODEs can be written
+Các PVT bậc nhất có thể được viết thành
 %
 \[ \frac{dy}{dx} = G(x, y) \]
 %
-where $G$ is some function of $x$ and $y$ (see \url{http://modsimpy.com/ode}).  Second order ODEs can be written
+trong đó $G$ làm một hàm nào đó của $x$ và $y$ (xem \url{http://modsimpy.com/ode}).  Các PVT bậc 2 có thể viết dưới dạng
 %
 \[ \frac{d^2y}{dx^2} = H(x, y, \frac{dy}{dt}) \]
 %
-where $H$ is a function of $x$, $y$, and $dy/dx$.
+trong đó $H$ là một hàm của $x$, $y$, và $dy/dx$.
 
-In this chapter, we will work with one of the most famous and useful second order ODE, Newton's second law of motion:
+Ở chương này, ta sẽ xử lý một trong những PVT thông dụng nhất, đó là định luật Newton II về chuyển động:
 %
 \[ F = m a \]
 %
-where $F$ is a force or the total of a set of forces, $m$ is the mass of a moving object, and $a$ is its acceleration.
+trong đó $F$ là một lực hoặc hợp lực, $m$ là khối lượng của vật thể chuyển động, còn $a$ là gia tốc của nó.
 
-\index{Newton's second law of motion}
-\index{differential equation}
-\index{acceleration}
-\index{velocity}
-\index{position}
+\index{định luật Newton II về chuyển động}
+\index{phương trình vi phân}
+\index{gia tốc}
+\index{vận tốc}
+\index{toạ độ}
 
-Newton's law might not look like a differential equation, until we realize that acceleration, $a$, is the second derivative of position, $y$, with respect to time, $t$.  With the substitution
+Định luật Newton có vẻ trông không giống nhưu một phương trình vi phân, cho đến khi ta nhận thấy rằng gia tốc, $a$, là đạo hàm bậc hai của toạ độ, $y$, theo thời gian, $t$.  Bằng cách thay thế
 %
 \[ a = \frac{d^2y}{dt^2} \]
 %
-Newton's law can be written
+định luật Newton có thể viết thành
 %
 \[ \frac{d^2y}{dt^2} = F / m \]
 %
-And that's definitely a second order ODE.  In general, $F$ can be a function of time, position, and velocity.
+Và đó chính là một PVT bậc hai. Nói chung, $F$ có thể là một hàm phụ thuộc thời gian, toạ độ, và vận tốc.
 
-Of course, this ``law" is really a model, in the sense that it is a simplification of the real world.  Although it is often approximately true:
+Dĩ nhiên, ``định luật'' này là một mô hình thực sự theo nghĩa rằng nó là một cách giản hoá thế giới thực. Dù rằng thường chính xác, song:
 
 \begin{itemize}
 
-\item It only applies if $m$ is constant.  If mass depends on time, position, or velocity, we have to use a more general form of Newton's law (see \url{http://modsimpy.com/varmass}).
+\item Định luật chỉ có hiệu lực khi $m$ là hằng số. Nếu khối lượng phụ thuộc và thời gian, toạ độ, hay vận tốc, ta sẽ phải dùng một dạng tổng quát hơn của định luật Newton (xem \url{http://modsimpy.com/varmass}).
 
-\index{variable mass}
+\index{khối lượng biến đổi}
 
-\item It is not a good model for very small things, which are better described by another model, quantum mechanics.
+\item Định luật không phải là một mô hình tốt cho các vật thể rất nhỏ, trường hợp đó ta nên diễn tả bằng một mô hình khác, đó là cơ học lượng tử.
 
-\index{quantum mechanics}
+\index{cơ học lượng tử}
 
-\item And it is not a good model for things moving very fast, which are better described by yet another model, relativistic mechanics.
+\item Định luật cũng không phải một mô hình tốt cho các vật thể chuyển động quá nhanh, vốn nên được miêu tả bởi một loại mô hình khác nữa, đó là cơ học tương đối.
 
-\index{relativity}
+\index{tương đối}
 
 \end{itemize}
 
-However, for medium-sized things with constant mass, moving at medium-sized speeds, Newton's model is phenomenally useful.  If we can quantify the forces that act on such an object, we can predict how it will move.
+Tuy nhiên, với các vật thể nhỡ với khối lượng không đổi và chuyển động với tốc độ cỡ trung bình, thì mô hình Newton lại hữu ích tuyệt vời. Nếu ta có thể định lượng các lực tác dụng lên vật thể thì ta sẽ có thể dự đoán nó chuyển động ra sao.
 
 
-\section{Dropping pennies}
+\section{Thả rơi đồng xu}
 
-As a first example, let's get back to the penny falling from the Empire State Building, which we considered in Section~\ref{penny}.  We will implement two models of this system: first without air resistance, then with.
+Ví dụ đầu tiên, hãy cùng trở lại bài toán đồng xu rơi từ toà nhà chọc trời mà ta đã xét ở Mục~\ref{penny}.  Ta sẽ lập hai mô hình cho hệ thống này: đầu tiên là không có sức cản không khí, rồi có sức cản.
 
-\index{falling penny}
-\index{air resistance}
+\index{đồng xu rơi}
+\index{sức cản không khí | air resistance}
 
-Given that the Empire State Building is \SI{381}{\meter} high, and assuming that the penny is dropped with velocity zero, the initial conditions are:
+Biết chiều cao toà nhà Empire State là \SI{381}{\meter}, và coi rằng đồng xu được thả rơi với vận tốc ban đầu bằng 0 thì các điều kiện đầu bao gồm:
 
-\index{State object}
+\index{đối tượng State object}
 
 \begin{python}
 init = State(y=381 * m, 
              v=0 * m/s)
 \end{python}
 
-where \py{y} is height above the sidewalk and \py{v} is velocity.  The units \py{m} and \py{s} are from the \py{UNITS} object provided by Pint:
+trong đó \py{y} là độ cao so với vỉa hè còn \py{v} là vận tốc. Các đơn vị \py{m} và \py{s} được lấy từ đối tượng \py{UNITS} được Pint cung cấp:
 
 \index{unit}
 \index{Pint}
@@ -5876,49 +5876,49 @@ m = UNITS.meter
 s = UNITS.second
 \end{python}
 
-The only system parameter is the acceleration of gravity:
+Tham số hệ thống duy nhất là gia tốc trọng trường:
 
 \begin{python}
 g = 9.8 * m/s**2
 \end{python}
 
-In addition, we'll specify the duration of the simulation:
+Hơn nữa, ta sẽ chỉ định thời đoạn mô phỏng:
 
 \begin{python}
 t_end = 10 * s
 \end{python}
 
-We need a \py{System} object to contain the system parameters:
+Ta cần một đối tượng \py{System} để chứa những tham số hệ thống:
 
-\index{System object}
+\index{đối tượng System object}
 
 \begin{python}
 system = System(init=init, g=g, t_end=t_end)
 \end{python}
 
-Now we need a slope function, and here's where things get tricky.  As we have seen, \py{run_ode_solver} can solve systems of first order ODEs, but Newton's law is a second order ODE.  However, if we recognize that
+Bây giờ ta cần một hàm độ dốc, và giờ đây mọi thứ trở nên lắt léo. Như đã thấy,  \py{run_ode_solver} có thể giải hệ PVT bậc nhất, nhưng định luật Newton lại là một PVT bậc hai. Tuy vậy, nếu ta nhận thấy rằng
 
-\index{slope function}
-\index{function!slope}
+\index{độ dốc (hàm)}
+\index{hàm!độ dốc}
 
 \begin{enumerate}
 
-\item Velocity, $v$, is the derivative of position, $dy/dt$, and
+\item Vận tốc, $v$, là đạo hàm của toạ độ, $dy/dt$, và
 
-\item Acceleration, $a$, is the derivative of velocity, $dv/dt$,
+\item Gia tốc, $a$, là đạo hàm của vận tốc, $dv/dt$,
 
 \end{enumerate}
 
-we can rewrite Newton's law as a system of first order ODEs:
+thì ta có thể viết lại định luật Newton dưới dạng hệ PVT:
 %
 \[ \frac{dy}{dt} = v \]
 %
 \[ \frac{dv}{dt} = a \]
 %
-And we can translate those equations into a slope function:
+Và ta có thể chuyển những phương trình đó về một hàm độ dốc:
 
-\index{system of equations}
-\index{unpack}
+\index{hệ phương trình}
+\index{tháo}
 
 \begin{python}
 def slope_func(state, t, system):
@@ -5931,37 +5931,37 @@ def slope_func(state, t, system):
     return dydt, dvdt
 \end{python}
 
-The first parameter, \py{state}, contains the position and velocity of the penny.  The last parameter, \py{system}, contains the system parameter \py{g}, which is the magnitude of acceleration due to gravity.
+Tham số đầu tiên, \py{state}, có chứa các toạ độ và vận tốc của đồng xu. Tham số cuối cùng, \py{system}, lại chứa tham số hệ thống \py{g}, vốn là độ lớn gia tốc trọng trường.
 
-\index{State object}
+\index{đối tượng State object}
 
-The second parameter, \py{t}, is time.  It is not used in this slope function because none of the factors of the model are time dependent (see Section~\ref{glucose}).  I include it anyway because this function will be called by \py{run_ode_solver}, which always provides the same arguments, whether they are needed or not.
+Tham số thứ hai, \py{t}, là thời gian. Nó không được dùng trong hàm độ dốc này vì chẳng có yếu tố nào trong mô hình là phụ thuộc vào thời gian (xem Mục~\ref{glucose}). Nhưng tôi vẫn viết nó vào vì hàm này sẽ được gọi bởi \py{run_ode_solver}, vốn luôn cung cấp số lượng cố định các đối số bất kể nó cần đến hay không.
 
-\index{time dependent}
+\index{phụ thuộc thời gian | time dependent}
 
-The rest of the function is a straightforward translation of the differential equations, with the substitution $a = -g$, which indicates that acceleration is due to gravity, in the direction of decreasing $y$.  \py{slope_func} returns a sequence containing the two derivatives.
+Phần còn lại của hàm chỉ là cách phiên dịch chân phương từ các phương trình vi phân, thay thế $a = -g$, vốn biểu diễn cho gia tốc trọng trường, theo hướng ngược với trục $y$.  \py{slope_func} trả lại một dãy có chứa hai đạo hàm này.
 
-Before calling \py{run_ode_solver}, it is a good idea to test the slope function with the initial conditions:
+Trước khi gọi \py{run_ode_solver}, điều nên làm là kiểm thử hàm độ dốc với điều kiện ban đầu:
 
 \begin{python}
 dydt, dvdt = slope_func(init, 0, system)
 \end{python}
 
-The result is \SI{0}{\meter\per\second} for velocity and \SI{9.8}{\meter\per\second\squared} for acceleration.  Now we can call \py{run_ode_solver} like this:
+Kết quả là vận tốc bằng \SI{0}{\meter\per\second} và gia tốc bằng \SI{9.8}{\meter\per\second\squared}. Bây giờ ta có thể gọi \py{run_ode_solver} như sau:
 
 \begin{python}
 results, details = run_ode_solver(system, slope_func,
                                   max_step=0.5*s)
 \end{python}
 
-The optional argument \py{max_step} determines the largest step size \py{run_ode_solver} can use.  Specifying \py{max_step} makes the simulation take longer, but it makes the results look better when plotted.  It has little or no effect on accuracy.
+Đối số tuỳ chọn \py{max_step} quyết định bước thời gian tối đa \py{run_ode_solver} dùng được.  Việc quy định \py{max_step} khiến cho việc mô phỏng kéo dài hơn, nhưng sẽ giúp cho kết quả trông đẹp hơn ki vẽ biểu đồ. Nhưng việc này không mấy ảnh hưởng tới độ chính xác.
 
-\py{results} in a \py{TimeFrame} with two columns: \py{y} contains the height of the penny; \py{v} contains its velocity.
+\py{results} trong một \py{TimeFrame} có hai cột: \py{y} chứa độ cao của đồng xu; \py{v} chứ vận tố của nó.
  
-\index{TimeFrame object}
+\index{đối tượng TimeFrame object}
 \index{\py{run_ode_solver}}
 
-We can plot the results like this:
+Ta có thể vẽ đồ thị kết quả như sau:
 
 \begin{python}
 def plot_position(results):
@@ -5972,30 +5972,30 @@ def plot_position(results):
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap09-fig01.pdf}}
-\caption{Height of the penny versus time, with no air resistance.}
+\caption{Độ cao đồng xu theo thời gian, khi không có sức cản không khí.}
 \label{chap09-fig01}
 \end{figure}
 
-Hình~\ref{chap09-fig01} shows the result.  Since acceleration is constant, velocity increases linearly and position decreases quadratically; as a result, the height curve is a parabola.
+Hình~\ref{chap09-fig01} cho thấy kết quả. Vì gia tốc là hằng số nên vận tốc tăng một cách tuyến tính và toạ độ giảm theo hàm bậc hai; do vậy đường cong độ cao là một đường parabol.
 
-\index{parabola}
+\index{parabol}
 
-The last value of \py{results.y} is \SI{-109}{\meter}, which means we ran the simulation too long.  One way to solve this problem is to use the results to estimate the time when the penny hits the sidewalk.
+Giá trị cuối cùng của \py{results.y} bằng \SI{-109}{\meter}, điều này nghĩa là ta đã chạy mô phỏng quá lâu. Một cách giải quyết vấn đề là dùng kết quả thu được để ước tính thời điểm đồng xu tiếp đất.
 
-The \py{modsim} library provides \py{crossings}, which takes a \py{TimeSeries} and a value, and returns a sequence of times when the series passes through the value.  We can find the time when the height of the penny is \py{0} like this:
+Thư viện \py{modsim} cung cấp \py{crossings}, hàm này nhận một dãy \py{TimeSeries} và một giá trị, rồi trả lại một dãy thời gian khi chuỗi thời gian cắt qua giá trị định trước. Ta có thể tìm thời điểm tại đó độ cao đồng xu bằng \py{0} như sau:
 
 \begin{python}
 t_crossings = crossings(results.y, 0)
 \end{python}
 
-The result is an array with a single value, \SI{8.818}{s}.  Now, we could run the simulation again with \py{t_end = 8.818}, but there's a better way.
+Kết quả là mảng chỉ chứa một giá trị, \SI{8.818}{s}.  Bây giờ, ta đã có thể chạy lại mô phỏng với \py{t_end = 8.818}, song còn một cách khác tốt hơn.
 
-\section{Events}
+\section{Biến cố}
 \label{events}
 
-As an option, \py{run_ode_solver} can take an {\bf event function}, which detects an ``event", like the penny hitting the sidewalk, and ends the simulation.
+Với tuỳ chọn, hàm \py{run_ode_solver} có thể nhận một {\bf hàm biến cố}, vốn phát hiện một ``biến cố'', như việc đồng xu tiếp đất, và kết thúc mô phỏng.
 
-Event functions take the same parameters as slope functions, \py{state}, \py{t}, and \py{system}.  They should return a value that passes through \py{0} when the event occurs.  Here's an event function that detects the penny hitting the sidewalk:
+Hàm biến cố cũng nhận vào tham số giống như hàm độ dốc, đó là \py{state}, \py{t}, và \py{system}.  Hàm này sẽ trả lại giá trị giao cắt qua \py{0} khi biến cố xảy ra. Sau đây là một hàm sự kiện nhằm phát hiện việc đồng xu chạm đất:
 
 \begin{python}
 def event_func(state, t, system):
@@ -6003,98 +6003,98 @@ def event_func(state, t, system):
     return y
 \end{python}
 
-The return value is the height of the penny, \py{y}, which passes through \py{0} when the penny hits the sidewalk.
+Giá trị trả lại là độ cao của đồng xu, \py{y}, vốn giao cắt qua \py{0} khi đồng xu tiếp đất.
 
-We pass the event function to \py{run_ode_solver} like this:
+Ta truyền hàm biến cố vào \py{run_ode_solver} như sau:
 
 \begin{python}
 results, details = run_ode_solver(system, slope_func,
                                   events=event_func)
 \end{python}
 
-\py{events} can also be a sequence of event functions, if there is more than one event that might occur.
+\py{events} cũng có thể là một dãy các hàm biến cố, nếu có nhiều biến cố có thể xảy ra.
 
-\py{run_ode_solver} uses Brent's method to estimate the time of the event precisely (see \url{http://modsimpy.com/brent}).
+\py{run_ode_solver} dùng phương pháp Brent để ước tính thời gian của biến cố một cách chính xác (xem \url{http://modsimpy.com/brent}).
 
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap20.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 
 
-\chapter{Air resistance}
+\chapter{Sức cản không khí}
 \label{chap21}
 
-In the previous chapter we simulated a penny falling in a vacuum, that is, without air resistance.  But the computational framework we used is very general; it is easy to add additional forces, including drag.
+Ở chương trước ta đã mô phỏng đồng xu rơi trong chân không, nghĩa là không có sức cản không khí. Nhưng khuôn khổ tính toán đã dùng lại rất tổng quát; thật dễ bổ sung những lực khác chẳng hạn lự cản ma sát.
 
-In this chapter, I present a model of drag force and add it to the simulation.
+Ở chương này, tôi trình bày mô hình lực cản không khí và bổ sung nó vào mô phỏng.
 
 
-\section{Drag force}
+\section{Lực cản kéo}
 \label{drag}
 
-As an object moves through a fluid, like air, the object applies force to the air and, in accordance with Newton's third law of motion, the air applies an equal and opposite force to the object (see \url{http://modsimpy.com/newton}).
+Khi một vật di chuyển trong môi trường chất lưu, như không khí, vật sẽ tác dụng lực lên không khí, và theo định luật Newton III về chuyển động, không khí lại tác dụng lực trực đối lên vật (xem \url{http://modsimpy.com/newton}).
 
-\index{air resistance}
-\index{drag force}
-\index{force!drag}
-\index{drag equation}
+\index{sức cản không khí}
+\index{lực cản kéo}
+\index{lực!cản}
+\index{phương trình lực cản}
 
-The direction of this {\bf drag force} is opposite the direction of travel, and its magnitude is given by the drag equation (see \url{http://modsimpy.com/drageq}):
+Hướng của {\bf lực cản kéo} ngược với hướng chuyển động, và độ lớn lực này được cho bởi phương trình lực cản (xem \url{http://modsimpy.com/drageq}):
 %
 \[ F_d = \frac{1}{2}~\rho~v^2~C_d~A \]
 %
-where
+trong đó
 
 \begin{itemize}
 
-\item $F_d$ is force due to drag, in newtons (\si{\newton}).
+\item $F_d$ là lực cản, tính theo newton (\si{\newton}).
 
-\item $\rho$ is the density of the fluid in \si{\kg\per\meter\cubed}.
-\index{density}
+\item $\rho$ là mật độ chất lưu tính theo \si{\kg\per\meter\cubed}.
+\index{mật độ}
 
-\item $v$ is the magnitude of velocity in \si{\meter\per\second}.
-\index{velocity}
+\item $v$ là độ lớn vận tốc tính theo \si{\meter\per\second}.
+\index{vận tốc}
 
-\item $A$ is the {\bf reference area} of the object, in \si{\meter\squared}.  In this context, the reference area is the projected frontal area, that is, the visible area of the object as seen from a point on its line of travel (and far away).
+\item $A$ là {\bf diện tích tham chiếu} của vật thể, tính bằng \si{\meter\squared}.  Ở đây, diện tích tham chiếu là hình chiếu của mặt trước, nghĩa là diện tích nhìn thấy của vật thể nhìn từ một vị trí trên quỹ đạo di chuyển (cách xa vật thể).
 
-\index{reference area}
+\index{diện tích tham chiếu}
 
-\item $C_d$ is the {\bf drag coefficient}, a dimensionless quantity that depends on the shape of the object (including length but not frontal area), its surface properties, and how it interacts with the fluid.
+\item $C_d$ là {\bf hệ số cản}, một đại lượng phi thứ nguyên phụ thuốc vào hình dạng vật thể (bao gồm chiều dài nhưng không phải diện tích mặt trước), thuộc tính bề mặt vật, và cách mà nó tương tác với chất lưu.
 
-\index{drag coefficient}
+\index{hệ số cản}
 
 \end{itemize}
 
-For objects moving at moderate speeds through air, typical drag coefficients are between 0.1 and 1.0, with blunt objects at the high end of the range and streamlined objects at the low end (see \url{http://modsimpy.com/dragco}).
+Với những vật thể chuyển động với tốc độ vừa phải trong không khí, hệ số cản thường từ 0.1 đến 1.0, trong đó vật tù có hệ số gần 1 và vật thuôn dài gần 0 hơn (xem \url{http://modsimpy.com/dragco}).
 
-For simple geometric objects we can sometimes guess the drag coefficient with reasonable accuracy; for more complex objects we usually have to take measurements and estimate $C_d$ from the data.
+Với những vật thể có dạng hình học đơn giản, đôi khi ta có thể đoán hệ số cản với độ chính xác tương đối; với những vật thể phức tạp hơn thì thường phải đo đạc rồi ước tính $C_d$ từ số liệu đo.
 
-Of course, the drag equation is itself a model, based on the assumption that $C_d$ does not depend on the other terms in the equation: density, velocity, and area.  For objects moving in air at moderate speeds (below 45 mph or \SI{20}{\meter\per\second}), this model might be good enough, but we should remember to revisit this assumption.
+Dĩ nhiên, phương trình hệ số cản bản thân nó đã là một mô hình, dựa trên giả thiết rằng $C_d$ không phụ thuộc vào các đại lượng khác trong phương trình: mật độ, vận tốc và diện tích. Với những vật thể di chuyển trong không khí với tốc độ vừa phải (dưới 45 dặm/giờ hay \SI{20}{\meter\per\second}), mô hình này có thể đủ phù hợp, song ta nên nhớ kiểm tra lại giả thiết này.
 
-For the falling penny, we can use measurements to estimate $C_d$.   In particular, we can measure {\bf terminal velocity}, $v_{term}$, which is the speed where drag force equals force due to gravity:
+Với trường hợp đồng xu rơi, ta có thể dùng số liệu đo để ước tính $C_d$.   Cụ thể, ta có thể đo đạc {\bf vận tốc tiếp đất}, $v_{term}$, là vận tốc tại đó lực cản cân bằng với trọng lực:
 %
 \[ \frac{1}{2}~\rho~v_{term}^2~C_d~A = m g \]
 %
-where $m$ is the mass of the object and $g$ is acceleration due to gravity.  Solving this equation for $C_d$ yields:
+trong đó $m$ là khối lượng vật thể còn $g$ là gia tốc trọng trường. Giải phương trình này tìm $C_d$ cho ta:
 %
 \[ C_d = \frac{2~m g}{\rho~v_{term}^2~A} \]
 %
-According to {\it Mythbusters}, the terminal velocity of a penny is between 35 and 65 mph (see \url{http://modsimpy.com/mythbust}).  Using the low end of their range, 40 mph or about \SI{18}{\meter\per\second}, the estimated value of $C_d$ is 0.44, which is close to the drag coefficient of a smooth sphere.
+Theo {\it Mythbusters}, tốc độ tiếp đất của đồng xu vào khoảng từ 35 đến 65 dặm/giờ (xem \url{http://modsimpy.com/mythbust}).  Lấy cận dưới khoảng giá trị này, 40 dặm/giờ hay khoảng \SI{18}{\meter\per\second}, giá trị ước tính của $C_d$ sẽ bằng 0.44, vốn sát với hệ số cản của một quả cầu trơn nhẵn.
 
 \index{Mythbusters}
-\index{terminal velocity}
+\index{vận tốc tiếp đất}
 
-Now we are ready to add air resistance to the model.
+Bây giờ ta đã sẵn sàng thêm sức cản không khí vào trong mô hình.
 
 
-\section{Implementation}
+\section{Lập trình}
 \label{penny_drag}
 
-As the number of system parameters increases, and as we need to do more work to compute them, we will find it useful to define a \py{Params} object to contain the quantities we need to make a \py{System} object.  \py{Params} objects are similar to \py{System} and \py{State} objects; in fact, all three have the same capabilities.  I have given them different names to document the different roles they play.
+Khi có càng nhiều tham số hệ thống, và ta phải dụng công nhiều hơn để tính toán chúng, ta sẽ càng thấy cần định nghĩa một đối tượng \py{Params} để chứa những đại lượng ta cần lập nên một đối tượng \py{System}. Các đối tượng \py{Params} cũng giống như những đối tượng \py{System} và \py{State}; thực chất cả ba đều có những tính năng như nhau. Tôi đã đặt tên khác nhau cho chúng nhằm ghi lại các vai trò riêng của từng cái.
 
-\index{Params object}
+\index{Params (đối tượng)}
 
-Here's the \py{Params} object for the falling penny:
+Sau đây là đối tượng \py{Params} viết cho đồng xu rơi:
 
 \begin{python}
 params = Params(height = 381 * m,
@@ -6106,12 +6106,12 @@ params = Params(height = 381 * m,
                 v_term = 18 * m / s)
 \end{python}
 
-The mass and diameter are from \url{http://modsimpy.com/penny}.  The density of air depends on temperature, barometric pressure (which depends on altitude), humidity, and composition (\url{http://modsimpy.com/density}).  I chose a value that might be typical in New York City at \SI{20}{\celsius}.
+Khối lượng và đường kính được lấy từ \url{http://modsimpy.com/penny}.  Mật độ không khí phụ thuộc vào nhiệt độ, áp suất (vốn phụ thuộc vào độ cao), độ ẩm và thành phần không khí (\url{http://modsimpy.com/density}).  Tôi đã chọn một trị số có thể coi là điển hình cho TP New York ở nhiệt độ \SI{20}{\celsius}.
 
-\index{System object}
+\index{System (đối tượng)}
 \index{\py{make_system}}
 
-Here's a version of \py{make_system} that takes a \py{Params} object and returns a \py{System}:
+Sau đây là một phiên bản \py{make_system} nhận vào đối tượng \py{Params} rồi trả lại một \py{System}:
 
 \index{unpack}
 
@@ -6128,21 +6128,21 @@ def make_system(params):
                   init=init, t_end=t_end)
 \end{python}
 
-The first argument of \py{System} is \py{params}, so the result contains all of the parameters in \py{params}, plus \py{init}, \py{area}, and \py{C_d}.
+Đối số thứ nhất của \py{System} là \py{params}, nhờ vậy kết quả sẽ chứa tất cả những tham số có trong \py{params}, cũng như \py{init}, \py{area}, và \py{C_d} nữa.
 
-It might not be obvious why we need \py{Params} objects, but they will turn out to be useful soon.
+Có thể chưa rõ ngay tại sao ta cần dùng đối tượng \py{Params}, song nó sẽ sớm cho thấy công dụng riêng.
 
-We can make a \py{System} like this:
+Ta có thể lập một \py{System} như sau:
 
 \begin{python}
 system = make_system(params)
 \end{python}
 
-Now here's a version of the slope function that includes drag:
+Bây giờ, một phiên bản hàm độ dốc có tính đến sức cản như sau:
 
-\index{slope function}
-\index{function!slope}
-\index{unpack}
+\index{độ dốc (hàm)}
+\index{hàm!độ dốc}
+\index{tháo}
 
 \begin{python}
 def slope_func(state, t, system):
@@ -6158,13 +6158,13 @@ def slope_func(state, t, system):
     return dydt, dvdt
 \end{python}
 
-\py{f_drag} is force due to drag, based on the drag equation.  \py{a_drag} is acceleration due to drag, based on Newton's second law.
+\py{f_drag} là lực do sức cản kéo, dựa trên phương trình cản kéo.  \py{a_drag} là gia tốc do sức cản, dựa theo định luật II Newton.
 
-\index{gravity}
+\index{trọng lực}
 
-To compute total acceleration, we add accelerations due to gravity and drag. \py{g} is negated because it is in the direction of decreasing \py{y}, and \py{a_drag} is positive because it is in the direction of increasing \py{y}.  In the next chapter we will use \py{Vector} objects to keep track of the direction of forces and add them up in a less error-prone way.
+Để tính gia tốc tổng hợp, ta cộng các gia tốc do trọng lực và sức cản lại với nhau. \py{g} có dấu âm vì nó ngược hướng trục \py{y}, còn \py{a_drag} dương vì nó cùng hướng trục \py{y}.  Ở chương tiếp theo ta sẽ dùng các đối tượng \py{Vector} để dõi theo hướng các lực và cộng chúng lại theo một cách ít nhầm lẫn hơn.
 
-To stop the simulation when the penny hits the sidewalk, we'll use the event function from Section~\ref{events}:
+Để dừng mô phỏng khi đồng xu chạm đất, ta sẽ dùng hàm sự kiện từ Mục~\ref{events}:
 
 \begin{python}
 def event_func(state, t, system):
@@ -6172,7 +6172,7 @@ def event_func(state, t, system):
     return y
 \end{python}
 
-Now we can run the simulation like this:
+Bây giờ ta có thể chạy mô phỏng như sau:
 
 \index{\py{run_ode_solver}}
 
@@ -6183,41 +6183,41 @@ results, details = run_ode_solver(system, slope_func,
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap09-fig02.pdf}}
-\caption{Height of the penny versus time, with air resistance.}
+\caption{Độ cao của đồng xu theo thời gian, có tính đến sức cản không khí.}
 \label{chap09-fig02}
 \end{figure}
 
-Hình~\ref{chap09-fig02} shows the result.  It only takes a few seconds for the penny to accelerate up to terminal velocity; after that, velocity is constant, so height as a function of time is a straight line.
+Hình~\ref{chap09-fig02} thể hiện kết quả. Chỉ mất có vài giây để đồng xu tăng tốc đạt tới vận tốc cuối; sau đó vận tốc sẽ không đổi, vì vậy độ cao là một hàm đường thẳng theo thời gian.
 
-\index{terminal velocity}
+\index{vận tốc cuối}
 
-In the notebook for this chapter, you'll have a chance to extend this model.
+Ở sổ lệnh tính toán trong chương này, bạn sẽ có cơ hội mở rộng mô hình.
 
 
-\section{Bungee jumping}
+\section{Nhảy Bungee}
 \label{bungee}
 
-Suppose you want to set the world record for the highest ``bungee dunk", which is a stunt in which a bungee jumper dunks a cookie in a cup of tea at the lowest point of a jump.  An example is shown in this video: \url{http://modsimpy.com/dunk}.
+Chẳng hạn bạn muốn lập kỉ lục thế giới cho cú nhảy ``bungee dunk'' cao nhất; đây là kĩ thuật nhảy trong đó người chơi phải nhúng chiếc bánh quy trong tay vào một tách trà tại điểm thấp nhất trong cú nhảy. Một ví dụ xem ở video này: \url{http://modsimpy.com/dunk}.
 
-Since the record is \SI{70}{\meter}, let's design a jump for \SI{80}{\meter}.  We'll start with the following modeling assumptions:
+Vì kỉ lục là \SI{70}{\meter}, ta hãy thiết kế một cú nhảy \SI{80}{\meter}.  Ta sẽ bắt đầu bằng những giả thiết mô hình hoá như sau:
 
 \begin{itemize}
 
-\item  Initially the bungee cord hangs from a crane with the attachment point \SI{80}{\meter} above a cup of tea.
+\item  Ban đầu dây nhảy được treo từ móc cần cẩu với độ cao \SI{80}{\meter} bên trên tách trà.
 
-\item Until the cord is fully extended, it applies no force to the jumper.  It turns out this might not be a good assumption; we will revisit it.
+\item  Cho tới tận khi dây thun được giãn hoàn toàn, nó không tác dụng lực nào lên người nhảy cả. Điều này hoá ra sẽ không phải giả thiết hợp lý chút nào; song ta sẽ sửa lại sau.
 
-\item After the cord is fully extended, it obeys Hooke's Law; that is, it applies a force to the jumper proportional to the extension of the cord beyond its resting length.  See \url{http://modsimpy.com/hooke}. 
+\item Sau khi dây thun được giãn hoàn toàn, nó tuân theo định luật Hooke; nghĩa là nó tác dụng vào người nhảy một lực tỉ lệ thuận với độ dãn dài của dây vượt quá độ dài tự nhiên của nó. Xem \url{http://modsimpy.com/hooke}. 
 
-\item The mass of the jumper is \SI{75}{\kilogram}.
+\item Người nhảy có khối lượng \SI{75}{\kilogram}.
 
-\item The jumper is subject to drag force, as in the previous model, so that their terminal velocity is \SI{60}{\meter \per \second}.
+\item Người nhảy chịu tác dụng của lực cản như với mô hình trước, bởi vậy vận tốc cuối của họ là \SI{60}{\meter \per \second}.
 
 \end{itemize}
 
-Our objective is to choose the length of the cord, \py{L}, and its spring constant, \py{k}, so that the jumper falls all the way to the tea cup, but no farther!
+Mục tiêu của chúng ta là chọn chiều dài dây, \py{L}, và hệ số lò xo của nó \py{k}, sao cho người nhảy hạ xuống đến đúng tách trà nhưng không xuống thấp hơn nữa!
 
-We'll start with the length of the bungee cord, \py{L} at \SI{25}{\meter} and spring constant, \py{k} at \SI{40}{\newton \per \meter}.  Here's a \py{Params} object with all of these parameters:
+Ta sẽ bắt đầu bằng chiều dài sợi dây thun, \py{L} bằng \SI{25}{\meter} và hằng số lò xo, \py{k} bằng \SI{40}{\newton \per \meter}.  Sau đây là một đối tượng \py{Params} có chứa tất cả những tham số trên:
 
 \begin{python}
 params = Params(y_attach = 80 * m,
@@ -6231,7 +6231,7 @@ params = Params(y_attach = 80 * m,
                 k = 40 * N / m)
 \end{python}
 
-And here's a version of \py{make_system} that uses \py{v_term} to compute \py{C_d}:
+Và sau đây là một phiên bản \py{make_system} có sử dụng \py{v_term} để tính \py{C_d}:
 
 \begin{python}
 def make_system(params):
@@ -6245,13 +6245,13 @@ def make_system(params):
                   init=init, t_end=t_end)
 \end{python}
 
-We can run it like this:
+Ta cần phải chạy mã lệnh như sau:
 
 \begin{python}
 system = make_system(params)
 \end{python}
 
-We need a function to compute spring force based on the altitude of the jumper, \py{y}:
+Ta cần một hàm để tính lực lò xo dựa trên độ cao người nhảy, \py{y}:
 
 \begin{python}
 def spring_force(y, system):
@@ -6265,9 +6265,9 @@ def spring_force(y, system):
     return f_spring
 \end{python}
 
-\py{distance_fallen} is the distance of the jumper from the attachment point.  If the cord is not fully extended, the spring force is 0.  Otherwise we compute the extension of the cord, \py{extension}, and the spring force, \py{f_spring}.
+\py{distance_fallen} là khoảng cách từ người nhảy tới móc cần cẩu. Nếu dây thun chưa giãn hoàn toàn, lực lò xo này bằng 0.  Còn nếu không, ta sẽ tính độ dãn lò xo, \py{extension}, cùng lực lò xo, \py{f_spring}.
 
-I'll also define a function to compute drag force:
+Tôi cũng sẽ định nghĩa một hàm để tính lực cản:
 
 \begin{python}
 def drag_force(v, system):
@@ -6276,12 +6276,12 @@ def drag_force(v, system):
     return f_drag
 \end{python}
 
-\py{drag_force} uses the NumPy function \py{sign}, which returns 1 if the argument is positive, -1 if it is negative, and 0 if it is 0.  This ensures that the drag force is always in the opposite direction of velocity.
+\py{drag_force} sử dụng hàm NumPy có tên \py{sign}, hàm này trả lại 1 nếu đối số dương, -1 nếu đối số âm, và 0 nếu đối số bằng 0.  Điều đó sẽ đảm bảo rằng lực cản luôn ngược chiều với vận tốc.
 
 \index{NumPy}
 \index{sign}
 
-Now here's the slope function:
+Sau đây là hàm độ dốc:
 
 \begin{python}
 def slope_func(state, t, system):
@@ -6295,9 +6295,9 @@ def slope_func(state, t, system):
     return v, dvdt
 \end{python}
 
-\py{slope_func} uses \py{spring_force} and \py{drag_force} to compute forces, then divides by \py{mass} to get accelerations.
+\py{slope_func} sử dụng \py{spring_force} và \py{drag_force} để tính các lực, rồi chia cho \py{mass} để thu được gia tốc.
 
-We can run the simulation like this:
+Ta có thể chạy mô phỏng như sau:
 
 \begin{python}
 ts = linspace(0, system.t_end, 301)
@@ -6305,40 +6305,40 @@ results, details = run_ode_solver(system, slope_func,
                                   max_step=0.3*s)
 \end{python}
 
-Again, I use \py{max_step} so the results look better when plotted.
-Hình~\ref{chap09-fig03} shows the results.
+Một lần nữa, tôi dùng \py{max_step} để cho kết quả trông đẹp hơn khi vẽ lên.
+Hình~\ref{chap09-fig03} cho thấy kết quả tính được.
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap09-fig03.pdf}}
-\caption{Position and velocity of the bungee jumper.}
+\caption{Toạ độ và vận tốc của người nhảy bungee.}
 \label{chap09-fig03}
 \end{figure}
 
-We can find the altitude of the jumper at the lowest point like this:
+Ta có thể tìm độ cao của người nhảy ở điểm thấp nhất như sau:
 
 \begin{python}
 min(results.y)
 \end{python}
 
-For the parameters we chose, the jumper bottoms out at about \SI{5}{\meter}, so we need to increase \py{L} or decrease \py{k}.  In the notebook for this chapter, you'll have to a chance to find the best parameters for the bungee dunk.
+Với các tham số đã chọn, người nhảy xuống thấp nhất ở khoảng \SI{5}{\meter}, vì vậy ta cần tăng \py{L} hoặc giảm \py{k}.  Ở cuốn sổ tính cho chương này, bạn sẽ có dịp tìm tham số tốt nhất cho cú nhảy bungee.
 
-\section{Getting acceleration}
+\section{Tăng tốc}
 
-In fact, there are many combinations of \py{L} or decrease \py{k} that would work.  We might want to find the combination that minimizes the peak acceleration of the jumper, providing the maximum time near the sidewalk to make the dunk.
+Thực ra, có nhiều tổ hợp \py{L} hoặc giảm \py{k} có tác dụng. Ta có thể muốn tìm tổ hợp làm giảm thiểu gia tốc cực đại của người nhảy, khi được biết thời gian tối đa gần sidewak để bật nhảy.
 
-To do that, we need to know the acceleration of the jumper over time.  Although we compute acceleration in the slope function, it is not included in the results.
+Muốn vậy, ta cần biết gia tốc của người nhảy theo thời gian. Mặc dù ta đã tính gia tốc trong hàm độ dốc, song đại lượng không được ghi ra kết quả.
 
-It might be tempting to record the acceleration each time the slope function runs, but we should not do that.  The ODE solver calls the slope function many times with different values of \py{state} and \py{t}.  Because of the way the solver works, not all of the states and times are actually part of the solution.  So recording acceleration while the solver is running would not work.
+Có thể bạn muốn ghi lại gia tốc mỗi lần hàm độ dốc được chạy, song ta không nên làm vậy. Bộ giải ODE sẽ gọi hàm độ dốc nhiều lần với các giá trị khác nhau của \py{state} và \py{t}.  Bởi cách hoạt động của bộ giải này, không phải mọi trạng thái và thời điểm là nghiệm thực sự của nghiệm. Như vậy, việc ghi lại gia tốc khi bộ giải đang chạy sẽ không có tác dụng.
 
-Instead, we can use the computed velocities to estimate acceleration as a function of time.
+Thay vào đó, ta có thể dùng các vận tốc đã tính được để ước lượng gia tốc như một hàm theo thời gian.
 
-The \py{modsim} library provides \py{gradient}, which uses NumPy to estimate the derivative of a \py{TimeSeries}.  Here's how it works:
+Thư viện \py{modsim} cung cấp hàm \py{gradient}, vốn sử dụng NumPy để ước tính đạo hàm của một chuỗi \py{TimeSeries}.  Sau đây là cách dùng nó:
 
 \begin{python}
 a = gradient(results.v)
 \end{python}
 
-In the notebook for this chapter, \py{chap21.ipynb}, you can finish this problem by finding the combination of \py{L} and \py{k} that allows the jumper to complete the bungee dunk while minimizing the acceleration they experience. Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
+Trong cuốn sổ lệnh cho chương này, \py{chap21.ipynb}, bạn có thể hoàn thành bài tập bằng cách tìm tổ hợp của \py{L} và \py{k} sao cho người nhảy có thể hoàn thành cú nhảy bungee trong khi tối thiểu hoá gia tốc họ cảm nhận được. Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 
