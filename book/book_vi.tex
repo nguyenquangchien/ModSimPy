@@ -6342,68 +6342,68 @@ Trong cuốn sổ lệnh cho chương này, \py{chap21.ipynb}, bạn có thể h
 
 
 
-\chapter{Projectiles in 2-D}
+\chapter{Đường bay hai chiều}
 \label{chap22}
 
-In the previous chapter we modeled objects moving in one dimension, with and without drag.  Now let's move on to two dimensions, and baseball!
+Ở chương trước ta đã mô hình hoá các vật thể trong không gian một chiều, cả khi có lẫn không có lực cản. Giờ thì ta hãy xét tiếp bài toán hai chiều với quả bóng chày!
 
-In this chapter we model the flight of a baseball including the effect of air resistance.  In the next chapter we use this model to solve an optimization problem.
+Ở chương này chúng ta mô hình hoá đường bay của một quả bóng chày xét đến sức cản không khí. Trong chương kế tiếp ta sẽ dùng mô hình lập được để giải bài toán tối ưu.
 
 
-\section{Baseball}
+\section{Bóng chày}
 \label{baseball}
 
-To model the flight of a baseball, we have to make some modeling decisions.  To get started, we ignore any spin that might be on the ball, and the resulting Magnus force (see \url{http://modsimpy.com/magnus}).  Under this assumption, the ball travels in a vertical plane, so we'll run simulations in two dimensions, rather than three.
+Để mô hình hoá đường bay quả bóng chày, ta phải ra một số quyết định có liên quan. Trước hết, ta bỏ qua chuyển động xoáy của quả bóng, và do đó là lực Magnus (xem  \url{http://modsimpy.com/magnus}).  Với giả thiết này, quả bóng chỉ chuyển động trong một mặt phẳng thẳng đứng, và ta chỉ chạy mô phỏng trong không gian 2 chiều thay vì 3 chiều.
 
-\index{Magnus force}
+\index{lực Magnus force}
 
-Air resistance has a substantial effect on most projectiles in air, so we will include a drag force.
+Sức cản không khí có ảnh hưởng đáng kể tới hầu hết các đường bay trong không khí, bởi vậy ta sẽ bao gồm cả lực cản.
 
-\index{air resistance}
+\index{sức cản không khí | air resistance}
 
-To model air resistance, we'll need the mass, frontal area, and drag coefficient of a baseball.  Mass and diameter are easy to find (see \url{http://modsimpy.com/baseball}).  Drag coefficient is only a little harder; according to {\it The Physics of Baseball}\footnote{Adair, {\it The Physics of Baseball}, Third Edition, Perennial, 2002}, the drag coefficient of a baseball is approximately 0.33 (with no units).
+Để mô hình hoá sức cản không khí, ta sẽ cần đến khối lượng, diện tích mặt trước, và hệ số cản của trái bóng. Khối lượng và đường kính đều dễ xác định rồi (xem  \url{http://modsimpy.com/baseball}).  Hệ số cản thì khó hơn một chút; theo {\it The Physics of Baseball}\footnote{Adair, {\it The Physics of Baseball}, Third Edition, Perennial, 2002}, hệ số cản của một quả bóng chày thì vào khoảng 0.33 (không có đơn vị).
 
-\index{drag coefficient}
+\index{hệ số cản | drag coefficient}
 
-However, this value {\em does} depend on velocity.  At low velocities it might be as high as 0.5, and at high velocities as low as 0.28.  Furthermore, the transition between these regimes typically happens exactly in the range of velocities we are interested in, between \SI{20}{\meter\per\second} and \SI{40}{\meter\per\second}.
+Tuy nhiên, trị số này lại {\em phụ thuộc} vào vận tốc. Khi tốc độ thấp hệ số có thể cao tới mức 0.5, nhưng khi tốc độ cao hệ số có thể giảm xuống còn 0.28 thôi.  Hơn nữa, sự chuyển tiếp giữa hai chế độ này lại thường xảy ra đúng vào khoảng vận tốc mà ta cần quan tâm, tức là từ \SI{20}{\meter\per\second} đến \SI{40}{\meter\per\second}.
 
-Nevertheless, we'll start with a simple model where the drag coefficient does not depend on velocity; as an exercise at the end of this chapter, you will have a chance to implement a more detailed model and see what effect is has on the results.
+Dù vậy, ta sẽ bắt đầu bằng một mô hình đơn giản trong đó hệ số cản không phụ thuộc vào vận tốc. Ở một bài tập cuối chương, bạn sẽ có dịp lập trình một mô hình chi tiết hơn và xem nó có ảnh hưởng gì tới kết quả không.
 
-But first we need a new computational tool, the \py{Vector} object.
+Nhưng trước hết ta sẽ cần đến một công cụ tính toán mới, đó là đối tượng \py{Vector}.
 
 
-\section{Vectors}
+\section{Vector}
 
-Now that we are working in two dimensions, we will find it useful to work with {\bf vector quantities}, that is, quantities that represent both a magnitude and a direction.  We will use vectors to represent positions, velocities, accelerations, and forces in two and three dimensions. 
+Bây giờ khi đã làm việc với không gian hai chiều rồi, ta sẽ thấy cần dùng đến các {\bf đại lượng vector}, nghĩa là những đại lượng biểu diễn cả độ lớn lẫn hướng. Ta sẽ dùng vector để biểu diễn vị trí, vận tốc, gia tốc và lực trong các không gian 2 chiều và 3 chiều.
 
-\index{Vector object}
-\index{array}
+\index{đối tượng Vector object}
+\index{mảng | array}
 \index{NumPy}
 
-The \py{modsim} library provides a \py{Vector} object that represents a vector quantity.  A \py{Vector} object is a like a NumPy array; it contains elements that represent the {\bf components} of the vector.  For example, in a \py{Vector} that represents a position in space, the components are the $x$ and $y$ coordinates (and a $z$ coordinate in 3-D).  A \py{Vector} object can also have units, like the quantities we've seen in previous chapters.  
+Thư viện \py{modsim} cung cấp một đối tượng \py{Vector} để biểu diễn cho đại lượng vector quantity.  Một đối tượng \py{Vector} thì giống như một mảng NumPy; nó chứa các phần tử biểu diễn cho các {\bf thành phần} của vector đó. Chẳng hạn, trong một \py{Vector} biểu diễn vị trí trong không gian, các thành phần là những toạ độ $x$ và $y$ (thêm toạ độ $z$ trong không gian 3 chiều). Đối tượng \py{Vector} cũng có thể mang đơn vị, như những đối tượng ta đã thấy từ các chương trước.
 
-\index{unit}
+\index{đơn vị | unit}
 
-You can create a \py{Vector} by specifying its components.  The following \py{Vector} represents a point \SI{3}{\meter} to the right (or east) and \SI{4}{\meter} up (or north) from an implicit origin:
+Bạn có thể tạo một \py{Vector} bằng cách chỉ định các thành phần của nó. \py{Vector} sau đây biểu diễn một điểm nằm ở vị trí \SI{3}{\meter} về phía bên phải (hướng đông) và cách \SI{4}{\meter} hướng lên (phía bắc) so với một điểm gốc đã ngầm định:
 
-\index{component}
+\index{thành phần | component}
 
 \begin{python}
 A = Vector(3, 4) * m
 \end{python}
 
-You can access the components of a \py{Vector} by name using the dot operator, for example, \py{A.x} or \py{A.y}.  You can also access them by index using brackets, for example, \py{A[0]} or \py{A[1]}.
+Bạn có thể truy cập các thành phần của \py{Vector} bằng cách gọi tên với toán tử dấu chấm, chẳng hạn, \py{A.x} hay \py{A.y}.  Bạn cũng có thể truy cập chúng bằng cách dùng ngoặc vuông như \py{A[0]} hay \py{A[1]}.
 
-Similarly, you can get the magnitude and angle using the dot operator, \py{A.mag} and \py{A.angle}.  {\bf Magnitude} is the length of the vector: if the \py{Vector} represents position, magnitude is the distance from the origin; if it represents velocity, magnitude is speed, that is, how fast the object is moving, regardless of direction.
+Tương tự, bạn có thể lấy độ lớn và góc bằng toán tử dấu chấm, \py{A.mag} và \py{A.angle}.  {\bf Độ lớn} là chiều dài của vector: nếu \py{Vector} biểu diễn vị trí thì độ lớn của nó là khoảng cách tính từ gốc; nếu vector này biểu diễn vận tốc thì độ lớn sẽ là tốc độ, nghĩa là vật thể đó chuyển động nhanh chậm bao nhiêu, bất kể hướng di chuyển.
 
-\index{angle}
-\index{magnitude}
+\index{góc | angle}
+\index{độ lớn | magnitude}
 
-The {\bf angle} of a \py{Vector} is its direction, expressed as the angle in radians from the positive x-axis.  In the Cartesian plane, the angle \SI{0}{\radian} is due east, and the angle \SI{\pi}{\radian} is due west. 
+{\bf Góc} của \py{Vector} là hướng của nó, biểu thị bởi góc đo bằng radian từ chiều dương của trục x. Trên mặt phẳng Đề-các, góc \SI{0}{\radian} về hướng đông, còn góc \SI{\pi}{\radian} về hướng tây.
 
 \index{radian}
 
-\py{Vector} objects support most mathematical operations, including addition and subtraction:
+Đối tượng \py{Vector} hỗ trợ hầu hết các phép toán, bao gồm cộng và trừ:
 
 \begin{python}
 B = Vector(1, 2) * m
@@ -6411,26 +6411,26 @@ A + B
 A - B
 \end{python}
 
-For the definition and graphical interpretation of these operations, see \url{http://modsimpy.com/vecops}.
+Để biết về định nghĩa và cách diễn giải hình học cho những phép toán này, hãy xem \url{http://modsimpy.com/vecops}.
 
-\index{vector operation}
+\index{phép toán vector operation}
 
-When you add and subtract \py{Vector} objects, the \py{modsim} library uses NumPy and Pint to check that the operands have the same number of dimensions and units.  The notebook for this chapter shows examples for working with \py{Vector} objects.
+Khi bạn cộng và trừ các đối tượng \py{Vector}, thư viện \py{modsim} dùng đến NumPy và Pint để kiểm tra rằng các toán hạng có cùng số chiều và đơn vị. Quyển sổ tính dành cho chương này cho thấy những ví dụ làm việc với đối tượng \py{Vector}.
 
-\index{dimensions}
+\index{chiều | dimensions}
 
-One note on working with angles: in mathematics, we almost always represent angle in radians, and most Python functions expect angles in radians.  But people often think more naturally in degrees.  It can be awkward, and error-prone, to use both units in the same program.  Fortunately, Pint makes it possible to represent angles using quantities with units.
+Có một lưu ý khi làm việc với góc: trong toán học, hầu như ta biểu diễn góc theo radian, và hầu hết các hàm Python đều trông đợi góc đo bởi radian.  Nhưng người ta lại thường hình dung theo độ.  Sẽ rất lủng củng và dễ sai khi dùng cả hai đơn vị này trong cùng một chương trình. Thật may là Pint giúp ta có thể biểu diễn góc bằng những đại lượng có đơn vị.
 
-\index{degree}
+\index{độ | degree}
 
-As an example, I'll get the \py{degree} unit from \py{UNITS}, and create a quantity that represents 45 degrees:
+Lấy ví dụ, tôi sẽ lấy đơn vị \py{degree} từ \py{UNITS}, và tạo nên một đại lượng biểu diễn cho 45 độ:
 
 \begin{python}
 degree = UNITS.degree
 angle = 45 * degree
 \end{python}
 
-If we need to convert to radians we can use the \py{to} function
+Nếu cần quy đổi sang radian, ta có thể dùng hàm \py{to}
 \index{\py{to}}
 
 \begin{python}
@@ -6438,7 +6438,7 @@ radian = UNITS.radian
 rads = angle.to(radian)
 \end{python}
 
-If you are given an angle and velocity, you can make a \py{Vector} using \py{pol2cart}, which converts from polar to Cartesian coordinates.  To demonstrate, I'll extract the angle and magnitude of \py{A}:
+Nếu bạn có một góc và một vận tốc, bạn có thể tạo một \py{Vector} bằng \py{pol2cart}, hàm này quy đổi từ toạ độ cực sang toạ độ Đềcác. Để minh hoạ, tôi sẽ trích xuất góc và độ lớn của \py{A}:
 
 \index{pol2cart}
 
@@ -6447,39 +6447,39 @@ mag = A.mag
 angle = A.angle
 \end{python}
 
-And then make a new \py{Vector} with the same components:
+Rồi sẽ tạo một \py{Vector} mới cũng với các thành phần như vậy:
 
 \begin{python}
 x, y = pol2cart(angle, mag)
 Vector(x, y)
 \end{python}
 
-Another way to represent the direction of \py{A} is a {\bf unit vector}, which is a vector with magnitude 1 that points in the same direction as \py{A}.  You can compute a unit vector by dividing a vector by its magnitude:
+Một cách khác để biểu diễn hướng của \py{A} là dùng {\bf vector đơn vị}, vector này có độ lớn bằng 1 và chỉ theo cùng hướng với \py{A}.  Bạn có thể tính vector đơn vị bằng cách chia vector cho độ lớn của nó:
 
-\index{unit vector}
-\index{hat function}
+\index{vector đơn vị}
+\index{hat (hàm)}
 
 \begin{python}
 A / A.mag
 \end{python}
 
-We can do the same thing using the \py{hat} function, so named because unit vectors are conventionally decorated with a hat, like this: $\hat{A}$.
+Ta cũng có thể thực hiện cùng điều đó bằng hàm \py{hat}, sở dĩ hàm mang tên như vậy vì các vector đơn vị theo quy ước được viết với một cái mũ phía trên, như thế này: $\hat{A}$.
 
 \begin{python}
 A.hat()
 \end{python}
 
-Now let's get back to the game.
+Rồi, bây giờ ta hãy tiếp tục trở lại trò chơi.
 
 
-\section{Simulating baseball flight}
+\section{Mô phỏng đường bay quả bóng chày}
 
-Let's simulate the flight of a baseball that is batted from home plate at an angle of \SI{45}{\degree} and initial speed \SI{40}{\meter \per \second}.
-Using the center of home plate as the origin, the x-axis is parallel to the ground; the y-axis is vertical.  The initial height is about \SI{1}{\meter}.
+Ta hãy cùng mô phỏng đường bay của quả bóng chày được đánh từ gôn nhà với một góc \SI{45}{\degree} và tốc độ ban đầu \SI{40}{\meter \per \second}.
+Lấy vị trí tâm của gôn nhà là gốc toạ độ thì trục x sẽ song song với mặt đất còn trục y dựng thẳng đứng. Độ cao ban đầu là khoảng \SI{1}{\meter}.
 
-As in Section~\ref{penny_drag}, I'll create a \py{Params} object that contains the parameters of the system:
+Cũng như ở Mục~\ref{penny_drag}, tôi sẽ tạo nên một đối tượng \py{Params} có chứa tham số hệ thống:
 
-\index{Params object}
+\index{Params (đối tượng)}
 
 \begin{python}
 params = Params(x = 0 * m, 
@@ -6494,14 +6494,14 @@ params = Params(x = 0 * m,
                 duration = 6 * s)
 \end{python}
 
-The mass, diameter, and drag coefficient of the baseball are from the sources in Section~\ref{baseball}.  The acceleration of gravity, \py{g}, is a well-known quantity, and the density of air, \py{rho}, is based on a temperature of \SI{20}{\celsius} at sea level (see \url{http://modsimpy.com/tempress}).
- I chose the value of \py{duration} to run the simulation long enough for the ball to land on the ground.
+Khối lượng, đường kính, và hệ số cản của trái bóng, tất cả đều lấy từ nguồn ở Mục~\ref{baseball}.  Gia tốc trọng trường, \py{g}, là đại lượng đã biết rõ, còn mật độ không khí, \py{rho}, được xác định dựa theo nhiệt độ \SI{20}{\celsius} tại mực nước biển (xem \url{http://modsimpy.com/tempress}).
+Tôi chọn giá trị \py{duration} để chạy mô phỏng đủ dài sao cho quả bóng đập xuống đất.
 
-\index{density}
+\index{mật độ}
 
-The following function uses the \py{Params} object to make a \py{System} object.  This two-step process makes the code more readable and makes it easier to work with functions like \py{fsolve}.
+Hàm sau đây sử dụng đối tượng \py{Params} để tạo nên một đối tượng \py{System}.  Quá trình gồm hai bước này đã giúp cho mã lệnh dễ đọc hơn và ta cũng dễ làm việc hơn với những hàm kiểu như \py{fsolve}.
 
-\index{System object}
+\index{System (đối tượng)}
 \index{\py{make_system}}
 
 \begin{python}
@@ -6516,12 +6516,12 @@ def make_system(condition):
     return System(params, init=init, area=area)
 \end{python}
 
-\py{make_system} uses \py{np.deg2rad} to convert \py{angle} to radians and \py{pol2cart} to compute the $x$ and $y$ components of the initial velocity.  Then it makes the initial \py{State} object, computes \py{area}, and creates the \py{System} object, which contains all of the variables in \py{params} plus \py{init} and \py{area}.
+\py{make_system} dùng đến \py{np.deg2rad} để quy đổi \py{angle} thành độ và \py{pol2cart} để tính các thành phần hướng $x$ và $y$ của vận tốc ban đầu. Tiếp theo nó tạo đối tượng \py{State} ban đầu, tính \py{area}, rồi tạo đối tượng \py{System}, vốn có chứa tất cả những biến số trong \py{params} cũng như \py{init} và \py{area} nữa.
 
 \index{deg2rad}
-\index{State object}
+\index{State (đối tượng)}
 
-Next we need a function to compute drag force:
+Tiếp theo, ta cần một hàm để tính lực cản:
 
 \begin{python}
 def drag_force(v, system):
@@ -6532,13 +6532,13 @@ def drag_force(v, system):
     return f_drag
 \end{python}
 
-This function differs from the one in Section~\ref{bungee} because it takes \py{v} as a \py{Vector} and returns \py{f_drag} as a \py{Vector}.  It uses the drag equation to compute the magnitude of the drag force, and the \py{hat} function to compute the direction.  \py{-v.hat()} computes a unit vector pointing in the opposite direction of \py{v}.
+Hàm này khác với phiên bản ở Mục~\ref{bungee} vì nó nhận \py{v} dưới dạng \py{Vector} rồi trả về \py{f_drag} dưới dạng \py{Vector}.  Hàm sử dụng phương trình cản để tính độ lớn lực cản, và hàm \py{hat} để tính hướng.  \py{-v.hat()} tính ra một vector đơn vị chỉ ngược hướng với \py{v}.
 
-\index{unit vector}
-\index{slope function}
-\index{function!slope}
+\index{vector đơn vị}
+\index{độ dốc (hàm)}
+\index{hàm!độ dốc}
 
-Now we're ready for a slope function:
+Bây giờ ta đã sẵn sàng viết một hàm độ dốc:
 
 \begin{python}
 def slope_func(state, t, system):
@@ -6554,32 +6554,32 @@ def slope_func(state, t, system):
     return vx, vy, a.x, a.y
 \end{python}
 
-As usual, the parameters of the slope function are a \py{State} object, time, and a \py{System} object.  In this example, we don't use \py{t}, but we can't leave it out because when \py{run_ode_solver} calls the slope function, it always provides the same arguments, whether they are needed or not.
+Như thường lệ, các tham số của hàm độ dốc gồm một đối tượng \py{State}, thời gian, và một một đối tượng \py{System}. Ở ví dụ này, ta không dùng đến \py{t}, nhưng ta cũng không thể bỏ nó đi được vì khi \py{run_ode_solver} gọi hàm độ dốc thì nó sẽ luôn phải cung cấp cùng số lượng tham số, bất kể tham số này có dùng đến hay không.
 
-The \py{State} object contains four state variables: \py{x} and \py{y} are the components of position; \py{vx} and \py{vy} are the components of velocity.
+Đối tượng \py{State} có chứa bốn biến trạng thái: \py{x} và \py{y} là các thành phần của toạ độ; còn \py{vx} và \py{vy} là những thành phần của vận tốc.
 
-\index{state variable}
+\index{biến trạng thái}
 
-The return values from the slope function are the derivatives of these components.  The derivative of position is velocity, so the first two return values are just \py{vx} and \py{vy}, the values we extracted from the \py{State} object.  The derivative of velocity is acceleration, and that's what we have to compute.
+Các giá trị trả về từ hàm độ dốc bao gồm đạo hàm của những thành phần trên.  Đạo hàm của toạ độ là vận tốc, do vậy hai giá trị trả lại đầu tiên chính là \py{vx} và \py{vy}, những giá trị ta đã kết xuất từ đối tượng \py{State}. Đạo hàm của vận tốc là gia tốc, và đó chính là cái mà ta cần phải tính ra.
 
-\index{acceleration}
-\index{velocity}
-\index{position}
+\index{gia tốc}
+\index{vận tốc}
+\index{toạ độ}
 
-The total acceleration of the baseball is the sum of accelerations due to gravity and drag.  These quantities have both magnitude and direction, so they are represented by vectors \py{Vector} objects.
+Tổng gia tốc của quả bóng là tổng các gia tốc trọng trường và gia tốc cản. Những đại lượng này đều có độ lớn và hướng, bởi vậy chúng được biểu diễn dưới dạng các đối tượng \py{Vector}.
 
-We already saw how \py{a_drag} is computed.  \py{a_grav} is a \py{Vector} with magnitude \py{g} pointed in the negative \py{y} direction.
+Ta đã thấy \py{a_drag} được tính như thế nào rồi.  \py{a_grav} là một \py{Vector} với độ lớn \py{g} chỉ theo hướng âm của trục \py{y}.
 
-Using vectors to represent forces and accelerations makes the code concise, readable, and less error-prone.  In particular, when we add \py{a_grav} and \py{a_drag}, the directions are likely to be correct, because they are encoded in the \py{Vector} objects.  And the units are certain to be correct, because otherwise Pint would report an error.
+Việc dùng vector để biểu diễn lực và gia tốc giúp cho mã lệnh gọn gàng, dễ đọc hơn, và đỡ bị lỗi. Cụ thể, khi ta thêm \py{a_grav} và \py{a_drag}, các hướng đã dường như đúng đắn, vì chúng được kèm theo trong các đối tượng \py{Vector}. Còn các đối tượng thì hẳn nhiên là đúng đắn rồi, vì nếu không Pint sẽ thông báo lỗi ngay.
 \index{Pint}
 
-As always, we can test the slope function by running it with the initial conditions:
+Như thường lệ, ta có thể kiểm tra hàm độ dốc bằng cách chạy nó với các điều kiện ban đầu:
 
 \begin{python}
 slope_func(system.init, 0, system)
 \end{python}
 
-We can use an event function to stop the simulation when the ball hits the ground.
+Ta có thể dùng một hàm sự kiện để ngừng việc mô phỏng khi trái bóng chạm đất.
 
 \begin{python}
 def event_func(state, t, system):
@@ -6587,9 +6587,9 @@ def event_func(state, t, system):
     return y
 \end{python}
 
-The event function takes the same parameters as the slope function, and returns the y coordinate.  When the y coordinate passes through 0, the simulation stops.
+Hàm sự kiện nhận vào cùng các tham số như hàm độ dốc, rồi trả lại toạ độ y. Khi toạ độ y cắt qua giá trị 0, mô phỏng sẽ dừng lại.
 
-Now we're ready to run the simulation:
+Bây giờ ta đã sẵn sàng chạy mô phỏng:
 
 \begin{python}
 ts = linspace(0, system.t_end, 101)
@@ -6597,28 +6597,28 @@ results, details = run_ode_solver(system, slope_func,
                        events=event_func, max_step=0.2*s)
 \end{python}
 
-\py{results} is a \py{TimeFrame} object with one column for each of the state variables, \py{x}, \py{y}, \py{vx}, and \py{vy}.
+\py{results} là một đối tượng \py{TimeFrame} trong đó mỗi cột chứa một biến trạng thái, đó là \py{x}, \py{y}, \py{vx}, và \py{vy}.
 
-\index{TimeFrame object}
+\index{TimeFrame (đối tượng)}
 
-We can get the flight time like this:
+Ta có thể thu được thời gian bay như sau:
 
 \begin{python}
 flight_time = get_last_label(results) * s
 \end{python}
 
-And the final \py{x} coordinate like this:
+Và toạ độ \py{x} cuối cùng như sau:
 
 \begin{python}
 x_dist = get_last_value(results.x) * m
 \end{python}
 
-Notice that the results don't have units; if we want these values to have the correct units, we have to apply them.
+Lưu ý rằng kết quả cuối cùng không có đơn vị; nếu ta muốn những giá trị trên có đơn vị đúng thì ta phải áp dụng đơn vị.
 
 
-\section{Trajectories}
+\section{Đường bay}
 
-We can plot the $x$ and $y$ components of position like this:
+Ta có thể vẽ biểu đồ các thành phần $x$ và $y$ của toạ độ như sau:
 
 \begin{python}
 plot(results.x, label='x')
@@ -6627,15 +6627,15 @@ plot(results.y, label='y')
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap10-fig01.pdf}}
-\caption{Simulated baseball flight, $x$ and $y$ components of position as a function of time.}
+\caption{Đường bay bóng chày theo mô phỏng, các thành phần $x$ và $y$ của toạ độ như hàm số theo thời gian.}
 \label{chap10-fig01}
 \end{figure}
 
-Hình~\ref{chap10-fig01} shows the result.  As expected, the $x$ component increases monotonically, with decreasing velocity.  The $y$ position climbs initially and then descends, falling slightly below \SI{0}{\meter} after \SI{5.1}{\second}.
+Hình~\ref{chap10-fig01} cho thấy kết quả. Đúng như dự kiến, thành phần $x$ tăng đơn điệu, với vận tốc tăng dần. Toạ độ $y$ ban đầu thì tăng và rồi giảm đi, hạ xuống dưới mức \SI{0}{\meter} một chút sau \SI{5.1}{\second}.
 
-\index{monotonic}
+\index{đơn điệu}
 
-Another way to view the same data is to plot the $x$ component on the x-axis and the $y$ component on the y-axis, so the plotted line follows the trajectory of the ball through the plane:
+Một cách khác để nhìn vào cùng số liệu này, đó là vẽ đồ thị thành phần $x$ lên trục x và thành phần $y$ lên trục y, để cho đường cong đồ thị vạch theo đường bay quả bóng trên mặt phẳng đứng:
 
 \begin{python}
 plot(results.x, results.y, label='trajectory')
@@ -6643,15 +6643,15 @@ plot(results.x, results.y, label='trajectory')
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap10-fig02.pdf}}
-\caption{Simulated baseball flight, trajectory plot.}
+\caption{Đường bay bóng chày theo mô phỏng.}
 \label{chap10-fig02}
 \end{figure}
 
-Hình~\ref{chap10-fig02} shows this way of visualizing the results, which is called a {\bf trajectory plot} (see \url{http://modsimpy.com/trajec}).
+Hình~\ref{chap10-fig02} cho thấy cách trực quan hoá kết quả này; đây được gọi là {\bf đồ thị đường bay} (xem \url{http://modsimpy.com/trajec}).
 
-\index{trajectory plot}
+\index{đồ thị đường bay}
 
-A trajectory plot can be easier to interpret than a time series plot, because it shows what the motion of the projectile would look like (at least from one point of view).  Both plots can be useful, but don't get them mixed up!  If you are looking at a time series plot and interpreting it as a trajectory, you will be very confused.
+Đồ thị đường bay có thể dễ diễn giải hơn là một biểu đồ chuỗi thời gian, vì nó cho thấy chuyển động trái bóng trong khi bay trông ra sao (ít nhất là theo góc nhìn người quan sát). Cả hai đồ thị đều hữu ích, nhưng đừng nhầm lẫn chúng! Nếu bạn nhìn vào biểu đồ chuỗi thời gian mà lại hình dung thành một đường bay thì bạn sẽ bị lẫn ngay.
 
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap22.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
