@@ -6657,41 +6657,41 @@ Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho
 
 
 
-\chapter{Optimization}
+\chapter{Tối ưu hoá}
 \label{chap23}
 
-In the previous chapter we developed a model of the flight of a baseball, including gravity and a simple version of drag, but neglecting spin, Magnus force, and the dependence of the coefficient of drag on velocity.
+Ở chương trước ta đã thiết lập mô hình đường bay của trái bóng chày, trong đó bao gồm trọng lực và một phiên bản đơn giản mô phỏng lực cản, nhưng lại bỏ qua độ xoáy, lực Magnus, cùng sự phụ thuộc của hệ số cản vào vận tốc.
 
-In this chapter we apply that model to an optimization problem.
+Trong chương này ta áp dụng mô hình đó vào một bài toán tối ưu hoá.
 
-\section{The Manny Ramirez problem}
+\section{Bài toán Manny Ramirez}
 \label{manny}
 
-Manny Ramirez is a former member of the Boston Red Sox (an American baseball team) who was notorious for a relaxed attitude and a taste for practical jokes that his managers did not always appreciate.  Our objective in this chapter is to solve the following Manny-inspired problem:
+Manny Ramirez là thành viên trước đây của Boston Red Sox (một đội bóng chày Mỹ), người nổi tiếng với một thái độ thoải mái và khẩu vị pha trò mà ngừoi quản lý anh ta không phải lúc nào cũng chịu được. Mục đích của bài báo này là nhằm giải bài toán sau đây được truyền cảm hứng từ Manny:
 
-{\it What is the minimum effort required to hit a home run in Fenway Park?}
+{\it Cần dùng sức tối thiểu bao nhiêu để đánh một cú home run trên sân Fenway Park?}
 
-Fenway Park is a baseball stadium in Boston, Massachusetts.  One of its most famous features is the ``Green Monster", which is a wall in left field that is unusually close to home plate, only 310 feet away.  To compensate for the short distance, the wall is unusually high, at 37 feet (see \url{http://modsimpy.com/wally}).
+Fenway Park là sân bóng chày ở Boston, Massachusetts.  Một trong những đặc điểm nổi tiếng của nó là ``Green Monster", bức tường ở sân bên trái rất sát với gôn nhà, chỉ cách khoảng 310 feet. Để bù vào khoảng cách ngắn này, tường này được xây cao hẳn lên, tới 37 feet (xem \url{http://modsimpy.com/wally}).
 
 \index{Ramirez, Manny}
 \index{Fenway Park}
-\index{baseball}
+\index{bóng chày | baseball}
 \index{Green Monster}
-\index{velocity}
+\index{vận tốc | velocity}
 
-We want to find the minimum velocity at which a ball can leave home plate and still go over the Green Monster.  We'll proceed in the following steps:
+Ta muốn tìm vận tốc tối thiểu tại đó quả bóng có thể rời gôn nhà và vẫn còn bay tiếp vượt qua tường Green Monster.  Ta sẽ tiếp tục thực hiện các bước sau:
 
 \begin{enumerate}
 
-\item For a given velocity, we'll find the optimal {\bf launch angle}, that is, the angle the ball should leave home plate to maximize its height when it reaches the wall.
+\item Với vận tốc cho trước, ta sẽ tính {\bf góc ném} tối ưu, ở đây góc ném là góc mà quả bóng khi rời gôn nhà để đạt độ cao tối đa khi đến vị trí tường.
 
-\index{launch angle}
+\index{góc ném | launch angle}
 
-\item Then we'll find the minimal velocity that clears the wall, given that it has the optimal launch angle.
+\item Sau đó ta sẽ tính vận tốc tối thiểu để vượt bức tường, với góc ném tối ưu cho trước.
 
 \end{enumerate}
 
-We'll use the same model as in the previous chapter, with this \py{Params} object:
+Ta sẽ dùng mô hình đã lập ở chương trước với đối tượng \py{Params} sau:
 
 \begin{python}
 params = Params(x = 0 * m, 
@@ -6706,7 +6706,7 @@ params = Params(x = 0 * m,
                 t_end = 20 * s)
 \end{python}
   
-This version of \py{make_system}:
+Phiên bản này của \py{make_system}:
 
 \begin{python}
 def make_system(condition):
@@ -6720,7 +6720,7 @@ def make_system(condition):
     return System(params, init=init, area=area)
 \end{python}
     
-This slope function:
+Hàm độ dốc này
 
 \begin{python}
 def slope_func(state, t, system):
@@ -6736,7 +6736,7 @@ def slope_func(state, t, system):
     return vx, vy, a.x, a.y
 \end{python}
 
-And this event function:
+Và hàm sự kiện này
 
 \begin{python}
 def event_func(state, t, system):
@@ -6745,11 +6745,11 @@ def event_func(state, t, system):
 \end{python}
 
 
-\section{Finding the range}
+\section{Tính tầm xa}
 
-Suppose we want to find the launch angle that maximizes {\bf range}, that is, the distance the ball travels in the air before landing.   We'll use a function in the \py{modsim} library, \py{max_bounded}, which takes a function and finds its maximum.
+Giả dụ ta muốn tìm góc ném để tầm xa {\bf range} (quãng đường trái bóng bay trong không trung trước khi chạm đất) đạt mức tối đa. Ta sẽ dùng một hàm trong thư viện \py{modsim}, hàm này có tên \py{max_bounded}, và nhận vào một hàm khác rồi tìm cực đại của nó.
 
-The function we pass to \py{max_bounded} should take launch angle and a \py{params} object, and return range:
+Hàm mà ta cần truyền cho \py{max_bounded} cần nhận vào góc ném và một đối tượng \py{params}, và trả về tầm xa:
 
 \begin{python}
 def range_func(angle, params):  
@@ -6761,18 +6761,18 @@ def range_func(angle, params):
     return x_dist
 \end{python}
 
-\py{range_func} makes a new \py{Params} object with the given value of \py{angle}.  Then it makes a \py{System} object, calls \py{run_ode_solver}, and returns the final value of \py{x} from the results.  
+\py{range_func} tạo ra một đối tượng \py{Params} mới với giá trị cho trước của \py{angle}.  Sau đó nó tạo ra đối tượng \py{System}, gọi \py{run_ode_solver}, rồi trả lại giá trị cuối cùng của \py{x} từ kết quả.
 
-We can call \py{range_func} directly like this:
+Ta có thể trực tiếp gọi \py{range_func} như sau:
 
 \begin{python}
 range_func(45, params)
 \end{python}
 
-And we can sweep a sequence of angles like this:
+Và ta có thể quét một loạt các góc như sau:
 
-\index{parameter sweep}
-\index{SweepSeries object}
+\index{quét tham số | parameter sweep}
+\index{đối tượng SweepSeries object}
 
 \begin{python}
 angles = linspace(20, 80, 21)
@@ -6786,50 +6786,50 @@ for angle in angles:
 
 \begin{figure}
 \centerline{\includegraphics[height=3in]{figs/chap10-fig03.pdf}}
-\caption{Distance from home plate as a function of launch angle, with fixed velocity.}
+\caption{Khoảng cách tới gôn nhà dưới dạng hàm của góc ném, với vận tốc cố định.}
 \label{chap10-fig03}
 \end{figure}
 
-Hình~\ref{chap10-fig03} shows the results.  It looks like the optimal angle is between \SI{40}{\degree} and \SI{45}{\degree}.
+Hình~\ref{chap10-fig03} cho thấy kết quả. Dường như góc ném tối ưu vào khoảng giữa \SI{40}{\degree} và \SI{45}{\degree}.
 
-We can find the optimal angle more precisely and more efficiently using \py{max_bounded}, like this:
+Ta có thể tìm góc ném tối ưu một cách chính xác hơn và hiệu quả hơn bằng cách dùng \py{max_bounded}, như sau:
 
 \begin{python}
 res = max_bounded(range_func, [0, 90], params)
 \end{python}
 
-The first parameter is the function we want to maximize.  The second is the range of values we want to search; in this case it's the range of angles from \SI{0}{\degree} to \SI{90}{\degree}.  The third argument can be any object; it gets passed along as an argument when \py{max_bounded} calls \py{range_func}.
+Tham số thứ nhất là hàm cần tối đa. Tham số thứ hai là một khoảng các giá trị ta cần tìm kiếm; ở đây là khoảng các góc từ \SI{0}{\degree} tới \SI{90}{\degree}.  Tham số thứ ba có thể là bất kì đối tượng nào; nó được truyền tiếp theo như tham số khi \py{max_bounded} gọi đến \py{range_func}.
 
-\index{Params object}
+\index{đối tượng Params object}
 
-The return value from \py{max_bounded} is an \py{ModSimSeries} that contains the results, including \py{x}, which is the angle that yielded the highest range, and \py{fun}, which is the value of \py{range_func} when it's evaluated at \py{x}, that is, range when the baseball is launched at the optimal angle.
+Kết quả trả về từ \py{max_bounded} là một \py{ModSimSeries} có chứa kết quả, bao gồm \py{x}, vốn là góc cho ta tầm xa lớn nhất, và \py{fun}, vốn là giá trị của \py{range_func} khi nó được ước lượng tại \py{x}; \py{range_func} là tầm xa khi ném bóng với góc tối ưu.
 
-For these parameters, the optimal angle is \SI{41.1}{\degree}, which yields a range of \SI{103.4}{\meter}.
+Với những tham số này, góc ném tối ưu là \SI{41.1}{\degree}, và ta thu được tầm xa \SI{103.4}{\meter}.
 
 \index{ModSimSeries}
 
 
 
 
-\section{Finishing off the problem}
+\section{Giải quyết dứt điểm bài toán}
 
-In the notebook for this chapter, \py{chap22.ipynb}, you'll have to chance to finish off the Manny Ramirez problem.  There are a few things you'll have to do:
+Ở cuốn sổ tính chương này, \py{chap22.ipynb}, bạn có cơ hội giải quyết dứt điểm bài toán Manny Ramirez. Sau đây là một số việc cần làm:
 
 \begin{itemize}
 
-\item In the previous section the ``optimal" launch angle is the one that maximizes range, but that's not what we want.  Rather, we want the angle that maximizes the height of the ball when it gets to the wall (310 feet from home plate).  So you'll have to write a height function to compute it, and then use \py{max_bounded} to find the revised optimum.
+\item Ở mục trước, góc ném ``tối ưu" là góc làm tầm xa đạt mức tối đa; song đây không phải điều ta muốn. Thay vì vậy, ta muốn có góc làm tối đa hoá tầm cao trái bóng khi vượt qua tường (310 feet từ gôn nhà).  Vì vậy, bạn phải viết một hàm độ cao để tính ra đại lượng này, rồi dùng \py{max_bounded} để tìm giá trị tối ưu mới.
 
-\item Once you can find the optimal angle for any velocity, you have to find the minimum velocity that gets the ball over the wall.  You'll write a function that takes a velocity as a parameter, computes the optimal angle for that velocity, and returns the height of the ball, at the wall, using the optimal angle.
+\item Một khi bạn đã tìm được góc ném tối ưu cho vận tốc bất kì, bạn cần tìm vận tốc tối thiểu để ném bóng vượt qua tường. Bạn sẽ viết một hàm nhận vào vận tốc làm tham số, tính góc tối ưu cho vận tốc đó, rồi trả lại chiều cao của trái bóng ở vị trí tường, khi được ném từ góc tối ưu.
 
-\item Finally, you'll use \py{fsolve} to find the velocity that makes the optimal height at the wall just barely 37 feet.
+\item Sau cùng, bạn sẽ sử dụng \py{fsolve} để tìm vận tốc khiến cho tầm cao tối ưu qua tường chỉ vừa đủ 37 feet thôi.
   
 \index{\py{fsolve}}
 
 \end{itemize}
 
-The notebook provides some additional hints, but at this point you should have everything you need.  Good luck!
+Quyển sổ tính này cung cấp thêm một số gợi ý khác nữa, nhưng đến đây có lẽ bạn đã có mọi thứ cần thiết rồi.  Chúc may mắn!
 
-If you enjoy this exercise, you might be interested in this paper: ``How to hit home runs: Optimum baseball bat swing parameters for maximum range trajectories", by Sawicki, Hubbard, and Stronge, at \url{http://modsimpy.com/runs}.
+Nếu thích làm bài tập này thì bạn có lẽ cũng quan tâm đến bài báo: ``How to hit home runs: Optimum baseball bat swing parameters for maximum range trajectories" (tạm dịch: Đánh cú home run thế nào: các tham số vung gậy tối ưu để đạt đường bay có tầm xa nhất), tác giả Sawicki, Hubbard, và Stronge, tại \url{http://modsimpy.com/runs}.
 
 
 \chapter{Rotation}
