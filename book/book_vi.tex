@@ -6832,80 +6832,81 @@ Quyển sổ tính này cung cấp thêm một số gợi ý khác nữa, nhưng
 Nếu thích làm bài tập này thì bạn có lẽ cũng quan tâm đến bài báo: ``How to hit home runs: Optimum baseball bat swing parameters for maximum range trajectories" (tạm dịch: Đánh cú home run thế nào: các tham số vung gậy tối ưu để đạt đường bay có tầm xa nhất), tác giả Sawicki, Hubbard, và Stronge, tại \url{http://modsimpy.com/runs}.
 
 
-\chapter{Rotation}
+\chapter{Chuyển động quay}
 \label{chap24}
 
-In this chapter we model systems that involve rotating objects.  In general, rotation is complicated:  in three dimensions, objects can rotate around three axes; objects are often easier to spin around some axes than others; and they may be stable when spinning around some axes but not others.
+Trong chương này ta mô hình hoá các hệ thống có vật thể quay. Nói chung, chuyển động quay khá phức tạp: trong không gian 3 chiều, vật có thể quay quanh 3 trục; các vật thường dễ xoay quanh một trục nhất định, và có thể quay ổn định quanh trục đó nhưng sẽ không ổn định nếu quanh quanh các trục còn lại.
 
-\index{rotation}
+\index{quay}
 
-If the configuration of an object changes over time, it might become easier or harder to spin, which explains the surprising dynamics of gymnasts, divers, ice skaters, etc.
+Nếu cấu hình của vật thể thay đổi theo thời gian, thì có thể sẽ dễ hoặc khó quay hơn, điều này giải thích hiện tượng động lực đáng ngạc nhiên của các vận động viên các môn thể dục dụng cụ, lặn, trượt băng nghệ thuật, v.v.
 
-And when you apply a twisting force to a rotating object, the effect is often contrary to intuition.  For an example, see this video on gyroscopic precession \url{http://modsimpy.com/precess}.
+Và khi bạn tác dụng một lực xoắn vào vật thể đang quay, sẽ thường gây hiệu ứng trái ngược với trực giác ta hình dung. Chẳng hạn, hãy xem video này về con quay hồi chuyển \url{http://modsimpy.com/precess}.
 
-\index{gyroscopic precession}
+\index{con quay hồi chuyển}
 
-In this chapter, we will not take on the physics of rotation in all its glory.  Rather, we will focus on simple scenarios where all rotation and all twisting forces are around a single axis.  In that case, we can treat some vector quantities as if they were scalars (in the same way that we sometimes treat velocity as a scalar with an implicit direction).
+Trong chương này, ta sẽ không đề cập tới toàn bộ bản chất vật lý của chuyển động quay. Thay vì đó, ta chỉ tập trung vào những kịch bản đơn giản trong đó mọi chuyển động quay cũng như các lực xoán đều quanh một trục thôi. Khi đó, ta có thể coi những đại lượng vec-tơ như thể chúng là các đại lượng vô hướng (giống như đôi khi ta vẫn coi vận tốc như là đại lượng vô hướng mà phương chiều vận tốc đã ngầm định vậy).
 
-\index{scalar}
+\index{vô hướng}
 
-This approach makes it possible to simulate and analyze many interesting systems, but you will also encounter systems that would be better approached with the more general toolkit.
+Cách làm này giúp ta có thể mô phỏng và phân tích nhiều hệ thống thú vị, nhưng bạn cũng sẽ gặp các hệ thống mà ta nên xử lý bằng các bộ công cụ tổng quát hơn.
 
-The fundamental ideas in this chapter and the next are {\bf angular velocity}, {\bf angular acceleration}, {\bf torque}, and {\bf moment of inertia}.  If you are not already familiar with these concepts, I will define them as we go along, and I will point to additional reading.
+Những ý tưởng cơ bản trong chương này và chương kế tiếp bao gồm {\bf vận tốc góc}, {\bf gia tốc góc}, {\bf mô-men xoắn}, và {\bf mô-men quán tính}.  Nếu bạn chưa nắm được những khái niệm này, tôi sẽ định nghĩa chúng trong chương, cũng như nhắc tới các tài liệu xem thêm.
 
-At the end of the next chapter, you will use these tools to simulate the behavior of a yo-yo (see \url{http://modsimpy.com/yoyo}).  But we'll work our way up to it gradually, starting with toilet paper.
+Ở cuối chương kết tiếp, bạn sẽ dùng những công cụ này để mô phỏng động thái của con quay yo-yo (xem \url{http://modsimpy.com/yoyo}).  Nhưng ta sẽ dần tiếp cận tới đó, mà trước hết là nghiên cứu cuộn giấy vệ sinh đã.
 
 
 
-\section{The physics of toilet paper}
+\section{Chuyển động của cuộn giấy vệ sinh}
 \label{paper}
 
-As a simple example of a system with rotation, we'll simulate the manufacture of a roll of toilet paper.  Starting with a cardboard tube at the center, we will roll up \SI{47}{\meter} of paper, the typical length of a roll of toilet paper in the U.S. (see \url{http://modsimpy.com/paper}).
 
-\index{toilet paper}
+Lấy một ví dụ đơn giản về hệ thống chuyển động quay, ta sẽ mô phỏng quá trình sản xuất một cuộn giấy vệ sinh. Bắt đầu từ đoạn ống bìa làm lõi giữa, ta sẽ cuộn \SI{47}{\meter} giấy, đó là chiều dài cuộn giấy vệ sinh tiêu chuẩn ở Mỹ (xem \url{http://modsimpy.com/paper}).
+
+\index{giấy vệ sinh}
 
 \begin{figure}
 \centerline{\includegraphics[height=2.5in]{figs/paper_roll.pdf}}
-\caption{Diagram of a roll of toilet paper, showing change in paper length as a result of a small rotation, $d\theta$.}
+\caption{Sơ đồ cuộn giấy vệ sinh, cho thấy sự thay đổi chiều dài giấy là hệ quả của một chuyển động quay nhỏ, $d\theta$.}
 \label{paper_roll}
 \end{figure}
 
-Hình~\ref{paper_roll} shows a diagram of the system: $r$ represents the radius of the roll at a point in time.  Initially, $r$ is the radius of the cardboard core, $R_{min}$.  When the roll is complete, $r$ is $R_{max}$.
+Hình~\ref{paper_roll} cho thấy sơ đồ hệ thống: $r$ biểu diễn bán kính cuộn giấy tại một thời điểm nhất định. Ban đầu, $r$ là bán kính của lõi bìa, $R_{min}$.  Khi cuộn xong giấy, $r$ bằng $R_{max}$.
 
-I'll use $\theta$ to represent the total rotation of the roll in radians.  In the diagram, $d\theta$ represents a small increase in $\theta$, which corresponds to a distance along the circumference of the roll of $r~d\theta$.
+Tôi sẽ dùng $\theta$ để biểu diễn tổng góc quay của cuộn giấy tính bằng radian. Theo sơ đồ này, $d\theta$ thể hiện một mức tăng nhỏ ở $\theta$, đại lượng này tương ứng với khoảng cách dọc theo chu vi cuộn giấy là $r~d\theta$.
 
 \index{radian}
 
-Finally, I'll use $y$ to represent the total length of paper that's been rolled.  Initially, $\theta=0$ and $y=0$.  For each small increase in $\theta$, there is a corresponding increase in $y$:
+Sau cùng, tôi sẽ dùng $y$ đẻ biểu diễn cho tổng độ dài giấy đã được cuộn. Ban đầu, $\theta=0$ và $y=0$.  Ứng với mỗi độ tăng nhỏ ở $\theta$, có một độ tăng của $y$:
 %
 \[ dy = r~d\theta \]
 %
-If we divide both sides by a small increase in time, $dt$, we get a differential equation for $y$ as a function of time.
+Nếu ta chia cả hai vê cho một độ tăng thời gian nhỏ, $dt$, ta sẽ thu được một phương trình vi phân của $y$ theo thời gian.
 %
 \[ \frac{dy}{dt} = r \frac{d\theta}{dt} \]
 %
-As we roll up the paper, $r$ increases, too.  Assuming that $r$ increases by a fixed amount per revolution, we can write
+Khi thực hiện cuộn giấy, $r$ cũng tăng theo. Coi rằng $r$ tăng thêm một lượng không đổi qua mỗi vòng cuộn, ta có thể viết 
 %
 \[ dr = k~d\theta \]
 %
-Where $k$ is an unknown constant we'll have to figure out.  Again, we can divide both sides by $dt$ to get a differential equation in time:
+Trong đó $k$ là hằng số chưa biết mà ta cần hình dung ra. Một lần nữa, ta có thể chia cả hai vế cho $dt$ để thu được một phương trình vi phân theo thời gian:
 %
 \[ \frac{dr}{dt} = k \frac{d\theta}{dt} \]
 %
-Finally, let's assume that $\theta$ increases at a constant rate of \SI{10}{\radian\per\second} (about 95 revolutions per minute):
+Sau cùng, hãy giả sử rằng $\theta$ tăng với một tốc độ không đổi là \SI{10}{\radian\per\second} (khoảng 95 vòng mỗi phút):
 %
 \[ \frac{d\theta}{dt} = 10  \]
 %
-This rate of change is called an {\bf angular velocity}.  Now we have a system of three differential equations we can use to simulate the system.
+Tốc độ thay đổi này được gọi là {\bf vận tốc góc}.  Bây giờ ta có một hệ ba phương trình vi phân để mô phỏng hệ thống.
 
-\index{angular velocity}
-\index{differential equation}
+\index{vận tốc góc}
+\index{phương trình vi phân}
 
 
-\section{Implementation}
+\section{Lập trình}
 \label{papersim}
 
-At this point we have a pretty standard process for writing simulations like this.  First, we'll get the units we need from Pint:
+Đến đây ta đã có quy trì khá chuẩn về cách viết những mô phỏng kiểu thế này. Trước tiên, ta sẽ lấy các đơn vị cần thiết từ Pint:
 \index{Pint}
 
 \begin{python}
@@ -6914,7 +6915,7 @@ m = UNITS.meter
 s = UNITS.second
 \end{python}
 
-And create a \py{Params} object with the parameters of the system:
+Và rồi tạo một đối tượng \py{Params} chứa các tham số hệ thống:
 
 \index{Params object}
 
@@ -6925,11 +6926,11 @@ params = Params(Rmin = 0.02 * m,
                 t_end = 130 * s)
 \end{python}
 
-\py{Rmin} and \py{Rmax} are the initial and final values for the radius, \py{r}.  \py{L} is the total length of the paper, and \py{t_end} is the length of the simulation in time.
+\py{Rmin} và \py{Rmax} là những giá trị đầu và cuối của bán kính, \py{r}.  \py{L} là chiều dài toàn bộ cuộn giấy, còn \py{t_end} là tổng thời gian mô phỏng.
 
-Then we use the \py{Params} object to make a \py{System} object:
+Khi đó ta có thể dùng đối tượng \py{Params} để lập một đối tượng \py{System}:
 
-\index{System object}
+\index{đối tượng System object}
 \index{\py{make_system}}
 
 \begin{python}
@@ -6945,11 +6946,11 @@ def make_system(params):
     return System(init=init, k=k, t_end=t_end)
 \end{python}
 
-The initial state contains three variables, \py{theta}, \py{y}, and \py{r}.
+Trạng thái ban đầu có chứa 3 biến, đó là \py{theta}, \py{y}, và \py{r}.
 
 \index{unpack}
 
-To get started, we'll estimate a reasonable value for \py{k}; then in Section~\ref{paper_analysis} we'll figure it out exactly.  Here's how we compute the estimate:
+Để bắt đầu, ta sẽ ước tính giá trị hợp lý cho \py{k}; rồi ở Mục~\ref{paper_analysis} ta sẽ hình dung ra giá trị chính xác hơn. Sau đây là cách ta thực hiện ước tính:
 
 \begin{python}
 def estimate_k(params):
@@ -6963,16 +6964,16 @@ def estimate_k(params):
     return k
 \end{python}
 
-\py{Ravg} is the average radius, half way between \py{Rmin} and \py{Rmax}, so \py{Cavg} is the circumference of the roll when \py{r} is \py{Ravg}.
+\py{Ravg} là bán kính trung bình, chính giữa \py{Rmin} và \py{Rmax}, do vậy \py{Cavg} là chu vi cuộn giấy khi \py{r} bằng \py{Ravg}.
 
-\py{revs} is the total number of revolutions it would take to roll up length \py{L} if \py{r} were constant at \py{Ravg}.  And \py{rads} is just \py{revs} converted to radians.
+\py{revs} là tổng số vòng quay cần để cuộn được một đoạn giấy dài \py{L} nếu \py{r} được coi là không đổi tại \py{Ravg}.  Và \py{rads} chỉ là \py{revs} quy đổi thành radian.
 
-Finally, \py{k} is the change in \py{r} for each radian of revolution.  For these parameters, \py{k} is about \py{2.8e-5} \si{\meter\per\radian}.
+Sau cùng, \py{k} là mức biến đổi của \py{r} ứng với mỗi radian chuyển động quay. Với các tham số này, \py{k} bằng khoảng \py{2.8e-5} \si{\meter\per\radian}.
 
-Now we can use the differential equations from Section~\ref{paper} to write a slope function:
+Bây giờ ta có thể dùng các phương trình vi phân từ Mục~\ref{paper} để viết ra một hàm độ dốc:
 
-\index{slope function}
-\index{Function!slope}
+\index{độ dốc (hàm)}
+\index{hàm!độ dốc}
 
 \begin{python}
 def slope_func(state, t, system):
@@ -6988,15 +6989,15 @@ def slope_func(state, t, system):
 
 \begin{figure}[t]
 \centerline{\includegraphics[height=4.5in]{figs/chap11-fig01.pdf}}
-\caption{Results from paper rolling simulation, showing rotation, length, and radius over time.}
+\caption{Kết quả mô phỏng cuốn giấy, thể hiện số vòng, độ dài và bán kính cuộn giấy theo thời gian.}
 \label{chap11-fig01}
 \end{figure}
 
-As usual, the slope function takes a \py{State} object, a time, and a \py{System} object.  The \py{State} object contains hypothetical values of \py{theta}, \py{y}, and \py{r} at time \py{t}.  The job of the slope function is to compute the time derivatives of these values.  The time derivative of \py{theta} is angular velocity, which is often denoted \py{omega}.
+Như thường lệ, hàm độ dốc nhận vào một đối tượng \py{State}, một thời gian và một đối tượng \py{System}. Đối tượng \py{State} có chứa các giá trị giả tưởng của \py{theta}, \py{y}, và \py{r} tại thời điểm \py{t}.  Nhiệm vụ của hàm độ dốc là để tính các đạo hàm theo thời gian của những giá trị này. Đạo hàm theo thời gian của \py{theta} là vận tốc góc, vốn thường được kí hiệu là \py{omega}.
 
 \index{State object}
 
-We'd like to stop the simulation when the length of paper on the roll is \py{L}.  We can do that with an event function that passes through 0 when \py{y} equals \py{L}:
+Ta sẽ muốn dừng mô phỏng khi chiều dài cuộn giấy là \py{L}. Ta có thể làm vậy với một hàm sự kiện, hàm này cắt qua 0 khi \py{y} bằng \py{L}:
 
 \begin{python}
 def event_func(state, t, system):
@@ -7005,7 +7006,7 @@ def event_func(state, t, system):
     return y - L
 \end{python}
 
-Now we can run the simulation like this:
+Bây giờ ta có thể chạy mô phỏng như sau:
 
 \begin{python}
 results, details = run_ode_solver(system, slope_func,
@@ -7013,47 +7014,47 @@ results, details = run_ode_solver(system, slope_func,
 \end{python}
 
 
-Hình~\ref{chap11-fig01} shows the results.  \py{theta} grows linearly over time, as we should expect.  As a result, \py{r} also grows linearly.  But since the derivative of \py{y} depends on \py{r}, and \py{r} is increasing, \py{y} grows with increasing slope.
+Hình~\ref{chap11-fig01} cho thấy kết quả.  \py{theta} tăng tuyến tính theo thời gian, như ta mong đợi. Két quả là \py{r} cũng tăng tuyến tính. Nhưng vì đạo hàm của \py{y} lại phụ thuộc vào \py{r}, mà \py{r} thì tăng, nên \py{y} cũng tăng với độ dốc ngày càng lớn dần.
 
-Because this system is so simple, it is almost silly to simulate it.  As we'll see in the next section, it is easy enough to solve the differential equations analytically.  But it is often useful to start with a simple simulation as a way of exploring and checking assumptions.
+Vì hệ thống này quá đơn giản nên sẽ thật ngớ ngẩn nếu dùng mô phỏng. Như ta sẽ thấy ở mục kế tiếp, có thể dễ dàng giải được phương trình vi phân bằng cách giải tích. Nhưng cũng cần bắt đầu bằng một mô phỏng đơn giản nhằm khám phá và kiểm tra các giả định.
 
-In order to get the simulation working, we have to get the units right, which can help catch conceptual errors early.  And by plugging in realistic parameters, we can detect errors that cause unrealistic results.  For example, in this system we can check:
+Để việc mô phỏng thực hiện được, ta phải viết đúng đơn vị, bằng cách này sẽ giúp sớm phát hiện những lỗi về khái niệm. Và bằng cách đưa vào các tham số thực tế, ta có thể phát hiện những lỗi gây ra kết quả phi thực tế. Chẳng hạn, ở hệ thống này ta có thể kiểm tra rằng:
 
 \begin{itemize}
 
-\item The total time for the simulation is about 2 minutes, which seems plausible for the time it would take to roll \SI{47}{\meter} of paper.
+\item Tổng thời gian mô phỏng là khoảng 2 phút, điều này hợp lý với thời gian cần để cuộn \SI{47}{\meter} giấy.
 
-\item The final value of \py{theta} is about \SI{1250}{\radian}, which corresponds to about 200 revolutions, which also seems plausible.
+\item Giá trị cuối cùng của \py{theta} bằng khoảng \SI{1250}{\radian}, tương đương với khoảng 200 vòng cuộn, điều này cũng hợp lý.
 
-\item The initial and final values for \py{r} are consistent with \py{Rmin} and \py{Rmax}, as we intended when we chose \py{k}.
+\item Các giá trị đầu và cuối của \py{r} cũng nhất quán với \py{Rmin} và \py{Rmax}, như ta đã dự kiến khi chọn \py{k}.
 
 \end{itemize}
 
-But now that we have a working simulation, it is also useful to do some analysis.
+Nhưng bây giờ khi đã có mô phỏng chạy được, việc tính toán bằng giải tích sẽ có ích.
 
 
-\section{Analysis}
+\section{Giải tích}
 \label{paper_analysis}
 
-The differential equations in Section~\ref{paper} are simple enough that we can just solve them.  Since angular velocity is constant:
+Các phương trình vi phân ở Mục~\ref{paper} đều đơn giản để có thể bắt tay vào giải ngay. Vì vận tốc góc là hằng số:
 %
 \[ \frac{d\theta}{dt} = \omega  \]
 %
-We can find $\theta$ as a function of time by integrating both sides:
+nên ta có thể tìm $\theta$ dưới dạng hàm thời gian bằng cách lấy tích phân cả hai vế:
 %
 \[ \theta(t) = \omega t + C_1 \]
 %
-With the initial condition $\theta(0)=0$,  we find $C_1=0$.  Similarly,
+Với điều kiện đầu $\theta(0)=0$,  ta được $C_1=0$.  Tương tự,
 %
 \begin{equation}
 \frac{dr}{dt} = k \omega                    \label{eqn1}
 \end{equation}
 %
-So
+Do vậy
 %
 \[ r(t) = k \omega t + C_2 \]
 %
-With the initial condition $r(0)=R_{min}$,  we find $C_2=R_{min}$.  Then we can plug the solution for $r$ into the equation for $y$:
+Với điều kiện đầu $r(0)=R_{min}$,  ta tìm được $C_2=R_{min}$.  Khi đó ta có thể thế nghiệm cho $r$ vào phương trình của $y$:
 %
 \begin{align}
 \frac{dy}{dt} & = r \omega                    \label{eqn2}   \\
@@ -7061,50 +7062,50 @@ With the initial condition $r(0)=R_{min}$,  we find $C_2=R_{min}$.  Then we can 
 \end{align}
 %
 %
-Integrating both sides yields:
+Lấy tích phân cả hai vế, ta được:
 %
 \[ y(t) = \left[ k \omega t^2 / 2 + R_{min} t \right] \omega + C_3\]
 %
-So $y$ is a parabola, as you might have guessed.  With initial condition $y(0)=0$, we find $C_3=0$.
+Như vậy $y$ là một đường parabol, như bạn đã đoán trước. Với điều kiện đầu $y(0)=0$, ta tìm được $C_3=0$.
 
-\index{analysis}
-\index{integration}
+\index{giải tích}
+\index{tích phân}
 
-We can also use these equations to find the relationship between $y$ and $r$, independent of time, which we can use to compute $k$.  Using a move we saw in Section~\ref{contact}, I'll divide Equations~\ref{eqn1} and \ref{eqn2}, yielding
+Ta cũng có thể dùng các phương trình này để tìm mối quan hệ giữa $y$ và $r$, độc lập theo thời gian, để từ đó có thể tính ra $k$.  Bằng một thao tác như đã thấy ở Mục~\ref{contact}, tôi sẽ lấy PT~\ref{eqn1} chia PT \ref{eqn2}, để thu được
 %
 \[ \frac{dr}{dy} = \frac{k}{r}\]
 %
-Separating variables yields
+Phân li biến số, ta được 
 %
 \[ r~dr = k~dy\]
 %
-Integrating both sides yields
+Lấy tích phân cả hai vế, ta được 
 %
 \[ r^2 / 2 = k y + C \]
 %
-When $y=0$, $r=R_{min}$, so
+Khi $y=0$, $r=R_{min}$, do vậy
 %
 \[ C = \frac{1}{2} R_{min}^2 \]
 %
-Solving for $y$, we have
+Giải để tìm $y$, ta được
 %
 \begin{equation}
 y = \frac{1}{2k} (r^2 - R_{min}^2)                 \label{eqn3}
 \end{equation}
 %
-When $y=L$, $r=R_{max}$; substituting in those values yields
+Khi $y=L$, $r=R_{max}$; thay thế các giá trị này, ta được 
 %
 \[ L = \frac{1}{2k} (R_{max}^2 - R_{min}^2) \]
 %
-Solving for $k$ yields
+Giải để tìm $k$, ta được 
 %
 \begin{equation}
 k =  \frac{1}{2L} (R_{max}^2 - R_{min}^2)           \label{eqn4}
 \end{equation}
 %
-Plugging in the values of the parameters yields \py{2.8e-5} \si{\meter\per\radian}, the same as the ``estimate" we computed in Section~\ref{papersim}.  In this case the estimate turns out to be exact.
+Thay các giá trị tham số vào, ta được \py{2.8e-5} \si{\meter\per\radian}, đúng bằng với trị số ``ước tính" như ở Mục~\ref{papersim}.  Trong trường hợp này, ước tính là hoàn toàn chính xác.
 
-In the next chapter, we'll run the simulation the other way, unrolling the paper.
+Ở chương tiếp theo, ta sẽ chạy mô phỏng bằng cách khác, tháo cuộn giấy.
 
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap24.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
