@@ -7110,112 +7110,104 @@ Thay các giá trị tham số vào, ta được \py{2.8e-5} \si{\meter\per\radi
 Trước khi tiếp tục, bạn có thể muốn đọc cuốn tập lệnh cho chương này, \py{chap24.ipynb}, và làm các bài tập.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
-\chapter{Torque}
+\chapter{Mô-men xoắn}
 \label{chap25}
 
-In the previous chapter we modeled a scenario with constant angular velocity.  In this chapter we make it more complex; we'll model a teapot, on a turntable, revolving with constant angular acceleration and deceleration.
+Ở chương trước, ta đã mô hình hoá kịch bản với vận tốc góc là hằng số. Ở chương này ta sẽ giải bài toán phức tạp hơn: ta sẽ mô hình hoá một ấm trà đặt trên bàn xoay với gia tốc góc là hằng số.
 
 
-\section{Angular acceleration}
+\section{Gia tốc góc}
 
-\index{angular acceleration}
-\index{torque}
+\index{gia tốc góc}
+\index{mô-men xoắn}
 
-Just as linear acceleration is the derivative of velocity, {\bf angular acceleration} is the derivative of angular velocity.  And just as linear acceleration is caused by force, angular acceleration is caused by the rotational version of force, {\bf torque}.  If you are not familiar with torque, you can read about it at \url{http://modsimpy.com/torque}.
+Cũng như gia tốc dài là đạo hàm của vận tốc, thì {\bf gia tốc góc} là đạo hàm của vận tốc góc. Và cũng như gia tốc dài gây ra do lực, thì gia tốc góc gây bởi một dạng lực quay mà ta gọi là {\bf mô-men xoắn}.  Nếu chưa quen với mô-men xoắn, bạn có thể đọc thêm thông tin từ \url{http://modsimpy.com/torque}.
 
-In general, torque is a vector quantity, defined as the {\bf cross product} of $\vec{r}$ and $\vec{F}$, where $\vec{r}$ is the {\bf lever arm}, a vector from the point of rotation to the point where the force is applied, and $\vec{F}$ is the vector that represents the magnitude and direction of the force.
+Nhìn chung, mô-men xoắn là một đại lượng vec-tơ. Nó được định nghĩa là {\bf tích chéo} giữa $\vec{r}$ và $\vec{F}$, trong đó $\vec{r}$ là {\bf tay đòn}, một vec-tơ kéo từ tâm quay tới điểm đặt lực, còn $\vec{F}$ là vec-tơ biểu thị độ lớn và hướng của lực.
 
 \index{vector}
-\index{lever arm}
-\index{cross product}
+\index{tay đòn}
+\index{tích chéo}
 
-However, for the problems in this chapter, we only need the {\em magnitude} of torque; we don't care about the direction.  In that case, we can compute
+Tuy nhiên với bài toán ở chương này, ta chỉ cần mỗi {\em độ lớn} của mô-men xoắn mà không quan tâm tới hướng. Khi đó, ta có thể tính 
 %
 \[ \tau = r F \sin \theta \]
 %
-where $\tau$ is torque, $r$ is the length of the lever arm, $F$ is the magnitude of force, and $\theta$ is the angle between $\vec{r}$ and $\vec{F}$.  
+trong đó $\tau$ là mô-men xoắn, $r$ là chiều dài tay đòn, $F$ là độ lớn lực tác dụng, còn $\theta$ là góc giữa $\vec{r}$ và $\vec{F}$.  
 
-\index{magnitude}
+\index{độ lớn}
 
-Since torque is the product of a length and a force, it is expressed in newton meters (\si{\newton\meter}).
+Vì mô-men xoắn là tích số giữa chiều dài và lực, nên nó được biểu diễn bằng newton-mét (\si{\newton\meter}).
 
 
-\section{Moment of inertia}
+\section{Mô-men quán tính}
 
-In the same way that linear acceleration is related to force by Newton's second law of motion, $F=ma$, angular acceleration is related to torque by another form of Newton's law:
+Tương tự như cách mà gia tốc dài có liên hệ với lực qua định luật II Newton về chuyển động, $F=ma$, gia tốc góc lại liên hệ với mô-men xoắn qua dạng khác của định luật Newton:
 %
 \[ \tau = I \alpha \]
 %
-Where $\alpha$ is angular acceleration and $I$ is {\bf moment of inertia}.  Just as mass is what makes it hard to accelerate an object\footnote{That might sound like a dumb way to describe mass, but its actually one of the fundamental definitions.}, moment of inertia is what makes it hard to spin an object.
+trong đó $\alpha$ là gia tốc góc còn $I$ là {\bf mô-men quán tính}.  Cũng như khối lượng là thứ khiến cho việc gia tốc vật thể trở nên khó khăn\footnote{Cách nói này có vẻ thô thiển khi diễn tả khối lượng, song đó lại là một trong những định nghĩa cơ bản nhất.}, thì mô-men quán tính là thứ khiến cho việc quay vật thể trở nên khó khăn.
 
-\index{mass}
-\index{moment of inertia}
+\index{khối lượng}
+\index{mô-men quán tính}
 
-In the most general case, a 3-D object rotating around an arbitrary axis, moment of inertia is a tensor, which is a function that takes a vector as a parameter and returns a vector as a result.
+Trong trường hợp tổng quát nhất, vật thể 3 chiều quay xung quanh một trục bất kì, thì mô-men quán tính là một ten-xơ, nghĩa là một hàm nhận vec-tơ làm tham số rồi trả kết quả cũng là một vec-tơ.
 
-\index{tensor}
+\index{ten-xơ}
 
-Fortunately, in a system where all rotation and torque happens around a single axis, we don't have to deal with the most general case.  We can treat moment of inertia as a scalar quantity.
+Thật may là trong hệ thống mà tất cả phép quay và xoắn xảy ra quanh một trục thì ta sẽ không phải xử lý tình huống tổng quát nhất. Khi đó, ta có thể coi mô men quán tính như một đại lượng vô hướng.
 
-\index{scalar}
+\index{vô hướng}
 
-For a small object with mass $m$, rotating around a point at distance $r$, the moment of inertia is $I = m r^2$, in SI units \si{\kilogram\meter\squared}.  For more complex objects, we can compute $I$ by dividing the object into small masses, computing moments of inertia for each mass, and adding them up.
+Với một vật thể nhỏ có khối lượng $m$, quay xung quanh một điểm giữ khoảng cách $r$, mô-men quán tính là $I = m r^2$, theo đơn vị SI là \si{\kilogram\meter\squared}.  Với những vật thể phức tạp hơn, ta có thể tính $I$ bằng cách chia vật thành nhiều khối lượng nhỏ, tính mô men quán tính cho từng khối lượng rồi cộng gộp kết quả lại.
 
-However, for most simple shapes, people have already done the calculations; you can just look up the answers.  For example, see \url{http://modsimpy.com/moment}.
+Tuy nhiên, với những vật thể đơn giản nhất, người ta đã tính sẵn cho bạn rồi; chỉ cần tra tìm kết quả. Chẳng hạn, hãy xem ở \url{http://modsimpy.com/moment}.
 
 
-\section{Teapots and turntables}
+\section{Ấm trà và bàn xoay}
 
-Tables in Chinese restaurants often have a rotating tray or turntable
-that makes it easy for customers to share dishes. These turntables are
-supported by low-friction bearings that allow them to turn easily and
-glide. However, they can be heavy, especially when they are loaded with
-food, so they have a high moment of inertia.
+Những chiếc bàn có trong nhà ăn Trung Quốc thường lắp mặt bàn xoay được để thực khác dễ dàng ăn chung món. Mặt bàn kiểu như vậy được đỡ bởi những khớp giảm ma sát cho phép chúng dễ dàng quay và trượt. Tuy vậy thì những khớp này có thể nặng và đặc biệt khi bàn đặt nhiều đồ ăn, khiến cho chúng có mô-men quán tính lớn.
 
-\index{teapot}
-\index{turntable}
+\index{ấm trà}
+\index{bàn xoay}
 
-Suppose I am sitting at a table with a pot of tea on the turntable
-directly in front of me, and the person sitting directly opposite asks
-me to pass the tea. I push on the edge of the turntable with \SI{1}{\newton} of force until it has turned \SI{0.5}{\radian}, then let go. The turntable glides until it comes to a stop \SI{1.5}{\radian} from the starting position. How much force should I apply for a second push so the teapot glides to a
-stop directly opposite me?
+Giả dụ tôi đang ngồi cạnh bàn xoay có đặt ấm trà trên đó, và người ngồi đối diện nhờ tôi chuyển tách trà. Tôi đẩy cạnh bàn xoay với một lực bằng \SI{1}{\newton} đến khi nó quay được \SI{0.5}{\radian}, rồi nhấc tay ra. bàn xoay vẫn tiếp tục lướt đi cho đến tận lúc dừng lại ở vị trí \SI{1.5}{\radian} từ vị trí ban đầu. Hỏi tôi cần phải tác dụng lực thứ hai bằng bao nhiêu để bàn có thể quay và dừng lại ở ví trị đối diện với tôi?
 
-\index{force}
+\index{lực}
 \index{Newton}
-\index{friction}
+\index{ma sát}
 
-We'll answer this question in these steps:
+Ta sẽ giải đáp câu hỏi này theo các bước sau đây:
 
 \begin{enumerate}
 
 \item
-  I'll use the results from the first push to estimate the coefficient
-  of friction for the turntable.
+  Tôi sẽ dùng kết quả từ lần đẩy thứ nhất để ước tính hệ số ma sát 
+  của bàn xoay.
 
 \item
-  As an exercise, you'll use that coefficient of friction to estimate the force needed to rotate the turntable through the remaining angle.
+  Bạn hãy thử dùng hệ số ma sát đó để ước tính lực cần để quay bàn xoay tiếp góc còn lại.
 
 \end{enumerate}
 
-Our simulation will use the following parameters:
+Mô phỏng của ta sẽ cần những tham số sau:
 
 \begin{enumerate}
 \item
-  The radius of the turntable is \SI{0.5}{\meter}, and its weight is \SI{7}{\kg}.
+  Bán kính của bàn quay là \SI{0.5}{\meter}, cùng với khối lượng \SI{7}{\kg}.
 \item
-  The teapot weights \SI{0.3}{\kg}, and it sits \SI{0.4}{\meter} from the center of
-  the turntable.
+  Ấm trà nặng \SI{0.3}{\kg}, và nó nằm cách tâm bàn xoay một khoảng \SI{0.4}{\meter}.
 \end{enumerate}
 
 \begin{figure}
 \centerline{\includegraphics[height=2.5in]{figs/teapot.pdf}}
-\caption{Diagram of a turntable with a teapot.}
+\caption{Sơ đồ bàn xoay với ấm trà.}
 \label{teapot}
 \end{figure}
 
-Hình~\ref{teapot} shows the scenario, where $F$ is the force I apply to the turntable at the perimeter, perpendicular to the moment arm, $r$, and $\tau$ is the resulting torque. The blue circle near the bottom is the teapot.
+Hình~\ref{teapot} cho thấy kịch bản này, trong đó $F$ là lực tác dụng vào bàn xoay ở chu vi của nó, lực này vuông góc với tay đòn, $r$, còn $\tau$ là mô-men xoắn hình thành. Vòng tròn màu xanh gần đáy là ấm trà.
 
-Here's a \py{Params} object with these values
+Sau đây là đối tượng \py{Params} với những gía trị nêu trên
 
 \begin{python}
 params = Params(radius_disk=0.5*m,
@@ -7227,10 +7219,10 @@ params = Params(radius_disk=0.5*m,
                 theta_end=0.5*radian)
 \end{python}
 
-\index{Params object}
+\index{Params, đối tượng}
 
-\py{make_system} creates the initial state, \py{init}, and
-computes the total moment of inertia for the turntable and the teapot.
+\py{make_system} tạo nên trạng thái ban đầu, \py{init}, rồi
+tính toán tổng mô-men quán tính của bàn xoay cùng ấm trà.
 
 \begin{python}
 def make_system(params):
@@ -7247,25 +7239,25 @@ def make_system(params):
 
 %\index{make_system}
 
-\py{theta} represents the initial angle of the table, in \si{\radian}; \py{omega} represents the angular velocity in \si{\radian\per\second}.
+\py{theta} biểu diễn góc ban đầu của bàn, theo \si{\radian}; \py{omega} biểu diễn vận tốc góc theo \si{\radian\per\second}.
 
-\py{I_disk} is the moment of inertia of the turntable, which is based on the moment of inertia for a horizontal disk revolving around a vertical axis through its center:
+\py{I_disk} là mô-men quán tính của bàn xoay, vốn dựa trên mô-men quán tính của đĩa đặt nằm ngang quay xung quanh một trục thẳng đứng qua tâm:
 %
 \[ I_{disk} = m r^2 / 2 \]
 %
-\py{I_pot} is the moment of inertia of the teapot, which I treat as a point mass with:
+\py{I_pot} là mô-men quán tính của ấm trà, mà tôi coi nó là điểm khối lượng có:
 %
 \[ I_{point} = m r^2 \]
 %
-Now we can make a \py{System} object:
+Bây giờ ta có thể lập đối tượng \py{System}:
 
 \begin{python}
 system1 = make_system(params)
 \end{python}
 
-\index{System object}
+\index{System, đối tượng}
 
-Here's a slope that takes the current state, which contains angle and angular velocity, and returns the derivatives, angular velocity and angular acceleration:
+Sau đây là độ dốc nhận vào vị trí hiện thời, vốn có chứa góc và vận tốc góc, rồi trả lại các đạo hàm là vận tốc góc và gia tốc góc:
 
 \begin{python}
 def slope_func(state, t, system):
@@ -7278,38 +7270,38 @@ def slope_func(state, t, system):
     return omega, alpha 
 \end{python}
 
-\index{slope function}
+\index{hàm độ dốc}
 
-In this scenario, the force I apply to the turntable is always perpendicular to the lever arm, so $\sin \theta = 1$ and the torque due to force is $\tau = r F$.
+Trong kịch bản này, lực áp dụng lên bàn xoay luôn đặt vuông góc với tay đòn lực, bởi vậy $\sin \theta = 1$ và mô-men xoắn do lực này gây ra sẽ là $\tau = r F$.
 
-In a more detailed model, I might quantify force due to friction and the moment arm of that force, but that's not really necessary; instead, I chose to quantify torque due to friction, leaving out the details.
+Trong một mô hình chi tiết hơn, tôi có thể lượng hoá lực gây ra bởi ma sát và tay đòn tương ứng, song điều đó không thực sự cần thiết. Thay vì vậy, tôi sẽ chọn cách lượng hoá mo-men xoắn do ma sát mà lược bớt những chi tiết phức tạp.
 
-\index{friction}
+\index{ma sát}
 
-Now we are ready to run the simulation, but first there's a problem we have to address.
+Bây giờ ta đã sẵn sàng chạy mô phỏng rồi, song còn một vấn đề cần giải quyết nữa.
 
-When I stop pushing on the turntable, the angular acceleration changes
-abruptly. We could implement the slope function with an \py{if}
-statement that checks the value of \py{theta} and sets
-\py{force} accordingly. And for a coarse model like this one, that
-might be fine. But we will get more accurate results if we simulate the
-system in two phases:
+Khi tôi ngừng đẩy bàn xoay, gia tốc góc đột ngột thay đổi. 
+Ta đã có thể lập trình hàm độ dốc bằng câu lệnh \py{if}
+nhằm kiểm tra giá trị của \py{theta} và đặt 
+\py{force} tương ứng. Đối với một mô hình đơn giản thế này,
+như vậy có lẽ là đủ. Nhưng tôi sẽ nhận được kết quả chính xác hơn 
+nếu như mô phỏng hệ thống qua hai giai đoạn:
 
 \begin{enumerate}
 \item
-  During the first phase, force is constant, and we run until
-  \py{theta} is 0.5 radians.
+  Trong giai đoạn thứ nhất, lực bằng hằng số, và ta chạy tới tận khi
+  \py{theta} bằng 0.5 radian.
 \item
-  During the second phase, force is 0, and we run until \py{omega}
-  is 0.
+  Trong giai đoạn thứ hai, lực bằng 0, và ta chạy tới tận khi \py{omega}
+  bằng 0.
 \end{enumerate}
 
-Then we can combine the results of the two phases into a single
-\py{TimeFrame}.
+Sau đó ta có thể kết hợp các kết quả từ hai giai đoạn trên vào thành một
+\py{TimeFrame} duy nhất.
 
-\index{two-phase simulation}
+\index{mô phỏng hai giai đoạn}
 
-Here's the event function I'll use for Phase 1; it stops the simulation when \py{theta} reaches \py{theta_end}, which is when I stop pushing:
+Sau đây là hàm sự kiện mà tôi sẽ dùng cho giai đoạn 1; nó dừng mô hponrg khi \py{theta} đạt tới \py{theta_end}, là lúc tôi ngừng đẩy bàn xoay:
 
 \begin{python}
 def event_func1(state, t, system):
@@ -7318,7 +7310,7 @@ def event_func1(state, t, system):
     return theta - theta_end 
 \end{python}
 
-Now we can run the first phase.
+Bây giờ ta có thể chạy giai đoạn thứ nhất.
 
 \begin{python}
 results1, details1 = run_ode_solver(system1, slope_func,
@@ -7328,16 +7320,16 @@ results1, details1 = run_ode_solver(system1, slope_func,
 %\index{run_ode_solver}
 %\index{max_step}
 
-Again, I specify \py{max_step} so the results look smoother when I plot them, at the cost of some extra computation.
+Một lần nữa, tôi chỉ định \py{max_step} để kết quả trông có vẻ mượt hơn khi vẽ lên biểu đồ, đổi lại tôi phải tính kĩ hơn một chút.
 
 \begin{figure}
 \centerline{\includegraphics[height=4.0in]{figs/chap25-fig01.pdf}}
-\caption{Angle and angular velocity of a turntable with applied force and friction.}
+\caption{Góc và vận tốc góc của bàn xoay theo lực tác dụng và ma sát.}
 \label{chap25-fig01}
 \end{figure}
 
-Before we run the second phase, we have to extract the final time and
-state of the first phase.
+Trước khi chạy giai đoạn thứ hai, ta phải kết xuất thời điểm cuối và
+trạng thái của giai đoạn một.
 
 \begin{python}
 t_0 = get_last_label(results1) * s
@@ -7345,7 +7337,7 @@ theta, omega = get_last_value(results1)
 init2 = State(theta=theta*radian, omega=omega*radian/s)
 \end{python}
 
-Now we can make a \py{System} object for Phase 2, with the initial state from Phase 1, and with \py{force=0}.
+Bây giờ ta có thể lập một đối tượng \py{System} cho Giai đoạn 2, với trạng thái ban đầu lấy từ Giai đoạn 1, và với \py{force=0}.
 
 %\index{get_last_label}
 %\index{get_last_value}
@@ -7354,7 +7346,7 @@ Now we can make a \py{System} object for Phase 2, with the initial state from Ph
 system2 = System(system1, t_0=t_0, init=init2, force=0)
 \end{python}
 
-For the second phase, we need an event function that stops when the turntable stops; that is, when angular velocity is 0.
+Với giai đoạn hai, ta cần một hàm sự kiện để dừng tính toán khi bàn xoay dừng lại; đó là khi vận tốc góc bằng 0.
 
 \begin{python}
 def event_func2(state, t, system):
@@ -7362,15 +7354,15 @@ def event_func2(state, t, system):
     return omega
 \end{python}
 
-Now we can run the second phase.
+Bây giờ ta có thể chạy giai đoạn thứ hai.
 
 \begin{python}
 results2, details2 = run_ode_solver(system2, slope_func,
                          events=event_func2, max_step=0.1*s)
 \end{python}
 
-Pandas provides \py{combine_first}, which combines
-\py{results1} and \py{results2}.
+Pandas cung cấp cho ta \py{combine_first}, hàm này giúp kết hợp
+\py{results1} với \py{results2}.
 
 \index{Pandas}
 
@@ -7378,46 +7370,46 @@ Pandas provides \py{combine_first}, which combines
 results = results1.combine_first(results2)
 \end{python}
 
-Hình~\ref{chap25-fig01} shows the results.  Angular velocity, \py{omega}, increases linearly while I am pushing, and decreases linearly after I let go.  The angle, \py{theta}, is the integral of angular velocity, so it forms a parabola during each phase.
+Hình~\ref{chap25-fig01} cho thấy kết quả. Vận tốc góc \py{omega} tăng tuyến tính khi tôi đẩy bàn, và giảm tuyến tính khi tôi buông tay. Góc quay \py{theta} là tích phân của vận tốc góc, bởi vậy nó vạch nên một đường parabol trong từng giai đoạn.
 
-In the next section, we'll use this simulation to estimate the torque due to friction.
+Ở mục kết tiếp, ta sẽ dùng mô phỏng này để ước tính mô-men xoắn do ma sát.
 
 
-\section{Estimating friction}
+\section{Ước tính ma sát}
 
-Let's take the code from the previous section and wrap it in a function.
+Bây giờ hãy lấy mã lệnh từ mục trước rồi gói nó vào trong một hàm.
 
-\index{function}
+\index{hàm}
 
 \begin{python}
 def run_two_phases(force, torque_friction, params):
     params = Params(params, force=force, 
                     torque_friction=torque_friction)
 
-    # run phase 1
+    # chạy Giai đoạn 1
     system1 = make_system(params)
     results1, _ = run_ode_solver(system1, slope_func,
                       events=event_func1, max_step=0.1*s)
 
-    # get the final state from phase 1
+    # lấy trạng thái cuối từ Giai đoạn 1
     t_0 = get_last_label(results1) * s
     theta, omega = get_last_value(results1)
     init2 = State(theta=theta, omega=omega)
     
-    # run phase 2
+    # chạy Giai đoạn 2
     system2 = System(system1, t_0=t_0, init=init2, force=0)
     results2, _ = run_ode_solver(system2, slope_func,
                       events=event_func2, max_step=0.1*s)
     
-    # combine and return the results
+    # kết hợp và trả lại kết quả 
     results = results1.combine_first(results2)
     return results
 \end{python}
 
-Now we can use \py{run_two_phases} to write an error function we can use, with \py{fsolve}, to find the torque due to friction that yields the observed results from the first push, a total rotation of \SI{1.5}{\radian}.
+Bây giờ ta có thể dùng \py{run_two_phases} để viết một hàm sai số mà ta có thể dùng, với \py{fsolve}, nhằm tìm ra mô-men xoắn do ma sát để cho ta kết quả quan sát thấy từ lần quay thứ nhất, với tổng góc quay là \SI{1.5}{\radian}.
 
 \index{\py{fsolve}}
-\index{error function}
+\index{hàm sai số}
 
 \begin{python}
 def error_func1(torque_friction, params):
@@ -7428,13 +7420,13 @@ def error_func1(torque_friction, params):
     return theta_final - 1.5
 \end{python}
 
-But before we call \py{fsolve}, we have to deal with a problem.  In order to support computation with units, the \py{modsim} library uses a certain amount of black magic.  With most units, the magic works pretty well, but some units are problematic, including Newtons.
+Nhưng trước khi gọi \py{fsolve}, ta phải giải quyết một vấn đề. Nhằm hỗ trợ tính toán với các đơn vị, thư viện \py{modsim} đã dùng tới ít nhiều luật bất thành văn. Với hầu hết các đơn vị thì luật ngầm đó vẫn hiệu lực tốt, nhưng có những đơn vị như Newton thì chưa được chuẩn xác.
 
 \index{\py{fsolve}}
 
-However, now that we have a working simulation, and some confidence that it is correct, it is less important to carry units through the computation.
+Tuy vậy, bây giờ khi đã có trong tay mô phỏng chạy được rồi, và đã phần nào tin tưởng nó hoạt động đúng, thì sẽ không nhất thiết phải kè kè mang theo đơn vị trong quá trình tính toán nữa.
 
-We can drop them by creating a new \py{Params} object with the same values and no units.  The \py{modsim} library provides \py{remove_unit}, which does just that.
+Lúc này ta có thể buông bỏ đơn vị bằng cách tạo ra đối tượng \py{Params} mới chứa cùng giá trị mà không có đơn vị. Thư viện \py{modsim} cung cấp \py{remove_unit}, chỉ để làm nhiệm vụ này.
 
 \begin{python}
 params_nodim = remove_units(params)
@@ -7442,12 +7434,12 @@ params_nodim = remove_units(params)
 
 %\index{remove_units}
 
-The rest of the code works without modification, in part because I designed it to keep almost all of the units in one place.
+Phần mã lệnh còn lại sẽ chạy được y nguyên không cần thay đổi, một phần lí do vì tôi đã thiết kế mã lệnh để giữ hầu hết đơn vị ở cùng một chỗ.
 
-Now we can use \py{fsolve} to estimate torque due to friction.
+Bây giờ ta có thể dùng \py{fsolve} để ước tính mô-men xoắn do ma sát.
 
-\index{torque}
-\index{friction}
+\index{mô-men xoắn}
+\index{ma sát}
 \index{\py{fsolve}}
 
 \begin{python}
@@ -7455,11 +7447,11 @@ guess = 0.2
 res = fsolve(error_func1, guess, params_nodim)
 \end{python}
 
-The result is \SI{0.166}{\newton\meter}, a little less than the initial guess.
+Kết quả bằng \SI{0.166}{\newton\meter}, nhỏ hơn đôi chút so với ước tính ban đầu.
 
-Now that we know the torque due to friction, we can compute the force needed to rotate the turntable through the remaining angle, that is, from \SI{1.5}{\radian} to \SI{3.14}{\radian}.
+Bây giờ khi đã biết mô-men xoắn do ma sát, ta có thể tính lực cần để đẩy bàn quay nốt góc còn lại, nghĩa là từ \SI{1.5}{\radian} đến \SI{3.14}{\radian}.
 
-In the notebook for this chapter, \py{chap25.ipynb}, you will have a chance to finish off the exercise.  Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
+Ở cuốn tập lệnh cho chương này, \py{chap25.ipynb}, bạn sẽ có dịp hoàn thành bài tập này. Để biết về chỉ dẫn cách tải về và chạy mã lệnh, hãy xem Mục~\ref{code}.
 
 
 \chapter{Case studies}
